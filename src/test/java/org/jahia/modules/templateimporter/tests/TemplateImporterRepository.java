@@ -47,6 +47,7 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement projectDescriptionField = findByXpath("//textarea[@ng-model='ic.projectDescription']");
         WebElement projectZipFileField = findByXpath("//input[@type='file']");
         WebElement importButton = findByXpath("//button[@aria-label='Import']");
+        WebElement dialogueBox = findByXpath("//div[@class='md-dialog-container ng-scope']");
 
         createWaitDriver(5, 500).until(CustomExpectedConditions.javascriptWithoutException(jsToEnableInput));
         typeInto(projectNameField, projectName);
@@ -60,6 +61,8 @@ public class TemplateImporterRepository extends ModuleTest {
                 "All fields are filled, but 'Import' button is disabled. Cannot import a project. Check if project name is unique.");
         clickOn(importButton);
         waitForGlobalSpinner();
+        waitForElementToDisappear(dialogueBox, 7);
+        waitForElementToDisappear(importButton, 7);
         Assert.assertEquals(
                 isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 5),
                 true,
@@ -77,7 +80,7 @@ public class TemplateImporterRepository extends ModuleTest {
         field.sendKeys(text);
     }
 
-    public void waitForGlobalSpinner() {
+    protected void waitForGlobalSpinner() {
         List<WebElement> spinners = new LinkedList<WebElement>();
 
         try {
@@ -91,6 +94,33 @@ public class TemplateImporterRepository extends ModuleTest {
             }
         } catch (TimeoutException e) {
         }
+    }
+
+    /**
+     * Delete all projects
+     * @return amount of deleted projects
+     */
+    protected int deleteAllProjects(){
+        int projectsRemoved = 0;
+        List<WebElement> projectsBeforeDeletion = findElementsByXpath("//md-card");
+
+        WebElement selectAllCheckbox = findByXpath("//md-checkbox[@aria-label='Select all']/div");
+        WebElement removeSelectedBtn = findByXpath("//button[@aria-label='Remove Selected Project']");
+
+        clickOn(selectAllCheckbox);
+        waitForElementToBeEnabled(removeSelectedBtn, 7);
+        clickOn(removeSelectedBtn);
+
+        WebElement confirmRemovalBtn = findByXpath("//button[@aria-label='Remove']");
+        clickOn(confirmRemovalBtn);
+        waitForElementToDisappear(confirmRemovalBtn, 10);
+
+        for (WebElement project : projectsBeforeDeletion) {
+            waitForElementToBeInvisible(project);
+            projectsRemoved++;
+        }
+
+        return projectsRemoved;
     }
 
     /**
