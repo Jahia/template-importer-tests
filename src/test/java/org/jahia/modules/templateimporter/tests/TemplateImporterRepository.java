@@ -1,13 +1,17 @@
 package org.jahia.modules.templateimporter.tests;
 
+import org.apache.commons.io.FileUtils;
 import org.jahia.modules.tests.core.ModuleTest;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -60,7 +64,7 @@ public class TemplateImporterRepository extends ModuleTest {
                 true,
                 "All fields are filled, but 'Import' button is disabled. Cannot import a project. Check if project name is unique.");
         clickOn(importButton);
-        waitForGlobalSpinner();
+        waitForGlobalSpinner(1);
         waitForElementToDisappear(dialogueBox, 7);
         waitForElementToDisappear(importButton, 7);
         Assert.assertEquals(
@@ -80,12 +84,12 @@ public class TemplateImporterRepository extends ModuleTest {
         field.sendKeys(text);
     }
 
-    protected void waitForGlobalSpinner() {
+    protected void waitForGlobalSpinner(int secondsToWait) {
         List<WebElement> spinners = new LinkedList<WebElement>();
 
         try {
-            WebElement tiOverlay = findByXpath("//div[@class='ti-overlay']");
-            WebElement spinner = findByXpath("//div[@class='ti-global-spinner']");
+            WebElement tiOverlay = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay']")));
+            WebElement spinner = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-global-spinner']")));
             spinners.add(spinner);
             spinners.add(tiOverlay);
 
@@ -100,7 +104,7 @@ public class TemplateImporterRepository extends ModuleTest {
      * Delete all projects
      * @return amount of deleted projects
      */
-    protected int deleteAllProjects(){
+    protected int deleteAllProjects() {
         int projectsRemoved = 0;
         List<WebElement> projectsBeforeDeletion = findElementsByXpath("//md-card");
 
@@ -116,8 +120,10 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToDisappear(confirmRemovalBtn, 10);
 
         for (WebElement project : projectsBeforeDeletion) {
-            waitForElementToBeInvisible(project);
-            projectsRemoved++;
+            boolean isDeleted = waitForElementToBeInvisible(project);
+            if (isDeleted) {
+                projectsRemoved++;
+            }
         }
 
         return projectsRemoved;
@@ -136,5 +142,26 @@ public class TemplateImporterRepository extends ModuleTest {
             word.append((char) ('a' + random.nextInt(26)));
         }
         return word.toString();
+    }
+
+    protected void cleanDownloadsFolder() {
+        String downloadsFolderPath = new File(getDownloadsFolder()).getAbsolutePath();
+
+        try {
+            FileUtils.cleanDirectory(new File(downloadsFolderPath));
+        } catch (IOException e) {
+            getLogger().error(e.getMessage());
+        } catch (IllegalArgumentException ee){
+            getLogger().error(ee.getMessage());
+        }
+    }
+
+    /**
+     * AfterClass method, deletes all projects, clean Downloads folder.
+     */
+    protected void customTestCleanUp(){
+        goToProjectsList("en");
+        deleteAllProjects();
+        cleanDownloadsFolder();
     }
 }
