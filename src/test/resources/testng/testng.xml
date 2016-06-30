@@ -5,6 +5,7 @@
     <test name="TemplateImporterTests" preserve-order="true">
         <classes>
             <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.ImportTest"/>
+            <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.DeletProjectTest"/>
         </classes>
     </test>
 </suite>
