@@ -8,7 +8,6 @@ import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,6 +44,7 @@ public class TemplateImporterRepository extends ModuleTest {
                 "fileInput.setAttribute(\"style\", \"\");";
 
         goToProjectsList(locale);
+        waitForGlobalSpinner(1);
         WebElement importProjectButton = findByXpath("//button[contains(., 'Import Project')]");
         clickOn(importProjectButton);
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
@@ -89,9 +89,11 @@ public class TemplateImporterRepository extends ModuleTest {
 
         try {
             WebElement tiOverlay = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay']")));
+            WebElement tiOverlayContent = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay-content'']")));
             WebElement spinner = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-global-spinner']")));
             spinners.add(spinner);
             spinners.add(tiOverlay);
+            spinners.add(tiOverlayContent);
 
             for (WebElement elementToWait : spinners) {
                 waitForElementToBeInvisible(elementToWait);
