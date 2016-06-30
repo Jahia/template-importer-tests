@@ -4,6 +4,7 @@
     <parameter name="browserName" value="firefox"/>
     <test name="TemplateImporterTests" preserve-order="true">
         <classes>
+            <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.ImportTest"/>
         </classes>
     </test>
 </suite>
