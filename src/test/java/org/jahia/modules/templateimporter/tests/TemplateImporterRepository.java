@@ -25,6 +25,7 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected void goToProjectsList(String locale){
         driver.get(getPath("/cms/adminframe/default/" + locale + "/settings.template-importer.html"));
+        waitForGlobalSpinner(1, 10);
     }
 
     /**
@@ -44,7 +45,6 @@ public class TemplateImporterRepository extends ModuleTest {
                 "fileInput.setAttribute(\"style\", \"\");";
 
         goToProjectsList(locale);
-        waitForGlobalSpinner(1);
         WebElement importProjectButton = findByXpath("//button[contains(., 'Import Project')]");
         clickOn(importProjectButton);
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
@@ -64,7 +64,8 @@ public class TemplateImporterRepository extends ModuleTest {
                 true,
                 "All fields are filled, but 'Import' button is disabled. Cannot import a project. Check if project name is unique.");
         clickOn(importButton);
-        waitForGlobalSpinner(1);
+        //Increase second parameter here if import of large project fails
+        waitForGlobalSpinner(1, 45);
         waitForElementToDisappear(dialogueBox, 7);
         waitForElementToDisappear(importButton, 7);
         Assert.assertEquals(
@@ -84,19 +85,24 @@ public class TemplateImporterRepository extends ModuleTest {
         field.sendKeys(text);
     }
 
-    protected void waitForGlobalSpinner(int secondsToWait) {
+    /**
+     * Waits for several layers of global spinner to appear and than disappear
+     * @param secondsToWaitSpinnerAppear int, amount of seconds to wait for global spinner elements to appear
+     * @param secondsToWaitSpinnerDisappear int, amount of seconds to wait for global spinner elements to disappear
+     */
+    protected void waitForGlobalSpinner(int secondsToWaitSpinnerAppear,  int secondsToWaitSpinnerDisappear) {
         List<WebElement> spinners = new LinkedList<WebElement>();
 
         try {
-            WebElement tiOverlay = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay']")));
-            WebElement tiOverlayContent = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay-content'']")));
-            WebElement spinner = createWaitDriver(secondsToWait, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-global-spinner']")));
+            WebElement tiOverlay = createWaitDriver(secondsToWaitSpinnerAppear, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay']")));
+            WebElement tiOverlayContent = createWaitDriver(secondsToWaitSpinnerAppear, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay-content'']")));
+            WebElement spinner = createWaitDriver(secondsToWaitSpinnerAppear, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-global-spinner']")));
             spinners.add(spinner);
             spinners.add(tiOverlay);
             spinners.add(tiOverlayContent);
 
             for (WebElement elementToWait : spinners) {
-                waitForElementToBeInvisible(elementToWait);
+                waitForElementToBeInvisible(elementToWait, secondsToWaitSpinnerDisappear);
             }
         } catch (TimeoutException e) {
         }
@@ -108,27 +114,57 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected int deleteAllProjects() {
         int projectsRemoved = 0;
-        List<WebElement> projectsBeforeDeletion = findElementsByXpath("//md-card");
+        List<WebElement> projectsBeforeDeletion = null;
 
-        WebElement selectAllCheckbox = findByXpath("//md-checkbox[@aria-label='Select all']/div");
+        try {
+            projectsBeforeDeletion = createWaitDriver(2, 300).until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//md-card")));
+        }catch(TimeoutException e){}
+
+        if (projectsBeforeDeletion != null && projectsBeforeDeletion.size() > 0) {
+            WebElement selectAllCheckbox = findByXpath("//md-checkbox[@aria-label='Select all']/div");
+            WebElement removeSelectedBtn = findByXpath("//button[@aria-label='Remove Selected Project']");
+
+            clickOn(selectAllCheckbox);
+            waitForElementToBeEnabled(removeSelectedBtn, 7);
+            clickOn(removeSelectedBtn);
+
+            WebElement confirmRemovalBtn = findByXpath("//button[@aria-label='Remove']");
+            clickOn(confirmRemovalBtn);
+            waitForElementToDisappear(confirmRemovalBtn, 10);
+            waitForGlobalSpinner(1, 45);
+
+            for (WebElement project : projectsBeforeDeletion) {
+                boolean isDeleted = waitForElementToBeInvisible(project);
+                if (isDeleted) {
+                    projectsRemoved++;
+                }
+            }
+        }
+        return projectsRemoved;
+    }
+
+    /**
+     * Deletes project with given name. Throws assertion error if you try to delete project that does not exist
+     * @param projectName String, name of project to delete
+     * @return True if project was deleted, false if still visible after deletion.
+     */
+    protected boolean deleteProject(String projectName){
+        boolean isProjectDeleted;
         WebElement removeSelectedBtn = findByXpath("//button[@aria-label='Remove Selected Project']");
+        WebElement proectToDelete = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card");
+        WebElement checkboxToSelectProjectToDelete = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
 
-        clickOn(selectAllCheckbox);
+        Assert.assertNotNull(checkboxToSelectProjectToDelete, "Checkbox to delete a project '"+projectName+"' not found. Does project exist?");
+        clickOn(checkboxToSelectProjectToDelete);
         waitForElementToBeEnabled(removeSelectedBtn, 7);
         clickOn(removeSelectedBtn);
-
         WebElement confirmRemovalBtn = findByXpath("//button[@aria-label='Remove']");
         clickOn(confirmRemovalBtn);
         waitForElementToDisappear(confirmRemovalBtn, 10);
+        waitForGlobalSpinner(1, 45);
+        isProjectDeleted = waitForElementToBeInvisible(proectToDelete);
 
-        for (WebElement project : projectsBeforeDeletion) {
-            boolean isDeleted = waitForElementToBeInvisible(project);
-            if (isDeleted) {
-                projectsRemoved++;
-            }
-        }
-
-        return projectsRemoved;
+        return isProjectDeleted;
     }
 
     /**
