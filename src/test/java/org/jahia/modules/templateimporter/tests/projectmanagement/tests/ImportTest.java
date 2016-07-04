@@ -26,6 +26,7 @@ public class ImportTest extends TemplateImporterRepository {
                 isVisible(By.xpath("//*[@ng-if='p.description'][contains(., '"+projectDescription+"')]"), 7),
                 true,
                 "Project descriptions is not visible. Should be: "+projectDescription);
+        softAssert.assertAll();
     }
 
     //TI_S1C2
@@ -61,5 +62,6 @@ public class ImportTest extends TemplateImporterRepository {
                     true,
                     "Project descriptions is not visible. Should be: " + projectDescription);
         }
+        softAssert.assertAll();
     }
 }

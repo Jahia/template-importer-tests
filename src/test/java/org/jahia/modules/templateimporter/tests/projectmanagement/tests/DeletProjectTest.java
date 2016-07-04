@@ -3,8 +3,12 @@ package org.jahia.modules.templateimporter.tests.projectmanagement.tests;
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by sergey on 2016-06-29.
@@ -25,5 +29,34 @@ public class DeletProjectTest extends TemplateImporterRepository {
         softAssert.assertEquals(isVisible(By.xpath("//md-card-title-text[contains(., '"+projectToKeepName+"')]/ancestor::md-card"), 10),
                 true,
                 "Project with name '"+projectToKeepName+"' should not be deleted, but become invisible after another project deletion.");
+
+        softAssert.assertAll();
+    }
+
+    @Test
+    public void deleteAllProjectsTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(driver, "DeletProjectTest.deleteAllProjectsTest");
+        int projectsToImport = 5;
+        Map<String, String> projectsInfo = new HashMap<String, String>();
+
+        for(int i = 0; i < projectsToImport; i++) {
+            String projectName = randomWord(10);
+            String projectDescription = randomWord(1) + " " + randomWord(2) + " " + randomWord(3);
+
+            projectsInfo.put(projectName, projectDescription);
+
+            importProject("en", projectName, projectDescription, "AlexLevels.zip");
+        }
+
+        int projectsDeleted = deleteAllProjects();
+
+        for(String projectName: projectsInfo.keySet()){
+            softAssert.assertEquals(
+                    isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 1),
+                    false,
+                    "After importing several projects, cannot find name of one of them:"+ projectName);
+        }
+        softAssert.assertEquals(projectsDeleted, projectsToImport, "Amount of imported and deleted projects does not mach");
+        softAssert.assertAll();
     }
 }
