@@ -16,7 +16,7 @@ public class ImportTest extends TemplateImporterRepository {
     //Case TI_S1C1
     @Test
     public void importTest() {
-        SoftAssert softAssert = new SoftAssertWithScreenshot(driver, "ImportTest.importTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "ImportTest.importTest");
         String projectName = randomWord(10);
         String projectDescription = randomWord(25)+" "+randomWord(10)+" "+randomWord(3);
 
@@ -32,7 +32,7 @@ public class ImportTest extends TemplateImporterRepository {
     //TI_S1C2
     @Test
     public void importSeveralProjectsTest(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(driver, "ImportTest.importSeveralProjectsTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "ImportTest.importSeveralProjectsTest");
         int projectsToImport = 3;
         Map<String, String> projectsInfo = new HashMap<String, String>();
 

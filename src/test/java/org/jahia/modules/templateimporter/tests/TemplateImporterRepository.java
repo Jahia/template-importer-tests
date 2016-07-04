@@ -24,7 +24,7 @@ public class TemplateImporterRepository extends ModuleTest {
      * @param locale Is used as part of url to projects list.
      */
     protected void goToProjectsList(String locale){
-        driver.get(getPath("/cms/adminframe/default/" + locale + "/settings.template-importer.html"));
+        getDriver().get(getPath("/cms/adminframe/default/" + locale + "/settings.template-importer.html"));
         waitForGlobalSpinner(1, 10);
     }
 

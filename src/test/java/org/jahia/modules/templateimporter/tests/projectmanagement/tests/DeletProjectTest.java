@@ -17,7 +17,7 @@ public class DeletProjectTest extends TemplateImporterRepository {
     public void deleteProjectTest(){
         String projectToDeleteName = randomWord(7);
         String projectToKeepName = randomWord(5);
-        SoftAssert softAssert = new SoftAssertWithScreenshot(driver, "DeletProjectTest.deleteProjectTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "DeletProjectTest.deleteProjectTest");
 
         importProject("en", projectToDeleteName, "", "AlexLevels.zip");
         importProject("en", projectToKeepName, "", "AlexLevels.zip");
@@ -34,7 +34,7 @@ public class DeletProjectTest extends TemplateImporterRepository {
 
     @Test
     public void deleteAllProjectsTest(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(driver, "DeletProjectTest.deleteAllProjectsTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "DeletProjectTest.deleteAllProjectsTest");
         int projectsToImport = 5;
         Map<String, String> projectsInfo = new HashMap<String, String>();
 
