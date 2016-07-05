@@ -6,6 +6,7 @@
         <classes>
             <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.ImportTest"/>
             <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.DeletProjectTest"/>
+            <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.EditProject"/>
         </classes>
     </test>
 </suite>
