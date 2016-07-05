@@ -64,4 +64,26 @@ public class ImportTest extends TemplateImporterRepository {
         }
         softAssert.assertAll();
     }
+
+    //Case TI_S1C18
+    @Test
+    public void reimportProject(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "ImportTest.reimportProject");
+        String projectName = randomWord(10);
+        String projectDescription = randomWord(25)+" "+randomWord(10)+" "+randomWord(3);
+
+        importProject("en", projectName, projectDescription, "AlexLevels.zip");
+
+        softAssert.assertEquals(
+                isVisible(By.xpath("//*[@ng-if='p.description'][contains(., '"+projectDescription+"')]"), 7),
+                true,
+                "Project descriptions is not visible. Should be: "+projectDescription);
+        softAssert.assertEquals(
+                deleteProject(projectName),
+                true,
+                "Project was not deleted");
+        importProject("en", projectName, projectDescription, "AlexLevels.zip");
+
+        softAssert.assertAll();
+    }
 }
