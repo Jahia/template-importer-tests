@@ -1,6 +1,7 @@
 package org.jahia.modules.templateimporter.tests.projectmanagement.tests;
 
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
+import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -9,23 +10,25 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
+import java.io.File;
+
 /**
  * Created by sergey on 2016-07-04.
  */
 
-public class EditProject extends TemplateImporterRepository {
+public class EditProjectTest extends TemplateImporterRepository {
     /**
-     *
-     * @param isValidName
-     * @param isValidDescription
-     * @param modifiedName
-     * @param modifiedDescription
+     * Tests for editing the project details
+     * @param isValidName boolean, true if passing a valid project name
+     * @param isValidDescription boolean, true if passing a valid project description
+     * @param modifiedName String, new project name
+     * @param modifiedDescription String, new project description
      */
     @Test(dataProvider = "projectDetails")
     public void editProjectDescription(boolean isValidName, boolean isValidDescription, String modifiedName, String modifiedDescription) {
         String originalName = randomWord(9);
         String originalDescription = randomWord(15);
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "EditProject.editProjectDescription");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "EditProjectTest.editProjectDescription");
 
         importProject("en", originalName, originalDescription, "AlexLevels.zip");
         WebElement editProjectBtn = findByXpath("//md-card-title-text[contains(., '" + originalName + "')]/ancestor::md-card//button[@ng-click='pc.editProject($event, p)']");
@@ -100,7 +103,7 @@ public class EditProject extends TemplateImporterRepository {
         String originalDescription = randomWord(15);
         String modifiedName = randomWord(7);
         String modifiedDescription = randomWord(18);
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "EditProject.editAndCancel");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "EditProjectTest.editAndCancel");
 
         importProject("en", originalName, originalDescription, "AlexLevels.zip");
         WebElement editProjectBtn = findByXpath("//md-card-title-text[contains(., '" + originalName + "')]/ancestor::md-card//button[@ng-click='pc.editProject($event, p)']");
@@ -124,6 +127,62 @@ public class EditProject extends TemplateImporterRepository {
                 false,
                 "Project with modified name is found after cancelling renaming. New name.: " + originalName + " Old name.:" + modifiedName);
         softAssert.assertAll();
+    }
+
+    //TI_S1C17
+    @Test
+    public void changeProjectPicture(){
+        String projectName = randomWord(10);
+        String projectDescription = randomWord(22);
+
+        importProject("en", projectName, projectDescription, "AlexLevels.zip");
+        changeProjectPicture(projectName, "JumpingCat.gif");
+        changeProjectPicture(projectName, "FlowerCat.tif");
+        changeProjectPicture(projectName, "RaccoonCat.jpg");
+        changeProjectPicture(projectName, "TransparentBackgroundCat.png");
+    }
+
+    /**
+     * Changes project picture. To use that method you have to be on the projects list page
+     * @param projectName String, project name that you want to change picture for
+     * @param pictureFileName String, picture filename. picture has to be under "src/test/resources/testData/pictures" folder
+     */
+    protected void changeProjectPicture(String projectName, String pictureFileName){
+        String pictureFilePath = new File("src/test/resources/testData/pictures/"+pictureFileName).getAbsolutePath();
+        String jsToEnableInput = "function getElementByXpath(path) {" +
+                "return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
+                "}" +
+                "fileInput = getElementByXpath(\"//label[input[@type='file']]\");" +
+                "fileInput.setAttribute(\"style\", \"\");";
+
+        WebElement editImageBtn = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//button[@ng-click='pc.editImage($event, p, $index)']");
+        WebElement projectPictureElement = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//img[@alt='Project image']");
+        String oldImageLocation = projectPictureElement.getAttribute("src");
+
+        clickOn(editImageBtn);
+        WebElement saveImageBtn = findByXpath("//button[@aria-label='Save image']");
+        WebElement dialogueBox = findByXpath("//div[@class='md-dialog-container ng-scope']");
+        WebElement projectImgFileField = findByXpath("//input[@type='file']");
+
+        createWaitDriver(5, 500).until(CustomExpectedConditions.javascriptWithoutException(jsToEnableInput));
+        projectImgFileField.sendKeys(pictureFilePath);
+        waitForElementToBeEnabled(saveImageBtn, 7);
+        Assert.assertEquals(
+                saveImageBtn.isEnabled(),
+                true,
+                "Cannot save project image, because 'Save image' button disabled");
+        clickOn(saveImageBtn);
+        waitForElementToDisappear(dialogueBox, 7);
+        waitForElementToDisappear(saveImageBtn, 7);
+        waitForGlobalSpinner(1, 45);
+
+        projectPictureElement = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//img[@alt='Project image']");
+        String newImageLocation = projectPictureElement.getAttribute("src");
+
+        Assert.assertNotEquals(
+                oldImageLocation,
+                newImageLocation,
+                "Changing project picture failed. \nOld picture src: '"+oldImageLocation+"', \nNew picture src: '"+newImageLocation+"'");
     }
 
     @DataProvider(name = "projectDetails")
