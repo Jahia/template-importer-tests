@@ -45,6 +45,7 @@ public class TemplateImporterRepository extends ModuleTest {
                 "fileInput.setAttribute(\"style\", \"\");";
 
         goToProjectsList(locale);
+        waitForGlobalSpinner(1, 45);
         WebElement importProjectButton = findByXpath("//button[contains(., 'Import Project')]");
         clickOn(importProjectButton);
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
