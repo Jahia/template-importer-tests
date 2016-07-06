@@ -185,6 +185,111 @@ public class EditProjectTest extends TemplateImporterRepository {
                 "Changing project picture failed. \nOld picture src: '"+oldImageLocation+"', \nNew picture src: '"+newImageLocation+"'");
     }
 
+    @Test
+    public void selectionTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "EditProjectTest.selectionTest");
+        String projectNameOne = randomWord(8);
+        String projectNameTwo = randomWord(8);
+        String projectNameThree = randomWord(8);
+
+        importProject("en", projectNameOne, "", "AlexLevels.zip");
+        importProject("en", projectNameTwo, "", "AlexLevels.zip");
+        importProject("en", projectNameThree, "", "AlexLevels.zip");
+
+        //None is selected
+        softAssert.assertFalse(
+                isProjectSelected(projectNameOne),
+                "Project is selected by default, we did not select that. Project name: "+projectNameOne);
+        //Select projectOne. Only projectOne is selected
+        softAssert.assertTrue(
+                selectProject(projectNameOne),
+                "Project is not selected after clicking on checkbox. Project name: "+projectNameOne);
+        softAssert.assertFalse(
+                isProjectSelected(projectNameTwo),
+                "Project is selected after clicking on another project's checkbox. Project name: "+projectNameTwo);
+        softAssert.assertFalse(
+                isProjectSelected(projectNameThree),
+                "Project is selected after clicking on another project's checkbox. Project name: "+projectNameThree);
+        //Unselect projectOne, none is selected
+        softAssert.assertFalse(
+                unSelectProject(projectNameOne),
+                "Project is still selected after clicking on checkbox. Project name: "+projectNameOne);
+        softAssert.assertFalse(
+                isProjectSelected(projectNameTwo),
+                "Project is selected after unselecting another project. Project name: "+projectNameTwo);
+        softAssert.assertFalse(
+                isProjectSelected(projectNameThree),
+                "Project is selected after unselecting another project. Project name: "+projectNameThree);
+        //Select all, all selected
+        clickSelectUnselectAll();
+        softAssert.assertTrue(
+                isProjectSelected(projectNameOne),
+                "Project is not selected after clicking 'Select All'. Project name: "+projectNameOne);
+        softAssert.assertTrue(
+                isProjectSelected(projectNameTwo),
+                "Project is not selected after clicking 'Select All'. Project name: "+projectNameTwo);
+        softAssert.assertTrue(
+                isProjectSelected(projectNameThree),
+                "Project is not selected after clicking 'Select All'. Project name: "+projectNameThree);
+        //Unselect projectOne, all but project one is selected
+        softAssert.assertFalse(
+                unSelectProject(projectNameOne),
+                "Project is  selected after unselecting it. Project name: "+projectNameOne);
+        softAssert.assertTrue(
+                isProjectSelected(projectNameTwo),
+                "Project is not selected after unselectiong another project 'Select All'. Project name: "+projectNameTwo);
+        softAssert.assertTrue(
+                isProjectSelected(projectNameThree),
+                "Project is not selected after unselectiong another project. Project name: "+projectNameThree);
+        //Select all again, all projects selected
+        clickSelectUnselectAll();
+        softAssert.assertTrue(
+                isProjectSelected(projectNameOne),
+                "Project is not selected after clicking 'Select All'. Project name: "+projectNameOne);
+        softAssert.assertTrue(
+                isProjectSelected(projectNameTwo),
+                "Project is not selected after clicking 'Select All'. Project name: "+projectNameTwo);
+        softAssert.assertTrue(
+                isProjectSelected(projectNameThree),
+                "Project is not selected after clicking 'Select All'. Project name: "+projectNameThree);
+
+        softAssert.assertAll();
+    }
+
+    private void clickSelectUnselectAll(){
+        WebElement selectAllCheckbox = findByXpath("//md-checkbox[@aria-label='Select all']");
+        clickOn(selectAllCheckbox);
+    }
+
+    private boolean selectProject(String projectName){
+        WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+        boolean isSelected = isProjectSelected(projectName);
+
+        if (!isSelected){
+            clickOn(checkbox);
+            checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+            isSelected = checkbox.getAttribute("aria-checked").contains("true");
+        }
+        return isSelected;
+    }
+
+    private boolean unSelectProject(String projectName){
+        WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+        boolean isSelected = isProjectSelected(projectName);
+
+        if (isSelected){
+            clickOn(checkbox);
+            checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+            isSelected = checkbox.getAttribute("aria-checked").contains("true");
+        }
+        return isSelected;
+    }
+
+    private boolean isProjectSelected(String projectName){
+        WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+        return checkbox.getAttribute("aria-checked").contains("true");
+    }
+
     @DataProvider(name = "projectDetails")
     public Object[][] createProjectDetails() {
         return new Object[][]{
