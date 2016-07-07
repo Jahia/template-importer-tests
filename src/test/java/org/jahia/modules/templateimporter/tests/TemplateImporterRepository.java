@@ -25,7 +25,7 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected void goToProjectsList(String locale){
         getDriver().get(getPath("/cms/adminframe/default/" + locale + "/settings.template-importer.html"));
-        waitForGlobalSpinner(1, 10);
+        waitForGlobalSpinner(2, 45);
     }
 
     /**
@@ -181,6 +181,21 @@ public class TemplateImporterRepository extends ModuleTest {
             word.append((char) ('a' + random.nextInt(26)));
         }
         return word.toString();
+    }
+
+    protected void openProjectFirstTime(String projectName, String baseTemplatePageName){
+        WebElement editProjectBtn = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//button[@ng-click='pc.seeProject($index)']");
+
+        clickOn(editProjectBtn);
+        WebElement importBtn = findByXpath("//button[@ng-click='sbtc.submit()']");
+        WebElement baseTemplateSelector = findByXpath("//md-select[@ng-model='sbtc.project.baseTemplate']");
+        clickOn(baseTemplateSelector);
+        WebElement baseTemplateOption = findByXpath("//md-option[@value='"+baseTemplatePageName+"']");
+        clickOn(baseTemplateOption);
+        waitForElementToBeEnabled(importBtn, 7);
+        clickOn(importBtn);
+        waitForElementToBeInvisible(importBtn);
+        waitForGlobalSpinner(2, 45);
     }
 
     protected void cleanDownloadsFolder() {
