@@ -6,6 +6,7 @@ import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
 
@@ -19,6 +20,8 @@ import java.util.Random;
  * Created by sergey on 2016-06-16.
  */
 public class TemplateImporterRepository extends ModuleTest {
+    protected static final String SELECTED_AREA_MARK = "AreaSelection";
+
     /**
      * Open list of projects. (Just iframe)
      * @param locale Is used as part of url to projects list.
@@ -196,6 +199,70 @@ public class TemplateImporterRepository extends ModuleTest {
         clickOn(importBtn);
         waitForElementToBeInvisible(importBtn);
         waitForGlobalSpinner(2, 45);
+    }
+
+    /**
+     * Selects an area in current template with given parameters. Will switch to the iFrame before selection and switch
+     * back after. Checks that selected area has 'AreaSelection' class after selection.
+     * @param areaName String, name of the area
+     * @param xPath String, XPath to the element you want to select
+     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     * @param surroundArea boolean, desired 'Surround area with selection tag' setting. True for enabled switch (default).
+     */
+    protected void selectArea(String areaName, String xPath, int xOffset, int yOffset, boolean surroundArea){
+        switchToProjectFrame();
+        WebElement area = findByXpath(xPath);
+        Assert.assertNotNull(area, "Cannot find an element that you are trying to select as area. XPath: '"+xPath+"'.");
+
+        if(xOffset == 0){
+            xOffset = area.getSize().getWidth()/2;
+        }
+        if(yOffset == 0){
+            yOffset =  area.getSize().getHeight()/2;
+        }
+        new Actions(getDriver()).moveToElement(area, xOffset, yOffset).contextClick().build().perform();
+        switchToDefaultContent();
+
+        WebElement areaNameField = findByXpath("//input[@name='areaName']");
+        WebElement okButton = findByXpath("//button[@ng-click='dac.ok()']");
+        WebElement includeHTMLSwitch = findByXpath("//md-switch[@ng-model='dac.includesHTML']");
+
+        typeInto(areaNameField, areaName);
+        boolean isEnabled = includeHTMLSwitch.getAttribute("aria-checked").contains("true");
+        if(surroundArea && !isEnabled || !surroundArea && isEnabled){
+            clickOn(includeHTMLSwitch);
+        }
+        waitForElementToBeEnabled(okButton, 5);
+        clickOn(okButton);
+        waitForElementToBeInvisible(okButton);
+
+        switchToProjectFrame();
+        area = findByXpath(xPath);
+        boolean isAreaSelected = area.getAttribute("class").contains(SELECTED_AREA_MARK);
+        switchToDefaultContent();
+
+        Assert.assertTrue(isAreaSelected, "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." +
+                " XPath: "+xPath);
+    }
+
+    protected void switchToProjectFrame(){
+        createWaitDriver(10, 300).until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[@id='tiProjectFrame']")));
+    }
+
+    protected void switchToDefaultContent(){
+        getDriver().switchTo().defaultContent();
+    }
+
+    protected void switchToTemplate(String templateName){
+        WebElement templateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
+        clickOn(templateTab);
+        switchToProjectFrame();
+        WebElement body = findByXpath("//body");
+        waitForElementToStopMoving(body);
+        switchToDefaultContent();
     }
 
     protected void cleanDownloadsFolder() {

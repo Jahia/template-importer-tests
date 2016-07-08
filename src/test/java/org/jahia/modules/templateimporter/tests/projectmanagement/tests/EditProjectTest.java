@@ -58,22 +58,26 @@ public class EditProjectTest extends TemplateImporterRepository {
                 softAssert.assertEquals(
                         isVisible(By.xpath("//md-card-title-text/span[contains(text(), '" + modifiedName + "')]"), 7),
                         true,
-                        "New project name is not visible after editing project. New name.: " + originalName + " Old name.:" + modifiedName);
+                        "New project name is not visible after editing project. New name.: " + modifiedName + " Old name.:" + originalName +
+                                ". New Desc.:"+modifiedDescription+". Old Desc.:"+originalDescription);
                 softAssert.assertEquals(
                         isVisible(By.xpath("//md-card-title-text/span[contains(text(), '" + originalName + "')]"), 1),
                         false,
-                        "old project name is still visible after editing project. New name.: " + originalName + " Old name.:" + modifiedName);
+                        "Old project name is still visible after editing project. New name.: " + modifiedName + " Old name.:" + originalName +
+                                ". New Desc.:"+modifiedDescription+". Old Desc.:"+originalDescription);
                 if (!modifiedDescription.equals("")) {
                     //Special case, descriptions is empty string
                     softAssert.assertEquals(
                             isVisible(By.xpath("//*[@ng-if='p.description'][contains(., '" + modifiedDescription + "')]"), 7),
                             true,
-                            "New project descriptions is not visible after editing project description. New desc.: " + modifiedDescription + " Old desc.:" + originalDescription);
+                            "New project descriptions is not visible after editing project description.  New name.: " + modifiedName + " Old name.:" + originalName +
+                                    ". New Desc.:"+modifiedDescription+". Old Desc.:"+originalDescription);
                 }
                 softAssert.assertEquals(
                         isVisible(By.xpath("//*[@ng-if='p.description'][contains(., '" + originalDescription + "')]"), 1),
                         false,
-                        "Old project descriptions is still visible after editing project description. New desc.: " + modifiedDescription + " Old desc.:" + originalDescription);
+                        "Old project descriptions is still visible after editing project description.  New name.: " + modifiedName + " Old name.:" + originalName +
+                                ". New Desc.:"+modifiedDescription+". Old Desc.:"+originalDescription);
             } else {
                 //Project name is valid, but description is not.
                 softAssert.assertEquals(
@@ -256,11 +260,19 @@ public class EditProjectTest extends TemplateImporterRepository {
         softAssert.assertAll();
     }
 
+    /**
+     * Click 'Select All' Or 'Unselect All' checkbox
+     */
     private void clickSelectUnselectAll(){
         WebElement selectAllCheckbox = findByXpath("//md-checkbox[@aria-label='Select all']");
         clickOn(selectAllCheckbox);
     }
 
+    /**
+     * Select project in projects list, if not already selected
+     * @param projectName String, name of project to select
+     * @return true if project is selected after all
+     */
     private boolean selectProject(String projectName){
         WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
         boolean isSelected = isProjectSelected(projectName);
@@ -273,6 +285,11 @@ public class EditProjectTest extends TemplateImporterRepository {
         return isSelected;
     }
 
+    /**
+     * Unselect project in projects list, if it is selected.
+     * @param projectName String, name of project to unselect
+     * @return true if project is still selected after all
+     */
     private boolean unSelectProject(String projectName){
         WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
         boolean isSelected = isProjectSelected(projectName);
@@ -285,6 +302,11 @@ public class EditProjectTest extends TemplateImporterRepository {
         return isSelected;
     }
 
+    /**
+     * Checks if project selected
+     * @param projectName String, project name
+     * @return True if project is selected
+     */
     private boolean isProjectSelected(String projectName){
         WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
         return checkbox.getAttribute("aria-checked").contains("true");
