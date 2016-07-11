@@ -39,7 +39,10 @@ public class TemplateImporterRepository extends ModuleTest {
      * @param testProjectFileName String, name of .zip file to import. Zip file should be inside testData.testProjects folder.
      * @return 'Success' if form created successfully, otherwise null.
      */
-    protected void importProject(String locale, String projectName, String projectDescription, String testProjectFileName){
+    protected void importProject(String locale,
+                                 String projectName,
+                                 String projectDescription,
+                                 String testProjectFileName){
         String zipFilePath = new File("src/test/resources/testData/testProjects/"+testProjectFileName).getAbsolutePath();
         String jsToEnableInput = "function getElementByXpath(path) {" +
                 "return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
@@ -83,7 +86,8 @@ public class TemplateImporterRepository extends ModuleTest {
      * @param field WebElement, filed to send keys into it
      * @param text String, text to send into input field
      */
-    protected void typeInto(WebElement field, String text){
+    protected void typeInto(WebElement  field,
+                            String      text){
         clickOn(field);
         field.clear();
         field.sendKeys(text);
@@ -94,7 +98,8 @@ public class TemplateImporterRepository extends ModuleTest {
      * @param secondsToWaitSpinnerAppear int, amount of seconds to wait for global spinner elements to appear
      * @param secondsToWaitSpinnerDisappear int, amount of seconds to wait for global spinner elements to disappear
      */
-    protected void waitForGlobalSpinner(int secondsToWaitSpinnerAppear,  int secondsToWaitSpinnerDisappear) {
+    protected void waitForGlobalSpinner(int secondsToWaitSpinnerAppear,
+                                        int secondsToWaitSpinnerDisappear) {
         List<WebElement> spinners = new LinkedList<WebElement>();
 
         try {
@@ -110,6 +115,32 @@ public class TemplateImporterRepository extends ModuleTest {
             }
         } catch (TimeoutException e) {
         }
+    }
+
+    protected void createNewTemplate(String templateName,
+                                     String pageFileName){
+        WebElement createNewTemplateBtn = findByXpath("//button[@ng-click='cpc.showCreatePageDialog($event)']");
+
+        clickOn(createNewTemplateBtn);
+        WebElement templateNameField = findByXpath("//input[@name='pageName']");
+        WebElement pageSelectDropdown = findByXpath("//md-select[@ng-model='selectedTemplate']");
+        WebElement createBtn = findByXpath("//button[@ng-click='create()']");
+
+        clickOn(pageSelectDropdown);
+        WebElement pageOption = findByXpath("//md-option[@value='"+pageFileName+"']");
+        waitForElementToBeEnabled(pageOption, 5);
+        clickOn(pageOption);
+        typeInto(templateNameField, templateName);
+        waitForElementToBeEnabled(createBtn, 5);
+        clickOn(createBtn);
+        waitForElementToBeInvisible(createBtn);
+
+        WebElement newTemplateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
+        Assert.assertNotNull(newTemplateTab, "Cannot find tab with new template name '"+templateName+"' after creating new template.");
+        switchToProjectFrame();
+        WebElement body = findByXpath("//body");
+        waitForElementToStopMoving(body);
+        switchToDefaultContent();
     }
 
     /**
@@ -186,7 +217,8 @@ public class TemplateImporterRepository extends ModuleTest {
         return word.toString();
     }
 
-    protected void openProjectFirstTime(String projectName, String baseTemplatePageName){
+    protected void openProjectFirstTime(String  projectName,
+                                        String  baseTemplatePageName){
         WebElement editProjectBtn = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//button[@ng-click='pc.seeProject($index)']");
 
         clickOn(editProjectBtn);
@@ -212,7 +244,11 @@ public class TemplateImporterRepository extends ModuleTest {
      *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
      * @param surroundArea boolean, desired 'Surround area with selection tag' setting. True for enabled switch (default).
      */
-    protected void selectArea(String areaName, String xPath, int xOffset, int yOffset, boolean surroundArea){
+    protected void selectArea(String    areaName,
+                              String    xPath,
+                              int       xOffset,
+                              int       yOffset,
+                              boolean   surroundArea){
         switchToProjectFrame();
         WebElement area = findByXpath(xPath);
         Assert.assertNotNull(area, "Cannot find an element that you are trying to select as area. XPath: '"+xPath+"'.");
@@ -246,6 +282,10 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertTrue(isAreaSelected, "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." +
                 " XPath: "+xPath);
+    }
+
+    protected void selectView(){
+
     }
 
     protected void switchToProjectFrame(){
