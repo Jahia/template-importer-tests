@@ -35,7 +35,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         softAssert.assertAll();
     }
 
-    @Test //TI_S2C4, TI_S2C12, TI_S2C14, TI_S2C9
+    @Test //TI_S2C4, TI_S2C12, TI_S2C14, TI_S2C9, TI_S2C11
     public void selectAreaInUserCreatedTemplate() {
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectAreaInUserCreatedTemplate");
         String projectName = randomWord(8);
@@ -88,6 +88,60 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaSiblingChild, 1, 0, true, softAssert, "Base sibling on custom template.");
         selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaChild, 1, 0, true, softAssert, "Base child on custom template.");
 
+        softAssert.assertAll();
+    }
+
+    @Test //TI_S2C5
+    public void selectAreaInHomeWithoutBase(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectAreaInHomeWithoutBase");
+        String projectName = randomWord(8);
+        String xPathToSelectInHome = "//body/div[1]";
+        String expectedToastText = "Cannot select inside an area not selected in base page";
+        String newTemplateName = randomWord(3);
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        switchToTemplate("home");
+        selectWrongArea(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
+        createNewTemplate(newTemplateName, "page1.html");
+        selectWrongArea(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
+        softAssert.assertAll();
+    }
+
+    @Test //TI_S2C8, TI_S2C19
+    public void selectParentArea(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentArea");
+        String projectName = randomWord(8);
+        String xPathToArea = "//div[contains(., 'Level 3-1')]/div";
+        String areaName = randomWord(7);
+        String xPathToParentArea = "//body/div[1]";
+        String expectedToastText = "Cannot select an area that contains a selected area";
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(areaName, xPathToArea, 2, 0, false);
+        selectWrongArea(xPathToParentArea, 1, 0, expectedToastText, softAssert, "After selecting parent of existing area");
+        switchToTemplate("home");
+
+        softAssert.assertAll();
+    }
+
+    @Test //TI_S2C33
+    public void selectSiblingAreaInOtherTemplate(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSiblingAreaInOtherTemplate");
+        String projectName = randomWord(8);
+        String xPathToArea = "//body/div[1]//div[contains(., 'Level 2-1')]";
+        String areaName = randomWord(7);
+        String xPathToSiblingArea = "//body/div[3]//div[contains(., 'Level 2-1')]";
+        String expectedToastText = "Cannot select inside an area not selected in base page";
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(areaName, xPathToArea, 2, 0, false);
+        switchToTemplate("home");
+        checkIfAreaSelected(xPathToArea, softAssert, true);
+        selectWrongArea(xPathToSiblingArea, 2, 0, expectedToastText, softAssert, "After selecting sibling of base-area on home");
+        checkIfAreaSelected(xPathToSiblingArea, softAssert, false);
         softAssert.assertAll();
     }
 
@@ -162,6 +216,36 @@ public class AreaSelectionTest extends TemplateImporterRepository {
             waitForElementToBeEnabled(cancelButton, 5);
             clickOn(cancelButton);
             waitForElementToBeInvisible(cancelButton);
+        }
+    }
+
+    protected void selectWrongArea(String       xPath,
+                                   int          xOffset,
+                                   int          yOffset,
+                                   String       toastErrorMsg,
+                                   SoftAssert   softAssert,
+                                   String       errorMsg){
+        switchToProjectFrame();
+        WebElement area = findByXpath(xPath);
+        Assert.assertNotNull(area, "Cannot find an element that you are trying to select as area. XPath: '" + xPath + "'.");
+
+        if (xOffset == 0) {
+            xOffset = area.getSize().getWidth() / 2;
+        }
+        if (yOffset == 0) {
+            yOffset = area.getSize().getHeight() / 2;
+        }
+        new Actions(getDriver()).moveToElement(area, xOffset, yOffset).contextClick().build().perform();
+        switchToDefaultContent();
+        WebElement toast = findByXpath("//div[contains(@class, 'toast-warning')]//div[contains(., '" + toastErrorMsg + "')]");
+        if (toast == null) {
+            softAssert.fail(errorMsg + ". Toast not found. Expected toast message:'" + toastErrorMsg + "'");
+        } else {
+            softAssert.assertTrue(isVisible(toast, 3), errorMsg + ". Toast is not visible. Toast message:'" + toastErrorMsg + "'");
+            if (toast.isDisplayed()) {
+                clickOn(toast);
+                waitForElementToBeInvisible(toast);
+            }
         }
     }
 }
