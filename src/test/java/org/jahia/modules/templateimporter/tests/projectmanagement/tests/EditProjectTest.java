@@ -11,6 +11,7 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import java.io.File;
+import java.util.Date;
 
 /**
  * Created by sergey on 2016-07-04.
@@ -152,6 +153,8 @@ public class EditProjectTest extends TemplateImporterRepository {
      * @param pictureFileName String, picture filename. picture has to be under "src/test/resources/testData/pictures" folder
      */
     protected void changeProjectPicture(String projectName, String pictureFileName){
+        Long maxMilliSecondsToWait = 5000L;
+        Long start;
         String pictureFilePath = new File("src/test/resources/testData/pictures/"+pictureFileName).getAbsolutePath();
         String jsToEnableInput = "function getElementByXpath(path) {" +
                 "return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
@@ -180,13 +183,17 @@ public class EditProjectTest extends TemplateImporterRepository {
         waitForElementToDisappear(saveImageBtn, 7);
         waitForGlobalSpinner(1, 45);
 
-        projectPictureElement = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//img[@alt='Project image']");
-        String newImageLocation = projectPictureElement.getAttribute("src");
-
-        Assert.assertNotEquals(
-                oldImageLocation,
-                newImageLocation,
-                "Changing project picture failed. \nOld picture src: '"+oldImageLocation+"', \nNew picture src: '"+newImageLocation+"'");
+        start = new Date().getTime();
+        while (oldImageLocation.equals(
+                findByXpath("//md-card-title-text[contains(., '" + projectName + "')]/ancestor::md-card//img[@alt='Project image']").getAttribute("src"))){
+            try {
+                Thread.sleep(200L);
+            } catch (InterruptedException e) {}
+            if (new Date().getTime() - start >= maxMilliSecondsToWait) {
+                Assert.fail("Changing project picture failed. picture location did not change for "+maxMilliSecondsToWait+" milliseconds and still remain the same:" + oldImageLocation);
+                break;
+            }
+        }
     }
 
     @Test
