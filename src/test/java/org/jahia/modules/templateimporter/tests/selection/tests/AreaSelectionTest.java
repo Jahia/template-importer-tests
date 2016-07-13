@@ -151,6 +151,30 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         softAssert.assertAll();
     }
 
+    @Test //TI_S2C18, TI_S2C20
+    public void selectParentOfView(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentOfView");
+        String projectName = randomWord(8);
+        String areaA1Name = randomWord(6);
+        String viewV1Name = randomWord(8);
+        String viewNodeType = "jnt:bootstrapMainContent";
+        String areaA1xPath =        "//body/div[1]/div[contains(., 'Level 3-1')][1]";
+        String viewV1xPath =        "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]/div[1]";
+        String parentOfViewXpath =  "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]";
+        String childOfViewXpath =   "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]/div[1]/div[1]";
+        String expectedToastParentOfView = "Cannot select a view that contains a view";
+        String expectedToastChildOfView = "Cannot select a view that is contained in a view";
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(areaA1Name, areaA1xPath, 2, 0, true);
+        selectView(viewV1Name, viewNodeType, viewV1xPath, 1, 0);
+        selectWrongArea(parentOfViewXpath, 1, 0, expectedToastParentOfView, softAssert, "Selecting node between area and view.");
+        selectWrongArea(childOfViewXpath, 1, 0, expectedToastChildOfView, softAssert, "Selecting node between area and view.");
+
+        softAssert.assertAll();
+    }
+
     /**
      * Select area, enter area name and check for error messages, close the dialogue after all
      * @param areaName String, name of area
@@ -215,18 +239,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
                                    String       toastErrorMsg,
                                    SoftAssert   softAssert,
                                    String       errorMsg){
-        switchToProjectFrame();
-        WebElement area = findByXpath(xPath);
-        Assert.assertNotNull(area, "Cannot find an element that you are trying to select as area. XPath: '" + xPath + "'.");
-
-        if (xOffset == 0) {
-            xOffset = area.getSize().getWidth() / 2;
-        }
-        if (yOffset == 0) {
-            yOffset = area.getSize().getHeight() / 2;
-        }
-        new Actions(getDriver()).moveToElement(area, xOffset, yOffset).contextClick().build().perform();
-        switchToDefaultContent();
+        rightMouseClick(xPath, xOffset, yOffset);
         WebElement toast = findByXpath("//div[contains(@class, 'toast-warning')]//div[contains(., '" + toastErrorMsg + "')]");
         if (toast == null) {
             softAssert.fail(errorMsg + ". Toast not found. Expected toast message:'" + toastErrorMsg + "'");
@@ -237,5 +250,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
                 waitForElementToBeInvisible(toast);
             }
         }
+        checkIfAreaSelected(xPath, softAssert, false);
+        checkIfViewSelected(xPath, softAssert, false);
     }
 }

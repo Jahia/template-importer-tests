@@ -8,6 +8,7 @@
             <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.DeletProjectTest"/>
             <class name="org.jahia.modules.templateimporter.tests.projectmanagement.tests.EditProjectTest"/>
             <class name="org.jahia.modules.templateimporter.tests.selection.tests.AreaSelectionTest"/>
+            <class name="org.jahia.modules.templateimporter.tests.selection.tests.SelectionRemovalTest"/>
         </classes>
     </test>
 </suite>
