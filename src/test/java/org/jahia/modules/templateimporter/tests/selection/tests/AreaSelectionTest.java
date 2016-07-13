@@ -55,6 +55,12 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         checkIfAreaSelected(xPathToSelectInBaseTemplate, softAssert, true);//Select area in new page template
         selectArea(userAreaName, xPathToSelectInUsersTemplate, 1, 0, true);//Create another template
         createNewTemplate(newTemplateNameTwo, newTemplatePageFileNameTwo);//Check that base and home did not lost their selections
+        //Check that both templates are present on page
+        WebElement newTemplateTab = findByXpath("//ti-tab[contains(., '"+newTemplateName+"')]");
+        softAssert.assertNotNull(newTemplateTab, "Cannot find tab with new template name '"+newTemplateName+"' after creating new template.");
+        WebElement newTemplateTabTwo = findByXpath("//ti-tab[contains(., '"+newTemplateNameTwo+"')]");
+        softAssert.assertNotNull(newTemplateTabTwo, "Cannot find tab with new template name '"+newTemplateNameTwo+"' after creating new template.");
+
         checkIfAreaSelected(xPathToSelectInBaseTemplate, softAssert, true);
         switchToTemplate("base");
         checkIfAreaSelected(xPathToSelectInBaseTemplate, softAssert, true);
@@ -143,22 +149,6 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         selectWrongArea(xPathToSiblingArea, 2, 0, expectedToastText, softAssert, "After selecting sibling of base-area on home");
         checkIfAreaSelected(xPathToSiblingArea, softAssert, false);
         softAssert.assertAll();
-    }
-
-    protected boolean checkIfAreaSelected(String xPath,
-                                          SoftAssert softAssert,
-                                          boolean expectedResult) {
-        switchToProjectFrame();
-        WebElement area = findByXpath(xPath);
-        softAssert.assertNotNull(area, "Cannot find an element that you are trying to check if selected as area. XPath: '" + xPath + "'.");
-
-        boolean isAreaSelected = area.getAttribute("class").contains(SELECTED_AREA_MARK);
-        switchToDefaultContent();
-        softAssert.assertEquals(
-                isAreaSelected,
-                expectedResult,
-                "Assertion if element: '" + xPath + "' has class '" + SELECTED_AREA_MARK + "' (is selected) Failed");
-        return isAreaSelected;
     }
 
     /**

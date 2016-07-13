@@ -4,14 +4,17 @@ import org.apache.commons.io.FileUtils;
 import org.jahia.modules.tests.core.ModuleTest;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
+import org.testng.asserts.SoftAssert;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
@@ -88,9 +91,64 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected void typeInto(WebElement  field,
                             String      text){
+        Long maxMilliSecondsToWait = 5000L;
+        Long start = new Date().getTime();
         clickOn(field);
         field.clear();
         field.sendKeys(text);
+        String xPath = generateUglyXpath(field, "");
+        while(!getValueFromInput(xPath).equals(text)){
+            try{
+                Thread.sleep(150L);
+            }catch (InterruptedException e){}
+            if(new Date().getTime() - start >= maxMilliSecondsToWait){
+                break;
+            }
+        }
+    }
+
+    private String generateUglyXpath(WebElement childElement, String current) {
+        String childTag = childElement.getTagName();
+        if(childTag.equals("html")) {
+            return "/html[1]"+current;
+        }
+        WebElement parentElement = childElement.findElement(By.xpath(".."));
+        List<WebElement> childrenElements = parentElement.findElements(By.xpath("*"));
+        int count = 0;
+        for(int i=0;i<childrenElements.size(); i++) {
+            WebElement childrenElement = childrenElements.get(i);
+            String childrenElementTag = childrenElement.getTagName();
+            if(childTag.equals(childrenElementTag)) {
+                count++;
+            }
+            if(childElement.equals(childrenElement)) {
+                return generateUglyXpath(parentElement, "/" + childTag + "[" + count + "]"+current);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns input's value, even if it is hidden input.
+     * @param xPathToInput String. xPath to input element
+     * @return String. Input's value
+     */
+    protected String getValueFromInput(String xPathToInput){
+        String jsResponse = null;
+        String javascriptToExecute = "" +
+                "function getElementByXpath(path) {" +
+                "    return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
+                "}" +
+
+                "node = getElementByXpath(\""+xPathToInput+"\");" +
+                "return node.value;";
+        try {
+            jsResponse = (String) ((JavascriptExecutor) driver).executeScript(javascriptToExecute);
+        } catch (Exception e) {
+            e.getMessage();
+            e.printStackTrace();
+        }
+        return jsResponse;
     }
 
     /**
@@ -284,10 +342,6 @@ public class TemplateImporterRepository extends ModuleTest {
                 " XPath: "+xPath);
     }
 
-    protected void selectView(){
-
-    }
-
     protected void switchToProjectFrame(){
         createWaitDriver(10, 300).until(ExpectedConditions.frameToBeAvailableAndSwitchToIt(By.xpath("//iframe[@id='tiProjectFrame']")));
     }
@@ -303,6 +357,33 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
         switchToDefaultContent();
+    }
+
+    protected  void removeArea(String xPath){
+        boolean isSelected = checkIfAreaSelected(xPath, new SoftAssert(), true);
+        Assert.assertTrue(isSelected, "Area that you are trying to remove is not selected.");
+        switchToProjectFrame();
+
+    }
+
+    protected void selectView(){
+
+    }
+
+    protected boolean checkIfAreaSelected(String        xPath,
+                                          SoftAssert    softAssert,
+                                          boolean       expectedResult) {
+        switchToProjectFrame();
+        WebElement area = findByXpath(xPath);
+        softAssert.assertNotNull(area, "Cannot find an element that you are trying to check if selected as area. XPath: '" + xPath + "'.");
+
+        boolean isAreaSelected = area.getAttribute("class").contains(SELECTED_AREA_MARK);
+        switchToDefaultContent();
+        softAssert.assertEquals(
+                isAreaSelected,
+                expectedResult,
+                "Assertion if element: '" + xPath + "' has class '" + SELECTED_AREA_MARK + "' (is selected) Failed");
+        return isAreaSelected;
     }
 
     protected void cleanDownloadsFolder() {
