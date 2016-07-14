@@ -118,7 +118,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
     public void selectParentArea(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentArea");
         String projectName = randomWord(8);
-        String xPathToArea = "//div[contains(., 'Level 3-1')]/div";
+        String xPathToArea = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]";
         String areaName = randomWord(7);
         String xPathToParentArea = "//body/div[1]";
         String expectedToastText = "Cannot select an area that contains a selected area";
@@ -127,7 +127,6 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         openProjectFirstTime(projectName, "index.html");
         selectArea(areaName, xPathToArea, 2, 0, false);
         selectWrongArea(xPathToParentArea, 1, 0, expectedToastText, softAssert, "After selecting parent of existing area");
-        switchToTemplate("home");
 
         softAssert.assertAll();
     }
@@ -151,7 +150,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         softAssert.assertAll();
     }
 
-    @Test //TI_S2C18, TI_S2C20
+    @Test //TI_S2C18, TI_S2C20, TI_S2C21
     public void selectParentOfView(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentOfView");
         String projectName = randomWord(8);
@@ -171,6 +170,23 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         selectView(viewV1Name, viewNodeType, viewV1xPath, 1, 0);
         selectWrongArea(parentOfViewXpath, 1, 0, expectedToastParentOfView, softAssert, "Selecting node between area and view.");
         selectWrongArea(childOfViewXpath, 1, 0, expectedToastChildOfView, softAssert, "Selecting node between area and view.");
+
+        softAssert.assertAll();
+    }
+
+    @Test //TI_S2C26
+    public void selectSameAreaOnAnotherTemplate(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSameAreaOnAnotherTemplate");
+        String projectName = randomWord(8);
+        String xPathToArea = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]";
+        String areaName = randomWord(7);
+        String expectedToastText = "Cannot select an area if already selected on base page";
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(areaName, xPathToArea, 2, 0, false);
+        switchToTemplate("home");
+        selectWrongArea(xPathToArea, 2, 0, expectedToastText, softAssert, "Selecting the same element on base and home");
 
         softAssert.assertAll();
     }

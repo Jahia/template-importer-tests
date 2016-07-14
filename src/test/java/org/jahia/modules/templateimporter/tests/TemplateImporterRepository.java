@@ -337,11 +337,24 @@ public class TemplateImporterRepository extends ModuleTest {
                 "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+xPath);
     }
 
+    /**
+     * Selects a view in current template with given parameters. Will switch to the iFrame before selection and switch
+     * back after. Checks that selected area has 'ViewSelection' class after selection.
+     * @param viewName String, name of the area
+     * @param xPath String, XPath to the element you want to select
+     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     * @param errorMsg Error message that will be prepended to the assertion error message. Describe use case here. Example:
+     *                Reselecting view after deletion
+     */
     protected void selectView(String    viewName,
                               String    nodeType,
                               String    xPath,
                               int       xOffset,
-                              int       yOffset){
+                              int       yOffset,
+                              String    errorMsg){
         rightMouseClick(xPath, xOffset, yOffset);
         WebElement viewNameField = findByXpath("//input[@name='viewName']");
         WebElement nodeTypeField = findByXpath("//input[@id='nodeTypeSelection-typeahead-input']");
@@ -354,7 +367,25 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertTrue(
                 checkIfViewSelected(xPath),
-                "View was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class." + " XPath: "+xPath);
+                errorMsg+". View was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class." + " XPath: "+xPath);
+    }
+
+    /**
+     * Selects a view in current template with given parameters. Will switch to the iFrame before selection and switch
+     * back after. Checks that selected area has 'ViewSelection' class after selection.
+     * @param viewName String, name of the area
+     * @param xPath String, XPath to the element you want to select
+     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     */
+    protected void selectView(String    viewName,
+                              String    nodeType,
+                              String    xPath,
+                              int       xOffset,
+                              int       yOffset){
+        selectView(viewName, nodeType, xPath, xOffset, yOffset, "");
     }
 
     protected void switchToProjectFrame(){
@@ -406,10 +437,12 @@ public class TemplateImporterRepository extends ModuleTest {
      *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
      * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
      *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     * @param errorMsg Error message that will be passed to assert
      */
     protected  void removeArea(String   xPath,
                                int      xOffset,
-                               int      yOffset){
+                               int      yOffset,
+                               String   errorMsg){
         boolean isSelected = checkIfAreaSelected(xPath, new SoftAssert(), true);
 
         Assert.assertTrue(isSelected, "Area that you are trying to remove is not selected.");
@@ -419,7 +452,36 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToBeInvisible(removeBtn);
         Assert.assertFalse(
                 checkIfAreaSelected(xPath),
-                "Area was not removed. XPath:'"+xPath+"'. Horizontal offset:"+xOffset+", Vertical offset:"+yOffset);
+                errorMsg+". Area was not removed. XPath:'"+xPath+"'. Horizontal offset:"+xOffset+", Vertical offset:"+yOffset);
+    }
+
+    protected  void removeArea(String   xPath,
+                               int      xOffset,
+                               int      yOffset){
+        removeArea(xPath, xOffset, yOffset, "");
+    }
+
+    /**
+     * Removes area. Click on area than click 'Remove' and assert that area removed.
+     * @param xPath String, xPath to your target element
+     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
+     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     */
+    protected  void removeView(String   xPath,
+                               int      xOffset,
+                               int      yOffset){
+        boolean isSelected = checkIfViewSelected(xPath, new SoftAssert(), true);
+
+        Assert.assertTrue(isSelected, "View that you are trying to remove is not selected.");
+        rightMouseClick(xPath, xOffset, yOffset);
+        WebElement removeBtn = findByXpath("//button[@ng-click='dvc.remove()']");
+        clickOn(removeBtn);
+        waitForElementToBeInvisible(removeBtn);
+        Assert.assertFalse(
+                checkIfViewSelected(xPath),
+                "View was not removed. XPath:'"+xPath+"'. Horizontal offset:"+xOffset+", Vertical offset:"+yOffset);
     }
 
     /**
@@ -431,7 +493,8 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected boolean checkIfAreaSelected(String        xPath,
                                           SoftAssert    softAssert,
-                                          boolean       expectedResult) {
+                                          boolean       expectedResult,
+                                          String        errorMsg) {
         switchToProjectFrame();
         WebElement area = findByXpath(xPath);
         softAssert.assertNotNull(area, "Cannot find an element that you are trying to check if selected as area. XPath: '" + xPath + "'.");
@@ -441,8 +504,14 @@ public class TemplateImporterRepository extends ModuleTest {
         softAssert.assertEquals(
                 isAreaSelected,
                 expectedResult,
-                "Assertion if element: '" + xPath + "' has class '" + SELECTED_AREA_MARK + "' (is selected) Failed");
+                errorMsg+". Assertion if element: '" + xPath + "' has class '" + SELECTED_AREA_MARK + "' (is selected) Failed");
         return isAreaSelected;
+    }
+
+    protected boolean checkIfAreaSelected(String        xPath,
+                                          SoftAssert    softAssert,
+                                          boolean       expectedResult) {
+        return checkIfAreaSelected(xPath, softAssert, expectedResult, "");
     }
 
     /**
@@ -463,7 +532,8 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected boolean checkIfViewSelected(String        xPath,
                                           SoftAssert    softAssert,
-                                          boolean       expectedResult) {
+                                          boolean       expectedResult,
+                                          String        errorMsg) {
         switchToProjectFrame();
         WebElement area = findByXpath(xPath);
         softAssert.assertNotNull(area, "Cannot find an element that you are trying to check if selected as view. XPath: '" + xPath + "'.");
@@ -473,8 +543,14 @@ public class TemplateImporterRepository extends ModuleTest {
         softAssert.assertEquals(
                 isViewSelected,
                 expectedResult,
-                "Assertion if element: '" + xPath + "' has class '" + SELECTED_VIEW_MARK + "' (is selected) Failed");
+                errorMsg+". Assertion if element: '" + xPath + "' has class '" + SELECTED_VIEW_MARK + "' (is selected) Failed");
         return isViewSelected;
+    }
+
+    protected boolean checkIfViewSelected(String        xPath,
+                                          SoftAssert    softAssert,
+                                          boolean       expectedResult) {
+        return checkIfViewSelected(xPath, softAssert, expectedResult, "");
     }
 
     /**
