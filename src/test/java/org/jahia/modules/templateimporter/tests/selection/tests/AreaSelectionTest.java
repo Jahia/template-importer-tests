@@ -108,9 +108,9 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         switchToTemplate("home");
-        selectWrongArea(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
+        selectWrongElement(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
         createNewTemplate(newTemplateName, "page1.html");
-        selectWrongArea(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
+        selectWrongElement(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
         softAssert.assertAll();
     }
 
@@ -126,7 +126,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         selectArea(areaName, xPathToArea, 2, 0, false);
-        selectWrongArea(xPathToParentArea, 1, 0, expectedToastText, softAssert, "After selecting parent of existing area");
+        selectWrongElement(xPathToParentArea, 1, 0, expectedToastText, softAssert, "After selecting parent of existing area");
 
         softAssert.assertAll();
     }
@@ -145,7 +145,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         selectArea(areaName, xPathToArea, 2, 0, false);
         switchToTemplate("home");
         checkIfAreaSelected(xPathToArea, softAssert, true);
-        selectWrongArea(xPathToSiblingArea, 2, 0, expectedToastText, softAssert, "After selecting sibling of base-area on home");
+        selectWrongElement(xPathToSiblingArea, 2, 0, expectedToastText, softAssert, "After selecting sibling of base-area on home");
         checkIfAreaSelected(xPathToSiblingArea, softAssert, false);
         softAssert.assertAll();
     }
@@ -168,8 +168,8 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         openProjectFirstTime(projectName, "index.html");
         selectArea(areaA1Name, areaA1xPath, 2, 0, true);
         selectView(viewV1Name, viewNodeType, viewV1xPath, 1, 0);
-        selectWrongArea(parentOfViewXpath, 1, 0, expectedToastParentOfView, softAssert, "Selecting node between area and view.");
-        selectWrongArea(childOfViewXpath, 1, 0, expectedToastChildOfView, softAssert, "Selecting node between area and view.");
+        selectWrongElement(parentOfViewXpath, 1, 0, expectedToastParentOfView, softAssert, "Selecting node between area and view.");
+        selectWrongElement(childOfViewXpath, 1, 0, expectedToastChildOfView, softAssert, "Selecting node between area and view.");
 
         softAssert.assertAll();
     }
@@ -184,9 +184,30 @@ public class AreaSelectionTest extends TemplateImporterRepository {
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(areaName, xPathToArea, 2, 0, false);
+        selectArea(areaName, xPathToArea, 2, 0, true);
         switchToTemplate("home");
-        selectWrongArea(xPathToArea, 2, 0, expectedToastText, softAssert, "Selecting the same element on base and home");
+        selectWrongElement(xPathToArea, 2, 0, expectedToastText, softAssert, "Selecting the same element on base and home");
+
+        softAssert.assertAll();
+    }
+
+    @Test //TI_S2C27
+    public void selectSameViewOnAnotherTemplate(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSameViewOnAnotherTemplate");
+        String projectName = randomWord(8);
+        String xPathToArea = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]";
+        String xPathToView = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]/div[1]";
+        String areaName = randomWord(7);
+        String viewName = randomWord(9)+"Capital";
+        String nodeType = "jnt:html";
+        String expectedToastText = "Cannot select a view if already selected on base page";
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(areaName, xPathToArea, 2, 0, true);
+        selectView(viewName, nodeType, xPathToView, 1, 0);
+        switchToTemplate("home");
+        selectWrongElement(xPathToView, 1, 0, expectedToastText, softAssert, false, true, "Selecting the same element on base and home");
 
         softAssert.assertAll();
     }
@@ -249,12 +270,14 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         }
     }
 
-    protected void selectWrongArea(String       xPath,
-                                   int          xOffset,
-                                   int          yOffset,
-                                   String       toastErrorMsg,
-                                   SoftAssert   softAssert,
-                                   String       errorMsg){
+    protected void selectWrongElement(String       xPath,
+                                      int          xOffset,
+                                      int          yOffset,
+                                      String       toastErrorMsg,
+                                      SoftAssert   softAssert,
+                                      boolean      expectedAreaSelection,
+                                      boolean      expectedViewSelection,
+                                      String       errorMsg){
         rightMouseClick(xPath, xOffset, yOffset);
         WebElement toast = findByXpath("//div[contains(@class, 'toast-warning')]//div[contains(., '" + toastErrorMsg + "')]");
         if (toast == null) {
@@ -266,7 +289,16 @@ public class AreaSelectionTest extends TemplateImporterRepository {
                 waitForElementToBeInvisible(toast);
             }
         }
-        checkIfAreaSelected(xPath, softAssert, false);
-        checkIfViewSelected(xPath, softAssert, false);
+        checkIfAreaSelected(xPath, softAssert, expectedAreaSelection);
+        checkIfViewSelected(xPath, softAssert, expectedViewSelection);
+    }
+
+    protected void selectWrongElement(String       xPath,
+                                      int          xOffset,
+                                      int          yOffset,
+                                      String       toastErrorMsg,
+                                      SoftAssert   softAssert,
+                                      String       errorMsg){
+        selectWrongElement(xPath, xOffset, yOffset, toastErrorMsg, softAssert, false, false, errorMsg);
     }
 }
