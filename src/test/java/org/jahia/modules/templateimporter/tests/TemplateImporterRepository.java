@@ -93,14 +93,15 @@ public class TemplateImporterRepository extends ModuleTest {
     protected void typeInto(WebElement  field,
                             String      text){
         Long maxMilliSecondsToWait = 5000L;
-        Long start = new Date().getTime();
-        clickOn(field);
-        field.clear();
-        field.sendKeys(text);
         String xPath = generateUglyXpath(field, "");
+        Long start = new Date().getTime();
+
         while(!getValueFromInput(xPath).equals(text)){
             try{
-                Thread.sleep(150L);
+                clickOn(field);
+                field.clear();
+                field.sendKeys(text);
+                Thread.sleep(200L);
             }catch (InterruptedException e){}
             if(new Date().getTime() - start >= maxMilliSecondsToWait){
                 getLogger().error("Text you are tried to type did not reach target's value in 5 sec.");
@@ -551,6 +552,21 @@ public class TemplateImporterRepository extends ModuleTest {
                                           SoftAssert    softAssert,
                                           boolean       expectedResult) {
         return checkIfViewSelected(xPath, softAssert, expectedResult, "");
+    }
+
+    protected void removeTemplate(String templateName){
+        WebElement templateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
+        Assert.assertNotNull(templateTab, "Cannot find template tab you are trying to remove: '"+templateName+"'");
+        WebElement trashBinIcon = findByXpath("//ti-tab[contains(., '"+templateName+"')]/div[@ng-click='removePage()']");
+        clickOn(trashBinIcon);
+        WebElement confirmDeletionBtn = findByXpath("//button[@ng-click='dialog.hide()']");
+        clickOn(confirmDeletionBtn);
+        waitForElementToBeInvisible(confirmDeletionBtn);
+        switchToProjectFrame();
+        WebElement body = findByXpath("//body");
+        waitForElementToStopMoving(body);
+        switchToDefaultContent();
+        Assert.assertTrue(waitForElementToBeInvisible(templateTab, 5), "Template '"+templateName+"' was not deleted. Template's tab is still visible.");
     }
 
     /**
