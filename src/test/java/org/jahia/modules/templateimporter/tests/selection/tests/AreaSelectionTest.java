@@ -186,7 +186,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         openProjectFirstTime(projectName, "index.html");
         selectArea(areaName, xPathToArea, 2, 0, true);
         switchToTemplate("home");
-        selectWrongElement(xPathToArea, 2, 0, expectedToastText, softAssert, "Selecting the same element on base and home");
+        selectWrongElement(xPathToArea, 2, 0, expectedToastText, softAssert, true, false, "Selecting the same element on base and home");
 
         softAssert.assertAll();
     }
@@ -289,8 +289,8 @@ public class AreaSelectionTest extends TemplateImporterRepository {
                 waitForElementToBeInvisible(toast);
             }
         }
-        checkIfAreaSelected(xPath, softAssert, expectedAreaSelection);
-        checkIfViewSelected(xPath, softAssert, expectedViewSelection);
+        checkIfAreaSelected(xPath, softAssert, expectedAreaSelection, errorMsg);
+        checkIfViewSelected(xPath, softAssert, expectedViewSelection, errorMsg);
     }
 
     protected void selectWrongElement(String       xPath,
