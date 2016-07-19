@@ -207,6 +207,11 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
         switchToDefaultContent();
+
+        WebElement iFrame = findByXpath("//iframe[@id='tiProjectFrame']");
+        String iFrameSrc = iFrame.getAttribute("src");
+        boolean sourceContainsPageName = iFrameSrc.contains(pageFileName);
+        Assert.assertTrue(sourceContainsPageName, "Iframe's SRC attribute does not contain page filename ("+pageFileName+"). SRC is: "+iFrameSrc);
     }
 
     /**
