@@ -574,6 +574,10 @@ public class TemplateImporterRepository extends ModuleTest {
         Assert.assertTrue(waitForElementToBeInvisible(templateTab, 5), "Template '"+templateName+"' was not deleted. Template's tab is still visible.");
     }
 
+    protected String getCurrentIframeSrc(){
+        return findByXpath("//iframe[@id='tiProjectFrame']").getAttribute("src");
+    }
+
     /**
      * Check if area is selected (has AreaSelection class)
      * @param xPath String, XPath to the view
