@@ -78,6 +78,42 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         softAssert.assertAll();
     }
 
+    @Test //MOD-1189
+    public void templateRemovalTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "TemplateManipulationTest.templateRemovalTest");
+        String projectName = randomWord(20);
+        String xPathToSelectInBase = "//body/div[1]";
+        String baseAreaName = randomWord(5);
+        String newTemplateOneName = "NewTemplateOne";
+        String newTemplateOnePage = "page1.html";
+        String newTemplateTwoName = "NewTemplateTwo";
+        String newTemplateTwoPage = "page2.html";
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(baseAreaName, xPathToSelectInBase, 1, 0, true);
+        createNewTemplate(newTemplateOneName, newTemplateOnePage);
+        createNewTemplate(newTemplateTwoName, newTemplateTwoPage);
+        String ifarmeSrcBeforeRemoval = getCurrentIframeSrc();
+        removeTemplate(newTemplateOneName);
+        softAssert.assertEquals(
+                getCurrentIframeSrc(),
+                ifarmeSrcBeforeRemoval,
+                "After removing not currently open template, iFrame's SRC has changed. (Loaded another template)"
+        );
+
+        createNewTemplate(newTemplateOneName, newTemplateOnePage);
+        ifarmeSrcBeforeRemoval = getCurrentIframeSrc();
+        removeTemplate(newTemplateOneName);
+        softAssert.assertNotEquals(
+                getCurrentIframeSrc(),
+                ifarmeSrcBeforeRemoval,
+                "After removing currently open template, iFrame's SRC has not changed. (Another template was not loaded)"
+        );
+
+        softAssert.assertAll();
+    }
+
     @Test
     public void clearSelectionsTest(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "TemplateManipulationTest.clearSelectionsTest");
