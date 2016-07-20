@@ -25,7 +25,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(areaA1Name, xPathAreaA1, 1, 0, true);
+        selectArea(areaA1Name, xPathAreaA1, 1, 0);
         createNewTemplate(templateOneName, "page1.html");
         createNewTemplate(templateTwoName, "page2.html");
 
@@ -63,7 +63,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseAreaName, xPathToSelectInBase, 1, 0, true);
+        selectArea(baseAreaName, xPathToSelectInBase, 1, 0);
         createNewTemplate(newTemplateName, newTemplatePage);
         checkTemplateName(newTemplateName, "", false, false, softAssert, "Two templates, same name.");
 
@@ -91,7 +91,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseAreaName, xPathToSelectInBase, 1, 0, true);
+        selectArea(baseAreaName, xPathToSelectInBase, 1, 0);
         createNewTemplate(newTemplateOneName, newTemplateOnePage);
         createNewTemplate(newTemplateTwoName, newTemplateTwoPage);
         String ifarmeSrcBeforeRemoval = getCurrentIframeSrc();
@@ -128,12 +128,12 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(areaA1Name, xPathAreaA1, 1, 0, true);
+        selectArea(areaA1Name, xPathAreaA1, 1, 0);
         clearSelections("base");
         checkIfAreaSelected(xPathAreaA1, softAssert, false, "Clear selections button was pressed when only one area selected.");
-        selectArea(areaA1Name, xPathAreaA1, 1, 0, true);
+        selectArea(areaA1Name, xPathAreaA1, 1, 0);
         selectView(viewName, nodeType, xPathViewV1, 1, 0);
-        selectArea(areaA2Name, xPathAreaA2, 1, 0, true);
+        selectArea(areaA2Name, xPathAreaA2, 1, 0);
         clearSelections("base");
         checkIfAreaSelected(xPathAreaA1, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
         checkIfAreaSelected(xPathAreaA2, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
@@ -156,9 +156,9 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(areaA1Name, xPathAreaA1, 1, 0, true);
+        selectArea(areaA1Name, xPathAreaA1, 1, 0);
         switchToTemplate("home");
-        selectArea(areaA2Name, xPathAreaA2, 1, 0, true);
+        selectArea(areaA2Name, xPathAreaA2, 1, 0);
         selectView(viewName, nodeType, xPathViewV1, 1, 0);
         clearSelections("base");
         checkIfAreaSelected(xPathAreaA2, softAssert, false, "Cleared areas on parent page (base).");
@@ -167,9 +167,9 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         switchToTemplate("base");
         checkIfAreaSelected(xPathAreaA1, softAssert, false, "Cleared areas on parent page (base).");
         //No areas at this point
-        selectArea(areaA1Name, xPathAreaA1, 1, 0, true);
+        selectArea(areaA1Name, xPathAreaA1, 1, 0);
         switchToTemplate("home");
-        selectArea(areaA2Name, xPathAreaA2, 1, 0, true);
+        selectArea(areaA2Name, xPathAreaA2, 1, 0);
         selectView(viewName, nodeType, xPathViewV1, 1, 0);
         clearSelections("home");
         checkIfAreaSelected(xPathAreaA2, softAssert, false, "Cleared areas on child page (home).");
@@ -192,7 +192,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseAreaName, xPathToSelectInBase, 1, 0, true);
+        selectArea(baseAreaName, xPathToSelectInBase, 1, 0);
         createNewTemplate(oldTemplateName, templatePage);
         checkTemplateRenaming(oldTemplateName, newTemplateName, isNameValid, reallyRenameTemplate, softAssert, "Test run:"+testRunID+". "+errorMsg);
 
@@ -208,7 +208,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseAreaName, xPathToSelectInBase, 1, 0, true);
+        selectArea(baseAreaName, xPathToSelectInBase, 1, 0);
         checkTemplateName(templateName, pageFileName, isNameValid, reallyCreateTemplate, softAssert, errorMsg);
 
         softAssert.assertAll();

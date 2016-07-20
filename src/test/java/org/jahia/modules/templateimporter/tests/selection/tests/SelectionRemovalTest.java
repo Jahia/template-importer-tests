@@ -20,7 +20,7 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(areaNameA1, xPathToSelectInBase, xOffsetA1Area, yOffsetA1Area, true);
+        selectArea(areaNameA1, xPathToSelectInBase, xOffsetA1Area, yOffsetA1Area);
         removeArea(xPathToSelectInBase, xOffsetA1Area, yOffsetA1Area);
         softAssert.assertAll();
     }
@@ -41,7 +41,7 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(nameAreaA1, xPathAreaA1, xOffsetA1Area, yOffsetA1Area, true);
+        selectArea(nameAreaA1, xPathAreaA1, xOffsetA1Area, yOffsetA1Area);
         selectView(nameViewV1, nodeTypeViewV1, xPathViewV1, xOffsetViewV1, yOffsetViewV1);
         removeView(xPathViewV1, xOffsetViewV1, yOffsetViewV1);
         checkIfAreaSelected(xPathAreaA1, softAssert, true, "Removed view from that area on base");
@@ -67,7 +67,7 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(nameAreaA1, xPathAreaA1, xOffsetA1Area, yOffsetA1Area, true);
+        selectArea(nameAreaA1, xPathAreaA1, xOffsetA1Area, yOffsetA1Area);
         selectView(nameViewV1, nodeTypeViewV1, xPathViewV1, xOffsetViewV1, yOffsetViewV1);
         removeArea(xPathAreaA1, xOffsetA1Area, yOffsetA1Area);
         checkIfAreaSelected(xPathAreaA1, softAssert, false);
@@ -95,9 +95,9 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(nameAreaA1, xPathAreaA1, xOffsetA1Area, yOffsetA1Area, true);
+        selectArea(nameAreaA1, xPathAreaA1, xOffsetA1Area, yOffsetA1Area);
         switchToTemplate("home");
-        selectArea(nameAreaA2, xPathAreaA2, xOffsetA2Area, yOffsetA2Area, true);
+        selectArea(nameAreaA2, xPathAreaA2, xOffsetA2Area, yOffsetA2Area);
         selectView(nameViewV1, nodeTypeViewV1, xPathViewV1, xOffsetViewV1, yOffsetViewV1);
         switchToTemplate("base");
         removeArea(xPathAreaA1, xOffsetA1Area, yOffsetA1Area, "Removing area from base that has view on home");

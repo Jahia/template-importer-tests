@@ -318,22 +318,16 @@ public class TemplateImporterRepository extends ModuleTest {
      *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
      * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
      *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
-     * @param surroundArea boolean, desired 'Surround area with selection tag' setting. True for enabled switch (default).
      */
     protected void selectArea(String    areaName,
                               String    xPath,
                               int       xOffset,
-                              int       yOffset,
-                              boolean   surroundArea){
+                              int       yOffset){
         rightMouseClick(xPath, xOffset, yOffset);
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
-        WebElement okButton = findByXpath("//button[@ng-click='dac.ok()']");
-        WebElement includeHTMLSwitch = findByXpath("//md-switch[@ng-model='dac.includesHTML']");
+        WebElement okButton = findByXpath("//button[@ng-click='hdc.area.ok()']");
         typeInto(areaNameField, areaName);
-        boolean isEnabled = includeHTMLSwitch.getAttribute("aria-checked").contains("true");
-        if(surroundArea && !isEnabled || !surroundArea && isEnabled){
-            clickOn(includeHTMLSwitch);
-        }
+
         waitForElementToBeEnabled(okButton, 5);
         clickOn(okButton);
         waitForElementToBeInvisible(okButton);
@@ -362,9 +356,12 @@ public class TemplateImporterRepository extends ModuleTest {
                               int       yOffset,
                               String    errorMsg){
         rightMouseClick(xPath, xOffset, yOffset);
+        WebElement viewTab = findByXpath("//md-tab-item[@ng-click='$mdTabsCtrl.select(tab.getIndex())'][contains(., 'view')]");
         WebElement viewNameField = findByXpath("//input[@name='viewName']");
         WebElement nodeTypeField = findByXpath("//input[@id='nodeTypeSelection-typeahead-input']");
-        WebElement okButton = findByXpath("//button[@ng-click='dvc.ok()']");
+        WebElement okButton = findByXpath("//button[@ng-click='hdc.view.ok()']");
+        clickOn(viewTab);
+        waitForElementToStopMoving(viewNameField);
         typeInto(viewNameField, viewName);
         typeInto(nodeTypeField, nodeType);
         waitForElementToBeEnabled(okButton, 5);
@@ -453,7 +450,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertTrue(isSelected, "Area that you are trying to remove is not selected.");
         rightMouseClick(xPath, xOffset, yOffset);
-        WebElement removeBtn = findByXpath("//button[@ng-click='dac.remove()']");
+        WebElement removeBtn = findByXpath("//button[@ng-click='hdc.area.remove()']");
         clickOn(removeBtn);
         waitForElementToBeInvisible(removeBtn);
         Assert.assertFalse(
@@ -482,7 +479,11 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertTrue(isSelected, "View that you are trying to remove is not selected.");
         rightMouseClick(xPath, xOffset, yOffset);
-        WebElement removeBtn = findByXpath("//button[@ng-click='dvc.remove()']");
+
+        WebElement viewTab = findByXpath("//md-tab-item[@ng-click='$mdTabsCtrl.select(tab.getIndex())'][contains(., 'view')]");
+        WebElement removeBtn = findByXpath("//button[@ng-click='hdc.view.remove()']");
+        clickOn(viewTab);
+        waitForElementToStopMoving(removeBtn);
         clickOn(removeBtn);
         waitForElementToBeInvisible(removeBtn);
         Assert.assertFalse(
