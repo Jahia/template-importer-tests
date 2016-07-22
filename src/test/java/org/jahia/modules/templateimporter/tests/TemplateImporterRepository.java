@@ -3,10 +3,7 @@ package org.jahia.modules.templateimporter.tests;
 import org.apache.commons.io.FileUtils;
 import org.jahia.modules.tests.core.ModuleTest;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.TimeoutException;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.testng.Assert;
@@ -57,6 +54,7 @@ public class TemplateImporterRepository extends ModuleTest {
         goToProjectsList(locale);
         waitForGlobalSpinner(1, 45);
         WebElement importProjectButton = findByXpath("//button[contains(., 'Import Project')]");
+        waitForElementToStopMoving(importProjectButton);
         clickOn(importProjectButton);
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
         WebElement projectDescriptionField = findByXpath("//textarea[@ng-model='ic.projectDescription']");
@@ -103,6 +101,7 @@ public class TemplateImporterRepository extends ModuleTest {
                 field.sendKeys(text);
                 Thread.sleep(200L);
             }catch (InterruptedException e){}
+            catch (StaleElementReferenceException ee){}
             if(new Date().getTime() - start >= maxMilliSecondsToWait){
                 getLogger().error("Text you are tried to type did not reach target's value in 5 sec.");
                 break;
@@ -192,6 +191,7 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement pageSelectDropdown = findByXpath("//md-select[@ng-model='selectedTemplate']");
         WebElement createBtn = findByXpath("//button[@ng-click='create()']");
 
+        waitForElementToStopMoving(pageSelectDropdown);
         clickOn(pageSelectDropdown);
         WebElement pageOption = findByXpath("//md-option[@value='"+pageFileName+"']");
         waitForElementToBeEnabled(pageOption, 5);
@@ -231,10 +231,12 @@ public class TemplateImporterRepository extends ModuleTest {
             WebElement removeSelectedBtn = findByXpath("//button[@aria-label='Remove Selected Project']");
 
             clickOn(selectAllCheckbox);
+            waitForElementToStopMoving(removeSelectedBtn);
             waitForElementToBeEnabled(removeSelectedBtn, 7);
             clickOn(removeSelectedBtn);
 
             WebElement confirmRemovalBtn = findByXpath("//button[@aria-label='Remove']");
+            waitForElementToStopMoving(confirmRemovalBtn);
             clickOn(confirmRemovalBtn);
             waitForElementToDisappear(confirmRemovalBtn, 10);
             waitForGlobalSpinner(1, 45);
@@ -262,6 +264,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertNotNull(checkboxToSelectProjectToDelete, "Checkbox to delete a project '"+projectName+"' not found. Does project exist?");
         clickOn(checkboxToSelectProjectToDelete);
+        waitForElementToStopMoving(removeSelectedBtn);
         waitForElementToBeEnabled(removeSelectedBtn, 7);
         clickOn(removeSelectedBtn);
         WebElement confirmRemovalBtn = findByXpath("//button[@aria-label='Remove']");
@@ -300,6 +303,7 @@ public class TemplateImporterRepository extends ModuleTest {
         clickOn(editProjectBtn);
         WebElement importBtn = findByXpath("//button[@ng-click='sbtc.submit()']");
         WebElement baseTemplateSelector = findByXpath("//md-select[@ng-model='sbtc.project.baseTemplate']");
+        waitForElementToStopMoving(baseTemplateSelector);
         clickOn(baseTemplateSelector);
         WebElement baseTemplateOption = findByXpath("//md-option[@value='"+baseTemplatePageName+"']");
         clickOn(baseTemplateOption);
@@ -326,8 +330,8 @@ public class TemplateImporterRepository extends ModuleTest {
         rightMouseClick(xPath, xOffset, yOffset);
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
         WebElement okButton = findByXpath("//button[@ng-click='hdc.area.ok()']");
+        waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
-
         waitForElementToBeEnabled(okButton, 5);
         clickOn(okButton);
         waitForElementToBeInvisible(okButton);
@@ -360,6 +364,7 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement viewNameField = findByXpath("//input[@name='viewName']");
         WebElement nodeTypeField = findByXpath("//input[@id='nodeTypeSelection-typeahead-input']");
         WebElement okButton = findByXpath("//button[@ng-click='hdc.view.ok()']");
+        waitForElementToStopMoving(viewTab);
         clickOn(viewTab);
         waitForElementToStopMoving(viewNameField);
         typeInto(viewNameField, viewName);
@@ -451,6 +456,7 @@ public class TemplateImporterRepository extends ModuleTest {
         Assert.assertTrue(isSelected, "Area that you are trying to remove is not selected.");
         rightMouseClick(xPath, xOffset, yOffset);
         WebElement removeBtn = findByXpath("//button[@ng-click='hdc.area.remove()']");
+        waitForElementToStopMoving(removeBtn);
         clickOn(removeBtn);
         waitForElementToBeInvisible(removeBtn);
         Assert.assertFalse(
@@ -482,6 +488,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         WebElement viewTab = findByXpath("//md-tab-item[@ng-click='$mdTabsCtrl.select(tab.getIndex())'][contains(., 'view')]");
         WebElement removeBtn = findByXpath("//button[@ng-click='hdc.view.remove()']");
+        waitForElementToStopMoving(viewTab);
         clickOn(viewTab);
         waitForElementToStopMoving(removeBtn);
         clickOn(removeBtn);
