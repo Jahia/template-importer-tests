@@ -163,15 +163,24 @@ public class TemplateImporterRepository extends ModuleTest {
         List<WebElement> spinners = new LinkedList<WebElement>();
 
         try {
-            WebElement tiOverlay = createWaitDriver(secondsToWaitSpinnerAppear, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay']")));
-            WebElement tiOverlayContent = createWaitDriver(secondsToWaitSpinnerAppear, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-overlay-content'']")));
-            WebElement spinner = createWaitDriver(secondsToWaitSpinnerAppear, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-global-spinner']")));
+            WebElement spinner = null;
+            WebElement tiOverlay;
+            WebElement tiOverlayContent;
+            try {
+                spinner = createWaitDriver(secondsToWaitSpinnerAppear, 300).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//div[@class='ti-global-spinner']")));
+
+            } catch (TimeoutException ee) {
+            }
+            tiOverlay = noWaitingFindBy(By.xpath("//div[@class='ti-overlay']"));
+            tiOverlayContent = noWaitingFindBy(By.xpath("//div[@class='ti-overlay-content']"));
             spinners.add(spinner);
             spinners.add(tiOverlay);
             spinners.add(tiOverlayContent);
 
             for (WebElement elementToWait : spinners) {
-                waitForElementToBeInvisible(elementToWait, secondsToWaitSpinnerDisappear);
+                if (elementToWait != null) {
+                    waitForElementToBeInvisible(elementToWait, secondsToWaitSpinnerDisappear);
+                }
             }
         } catch (TimeoutException e) {
         }
@@ -310,7 +319,13 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToBeEnabled(importBtn, 7);
         clickOn(importBtn);
         waitForElementToBeInvisible(importBtn);
+        WebElement uiBlocker = findByXpath("//ti-preload-screen/div");
+        waitForElementToBeInvisible(uiBlocker, 45);
         waitForGlobalSpinner(2, 45);
+        switchToProjectFrame();
+        WebElement body = findByXpath("//body");
+        waitForElementToStopMoving(body);
+        switchToDefaultContent();
     }
 
     /**
@@ -330,8 +345,10 @@ public class TemplateImporterRepository extends ModuleTest {
         rightMouseClick(xPath, xOffset, yOffset);
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
         WebElement okButton = findByXpath("//button[@ng-click='hdc.area.ok()']");
+        WebElement expandArea = findByXpath("//button[@ng-click='hdc.area.expandSelection()']");
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
+        clickOn(expandArea);
         waitForElementToBeEnabled(okButton, 5);
         clickOn(okButton);
         waitForElementToBeInvisible(okButton);
@@ -369,6 +386,7 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToStopMoving(viewNameField);
         typeInto(viewNameField, viewName);
         typeInto(nodeTypeField, nodeType);
+        clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
         waitForElementToBeEnabled(okButton, 5);
         clickOn(okButton);
         waitForElementToBeInvisible(okButton);
