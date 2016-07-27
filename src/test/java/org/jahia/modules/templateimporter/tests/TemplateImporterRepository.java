@@ -319,8 +319,6 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToBeEnabled(importBtn, 7);
         clickOn(importBtn);
         waitForElementToBeInvisible(importBtn);
-        WebElement uiBlocker = findByXpath("//ti-preload-screen/div");
-        waitForElementToBeInvisible(uiBlocker, 45);
         waitForGlobalSpinner(2, 45);
         switchToProjectFrame();
         WebElement body = findByXpath("//body");
