@@ -80,7 +80,7 @@ public class TemplateImporterRepository extends ModuleTest {
         Assert.assertEquals(
                 isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 5),
                 true,
-                "New project name is not found in projects list.");
+                "New project name ("+projectName+")is not found in projects list.");
     }
 
     /**
@@ -315,6 +315,8 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToStopMoving(baseTemplateSelector);
         clickOn(baseTemplateSelector);
         WebElement baseTemplateOption = findByXpath("//md-option[@value='"+baseTemplatePageName+"']");
+        waitForElementToBeEnabled(baseTemplateOption, 3);
+        waitForElementToStopMoving(baseTemplateOption);
         clickOn(baseTemplateOption);
         waitForElementToBeEnabled(importBtn, 7);
         clickOn(importBtn);

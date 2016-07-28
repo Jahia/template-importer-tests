@@ -80,6 +80,9 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         String xPathToBaseAreaChild = "//body/div[1]//div[contains(., 'Level 2-1')]";
         String baseAreaName = randomWord(5);
         String newTemplateName = randomWord(10);
+        String newTemplateAreaName = randomWord(8);
+        String xPathNewTemplateArea = "//body/div[1]/div[1]";
+        String xPathNewTemplateAreaTwo = "//body/div[1]/div[2]";
         String newTemplatePageFileName = "page1.html";
 
         importProject("en", projectName, "", "AlexLevels.zip");
@@ -93,6 +96,8 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         createNewTemplate(newTemplateName, newTemplatePageFileName);
         selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaSiblingChild, 1, 0, true, softAssert, "Base sibling on custom template.");
         selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaChild, 1, 0, true, softAssert, "Base child on custom template.");
+        selectArea(newTemplateAreaName, xPathNewTemplateArea, 1, 0);
+        selectAreaToCheckName(newTemplateAreaName, false, xPathNewTemplateAreaTwo, 1, 0, true, softAssert, "2 sibling areas on user created template.");
 
         softAssert.assertAll();
     }
