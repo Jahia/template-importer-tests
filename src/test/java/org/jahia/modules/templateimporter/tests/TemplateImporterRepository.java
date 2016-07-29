@@ -607,15 +607,23 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement confirmDeletionBtn = findByXpath("//button[@ng-click='dialog.hide()']");
         clickOn(confirmDeletionBtn);
         waitForElementToBeInvisible(confirmDeletionBtn);
+        Assert.assertTrue(waitForElementToBeInvisible(templateTab, 5), "Template '"+templateName+"' was not deleted. Template's tab is still visible.");
         switchToProjectFrame();
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
         switchToDefaultContent();
-        Assert.assertTrue(waitForElementToBeInvisible(templateTab, 5), "Template '"+templateName+"' was not deleted. Template's tab is still visible.");
     }
 
     protected String getCurrentIframeSrc(){
         return findByXpath("//iframe[@id='tiProjectFrame']").getAttribute("src");
+    }
+
+    protected String getCurrentIframeUrl(){
+        String url;
+        switchToProjectFrame();
+        url = returnJavascriptResponse("document.location.pathname");
+        switchToDefaultContent();
+        return url;
     }
 
     /**

@@ -67,12 +67,10 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         createNewTemplate(newTemplateName, newTemplatePage);
         checkTemplateName(newTemplateName, "", false, false, softAssert, "Two templates, same name.");
 
-        WebElement iFrame = findByXpath("//iframe[@id='tiProjectFrame']");
-        String oldIframeSource = iFrame.getAttribute("src");
+        String oldIframeUrl = getCurrentIframeUrl();
         removeTemplate(newTemplateName);
-        iFrame = findByXpath("//iframe[@id='tiProjectFrame']");
-        String newIframeSource = iFrame.getAttribute("src");
-        softAssert.assertNotEquals(oldIframeSource, newIframeSource, "iFrame's src attribute did not change after template removal. Old page is still loaded into iFrame.");
+        String newIframeUrl = getCurrentIframeUrl();
+        softAssert.assertNotEquals(oldIframeUrl, newIframeUrl, "iFrame's URL did not change after template removal. Old page is still loaded into iFrame.");
         createNewTemplate(newTemplateName, newTemplatePage);
 
         softAssert.assertAll();
@@ -94,21 +92,21 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         selectArea(baseAreaName, xPathToSelectInBase, 1, 0);
         createNewTemplate(newTemplateOneName, newTemplateOnePage);
         createNewTemplate(newTemplateTwoName, newTemplateTwoPage);
-        String ifarmeSrcBeforeRemoval = getCurrentIframeSrc();
+        String ifarmeUrlBeforeRemoval = getCurrentIframeUrl();
         removeTemplate(newTemplateOneName);
         softAssert.assertEquals(
-                getCurrentIframeSrc(),
-                ifarmeSrcBeforeRemoval,
-                "After removing not currently open template, iFrame's SRC has changed. (Loaded another template)"
+                getCurrentIframeUrl(),
+                ifarmeUrlBeforeRemoval,
+                "After removing not currently open template, iFrame's URL has changed. (Loaded another template)"
         );
 
         createNewTemplate(newTemplateOneName, newTemplateOnePage);
-        ifarmeSrcBeforeRemoval = getCurrentIframeSrc();
+        ifarmeUrlBeforeRemoval = getCurrentIframeUrl();
         removeTemplate(newTemplateOneName);
         softAssert.assertNotEquals(
-                getCurrentIframeSrc(),
-                ifarmeSrcBeforeRemoval,
-                "After removing currently open template, iFrame's SRC has not changed. (Another template was not loaded)"
+                getCurrentIframeUrl(),
+                ifarmeUrlBeforeRemoval,
+                "After removing currently open template, iFrame's URL has not changed. (Another template was not loaded)"
         );
 
         softAssert.assertAll();
