@@ -153,6 +153,18 @@ public class TemplateImporterRepository extends ModuleTest {
         return jsResponse;
     }
 
+    protected String returnJavascriptResponse(String javascript){
+        String jsResponse = null;
+        String javascriptToExecute = "return "+javascript;
+        try {
+            jsResponse = (String) ((JavascriptExecutor) driver).executeScript(javascriptToExecute);
+        } catch (Exception e) {
+            e.getMessage();
+            e.printStackTrace();
+        }
+        return jsResponse;
+    }
+
     /**
      * Waits for several layers of global spinner to appear and than disappear
      * @param secondsToWaitSpinnerAppear int, amount of seconds to wait for global spinner elements to appear
@@ -215,12 +227,11 @@ public class TemplateImporterRepository extends ModuleTest {
         switchToProjectFrame();
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
+        String iFrameUtl = returnJavascriptResponse("document.location.pathname");
         switchToDefaultContent();
 
-        WebElement iFrame = findByXpath("//iframe[@id='tiProjectFrame']");
-        String iFrameSrc = iFrame.getAttribute("src");
-        boolean sourceContainsPageName = iFrameSrc.contains(pageFileName);
-        Assert.assertTrue(sourceContainsPageName, "Iframe's SRC attribute does not contain page filename ("+pageFileName+"). SRC is: "+iFrameSrc);
+        boolean sourceContainsPageName = iFrameUtl.contains(pageFileName);
+        Assert.assertTrue(sourceContainsPageName, "Iframe's SRC attribute does not contain page filename ("+pageFileName+"). SRC is: "+iFrameUtl);
     }
 
     /**
