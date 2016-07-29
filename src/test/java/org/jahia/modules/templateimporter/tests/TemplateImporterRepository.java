@@ -61,8 +61,11 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement projectZipFileField = findByXpath("//input[@type='file']");
         WebElement importButton = findByXpath("//button[@aria-label='Import']");
         WebElement dialogueBox = findByXpath("//div[@class='md-dialog-container ng-scope']");
-
-        createWaitDriver(5, 500).until(CustomExpectedConditions.javascriptWithoutException(jsToEnableInput));
+        try {
+            createWaitDriver(5, 500).until(CustomExpectedConditions.javascriptWithoutException(jsToEnableInput));
+        }catch(TimeoutException e){
+            getLogger().error("Hidden Input field might be not activated. JavaScript execution still produces errors even after 5 - 7 attempts.");
+        }
         typeInto(projectNameField, projectName);
         typeInto(projectDescriptionField, projectDescription);
         projectZipFileField.sendKeys(zipFilePath);
