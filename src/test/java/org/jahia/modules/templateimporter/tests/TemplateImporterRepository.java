@@ -57,7 +57,7 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToStopMoving(importProjectButton);
         clickOn(importProjectButton);
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
-        WebElement projectDescriptionField = findByXpath("//textarea[@ng-model='ic.projectDescription']");
+        WebElement projectDescriptionField = findByXpath("//textarea[@ng-model='ipc.projectDescription']");
         WebElement projectZipFileField = findByXpath("//input[@type='file']");
         WebElement importButton = findByXpath("//button[@aria-label='Import']");
         WebElement dialogueBox = findByXpath("//div[@class='md-dialog-container ng-scope']");
