@@ -2,15 +2,10 @@ package org.jahia.modules.templateimporter.tests.modulegeneration.tests;
 
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import java.io.File;
-import java.util.Date;
-import java.util.HashMap;
 
 /**
  * Created by sergey on 2016-07-25.
@@ -122,7 +117,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
-        checkFolderInModuleSources(softAssert, sourceFolderPath, folderWithAssetsName, expectedItemsInAssetsFolder);
+        checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, expectedItemsInAssetsFolder);
         checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace);
         checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace);
@@ -190,39 +185,6 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         );
     }
 
-    protected void checkFolderInModuleSources(SoftAssert    softAssert,
-                                              String        sourceFolderPath,
-                                              String        folderName,
-                                              String[]      expectedFolderContent){
-        boolean folderExist = false;
-        HashMap<String, Boolean> filesFoundInAssetsFolder = new HashMap<String, Boolean>();
-
-        for(String filename:expectedFolderContent){
-            filesFoundInAssetsFolder.put(filename, false);
-        }
-
-        File[] files = findFilesOrDirectories(sourceFolderPath+"/src/main/resources", folderName, "");
-        if(files != null &&
-                files.length > 0 &&
-                files[0].exists() &&
-                files[0].isDirectory()){
-            folderExist = true;
-            for(String fileFound:files[0].list()){
-               filesFoundInAssetsFolder.put(fileFound, true);
-           }
-            for (String filename:filesFoundInAssetsFolder.keySet()){
-                softAssert.assertTrue(
-                        filesFoundInAssetsFolder.get(filename),
-                        "Folder with name '"+folderName+"' does not contain file '"+filename+"'."
-                );
-            }
-        }
-        softAssert.assertTrue(
-                folderExist,
-                "Folder with name '"+folderName+"' not found in generated module's src folder."
-        );
-    }
-
     protected void checkAreaFile(SoftAssert    softAssert,
                                  String        sourceFolderPath,
                                  Area          area,
@@ -264,64 +226,12 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         );
     }
 
-    /**
-     * Check if module started
-     * @param moduleID String, Module ID
-     * @return True if module is started
-     */
-    protected boolean isModuleStarted(String moduleID){
-        return checkModuleState(moduleID).contains("STARTED");
-    }
-
     protected void selectView(View view) {
         selectView(view.getName(), view.getNodeType(), view.getXpath(), view.getxOffset(), view.getyOffset());
     }
 
     protected void selectArea(Area area){
         selectArea(area.getName(), area.getXpath(), area.getxOffset(), area.getyOffset());
-    }
-
-    /**
-     * Click on 'Generate module', fill in all the fields, click create or cancel
-     * @param moduleName String, Module name
-     * @param definitionNameSpace String Definition name space
-     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
-     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
-     */
-    protected void generateModule(String    moduleName,
-                                  String    definitionNameSpace,
-                                  String    sourcesFolder,
-                                  boolean   reallyGenerate){
-        String xPathToSuccessfulToast = "//div[contains(@class, 'toast-title')][contains(., 'All done!!! Your module is ready!!!')]";
-
-        WebElement generateModuleBtn = findByXpath("//button[@ng-click='cmc.showCreateDialog($event)']");
-        clickOn(generateModuleBtn);
-        WebElement moduleNameField = findByXpath("//input[@name='moduleName']");
-        WebElement definitionNameSpaceField = findByXpath("//input[@name='nameSpace']");
-        WebElement sourcesFolderField = findByXpath("//input[@name='sources']");
-        WebElement createBtn = findByXpath("//button[@ng-click='create()']");
-        WebElement cancelBtn = findByXpath("//button[@ng-click='cancel()']");
-        waitForElementToStopMoving(moduleNameField);
-        typeInto(moduleNameField, moduleName);
-        typeInto(definitionNameSpaceField, definitionNameSpace);
-        typeInto(sourcesFolderField, sourcesFolder);
-        if(reallyGenerate){
-            waitForElementToBeEnabled(createBtn, 5);
-            clickOn(createBtn);
-            waitForElementToBeInvisible(createBtn);
-            Long start = new Date().getTime();
-            waitForGlobalSpinner(2, 180);
-            Long finish = new Date().getTime();
-            Assert.assertTrue(
-                    isVisible(By.xpath(xPathToSuccessfulToast), 2),
-                    "Success toast not found after module generation. " +
-                    "Global spinner was visible for at least "+(finish-start)+" milliseconds. (Maximum is 180000)");
-            clickOn(By.xpath(xPathToSuccessfulToast));
-        }else{
-            waitForElementToBeEnabled(cancelBtn, 5);
-            clickOn(cancelBtn);
-            waitForElementToBeInvisible(cancelBtn);
-        }
     }
 
     /**

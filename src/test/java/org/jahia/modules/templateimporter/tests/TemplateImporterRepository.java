@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.HashMap;
 
 /**
  * Created by sergey on 2016-06-16.
@@ -81,7 +82,7 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToDisappear(dialogueBox, 7);
         waitForElementToDisappear(importButton, 7);
         Assert.assertEquals(
-                isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 5),
+                isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 10),
                 true,
                 "New project name ("+projectName+")is not found in projects list.");
     }
@@ -612,6 +613,98 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
         switchToDefaultContent();
+    }
+
+    /**
+     * Click on 'Generate module', fill in all the fields, click create or cancel
+     * @param moduleName String, Module name
+     * @param definitionNameSpace String Definition name space
+     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
+     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
+     */
+    protected void generateModule(String    moduleName,
+                                  String    definitionNameSpace,
+                                  String    sourcesFolder,
+                                  boolean   reallyGenerate){
+        String xPathToSuccessfulToast = "//div[contains(@class, 'toast-title')][contains(., 'All done!!! Your module is ready!!!')]";
+
+        WebElement generateModuleBtn = findByXpath("//button[@ng-click='cmc.showCreateDialog($event)']");
+        clickOn(generateModuleBtn);
+        WebElement moduleNameField = findByXpath("//input[@name='moduleName']");
+        WebElement definitionNameSpaceField = findByXpath("//input[@name='nameSpace']");
+        WebElement sourcesFolderField = findByXpath("//input[@name='sources']");
+        WebElement createBtn = findByXpath("//button[@ng-click='create()']");
+        WebElement cancelBtn = findByXpath("//button[@ng-click='cancel()']");
+        waitForElementToStopMoving(moduleNameField);
+        typeInto(moduleNameField, moduleName);
+        typeInto(definitionNameSpaceField, definitionNameSpace);
+        typeInto(sourcesFolderField, sourcesFolder);
+        if(reallyGenerate){
+            waitForElementToBeEnabled(createBtn, 5);
+            clickOn(createBtn);
+            waitForElementToBeInvisible(createBtn);
+            Long start = new Date().getTime();
+            waitForGlobalSpinner(2, 180);
+            Long finish = new Date().getTime();
+            Assert.assertTrue(
+                    isVisible(By.xpath(xPathToSuccessfulToast), 2),
+                    "Success toast not found after module generation. " +
+                            "Global spinner was visible for at least "+(finish-start)+" milliseconds. (Maximum is 180000)");
+            clickOn(By.xpath(xPathToSuccessfulToast));
+        }else{
+            waitForElementToBeEnabled(cancelBtn, 5);
+            clickOn(cancelBtn);
+            waitForElementToBeInvisible(cancelBtn);
+        }
+    }
+
+    /**
+     * After module generation check that module's sources folder contains desired folder or file
+     * @param softAssert instance of soft assert you are working with
+     * @param sourceFolderPath String, absolute path to the module's sources folder. You specified that folder in module generation dialogue.
+     * @param folderName String, folder to look into in sourceFolderPath/src/main/resources/
+     * @param expectedFolderContent String[], Array of filenames you expect to find in folderName
+     */
+    protected void checkFolderInModulesResources(SoftAssert    softAssert,
+                                                 String        sourceFolderPath,
+                                                 String        folderName,
+                                                 String[]      expectedFolderContent){
+        boolean folderExist = false;
+        HashMap<String, Boolean> filesFoundInAssetsFolder = new HashMap<String, Boolean>();
+
+        for(String filename:expectedFolderContent){
+            filesFoundInAssetsFolder.put(filename, false);
+        }
+
+        File[] files = findFilesOrDirectories(sourceFolderPath+"/src/main/resources", folderName, "");
+        if(files != null &&
+                files.length > 0 &&
+                files[0].exists() &&
+                files[0].isDirectory()){
+            folderExist = true;
+            for(String fileFound:files[0].list()){
+                filesFoundInAssetsFolder.put(fileFound, true);
+            }
+            for (String filename:filesFoundInAssetsFolder.keySet()){
+                softAssert.assertTrue(
+                        filesFoundInAssetsFolder.get(filename),
+                        "Folder with name '"+folderName+"' does not contain file '"+filename+"'."
+                );
+            }
+        }
+        softAssert.assertTrue(
+                folderExist,
+                "Folder with name '"+folderName+"' not found in generated module's src folder."
+        );
+    }
+
+    /**
+     * Check if module started
+     * @param moduleID String, Module ID
+     * @return True if module is started
+     */
+    protected boolean isModuleStarted(String moduleID){
+        return checkModuleState(moduleID).contains("STARTED");
     }
 
     protected String getCurrentIframeSrc(){

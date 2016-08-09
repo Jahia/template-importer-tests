@@ -10,6 +10,7 @@
             <class name="org.jahia.modules.templateimporter.tests.selection.tests.SelectionRemovalTest"/>
             <class name="org.jahia.modules.templateimporter.tests.selection.tests.TemplateManipulationTest"/>
             <class name="org.jahia.modules.templateimporter.tests.modulegeneration.tests.GenerateModuleTest"/>
+            <class name="org.jahia.modules.templateimporter.tests.assetmanagement.tests.ManageAssetsTest"/>
         </classes>
     </test>
 </suite>
