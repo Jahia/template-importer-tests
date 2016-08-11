@@ -4,6 +4,7 @@ import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -20,7 +21,7 @@ public class ManageAssetsTest extends TemplateImporterRepository{
 
     @Test
     public void checkDefaultFoldersCopying() {
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "GenerateModuleTest.generateModuleTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "GenerateModuleTest.checkDefaultFoldersCopying");
         String projectName = randomWord(8);
         String moduleName = randomWord(10);
         String definitionNameSpace = randomWord(3);
@@ -44,12 +45,7 @@ public class ManageAssetsTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "Assets.zip");
         openProjectFirstTime(projectName, "index.html");
-        WebElement assetManagementBtn = findByXpath("//button[@ng-click='project.mapAssets()']");
-        clickOn(assetManagementBtn);
-        softAssert.assertTrue(
-                isVisible(By.xpath("//span[contains(., 'Template Importer - Assets Management')]"), 7),
-                "Title 'Template Importer - Assets Management' is not visible after clicking asset management button."
-        );
+        openAssetsManagement();
         //Check that css, img and javascript folders are not visible in assets
         checkItemVisibility(softAssert, AVAILABLE_ASSETS_COL_NAME, "AnotherFolder", true, "");
         checkItemVisibility(softAssert, CSS_COL_NAME, "css", false, "");
@@ -70,13 +66,40 @@ public class ManageAssetsTest extends TemplateImporterRepository{
         softAssert.assertAll();
     }
 
+    private void expandFolder(String    column,
+                              String    folderName){
+        WebElement expandBtn = findByXpath("//div[./md-toolbar[.//h5[text()='"+column+"']]]//li[./strong[text()='"+folderName+"']]" +
+                "/span[@ng-click='amc.toggleFolder(list, $index, item.assetPath, item.assetName)']");
+        Assert.assertNotNull(expandBtn, "Expand button not found for item: '"+folderName+"' in clumn:'"+column+"'.");
+        clickOn(expandBtn);
+        waitForElementToBeInvisible(expandBtn, 5);
+    }
+
+    private void shrinkFolder(String    column,
+                              String    folderName){
+        WebElement shrinkBtn = findByXpath("//div[./md-toolbar[.//h5[text()='"+column+"']]]" +
+                "//li[.//strong[text()='"+folderName+"']]/div/span[@ng-click='amc.toggleFolder(list, $index, item.assetPath, item.assetName)']");
+        Assert.assertNotNull(shrinkBtn, "Expand button not found for item: '"+folderName+"' in clumn:'"+column+"'.");
+        clickOn(shrinkBtn);
+        waitForElementToBeInvisible(shrinkBtn, 5);
+    }
+
+    private void openAssetsManagement() {
+        WebElement assetManagementBtn = findByXpath("//button[@ng-click='project.mapAssets()']");
+        clickOn(assetManagementBtn);
+        Assert.assertTrue(
+                isVisible(By.xpath("//span[contains(., 'Template Importer - Assets Management')]"), 7),
+                "Title 'Template Importer - Assets Management' is not visible after clicking asset management button."
+        );
+    }
+
     protected void checkItemVisibility(SoftAssert   softAssert,
                                        String       columnName,
                                        String       itemName,
                                        boolean      expectedVisibiity,
                                        String       errorMsg){
         softAssert.assertEquals(
-                isVisible(By.xpath("//div[./md-toolbar[contains(., '"+columnName+"')]]//strong[text()='"+itemName+"']"), 3),
+                isVisible(By.xpath("//div[./md-toolbar[.//h5[text()='"+columnName+"']]]//strong[text()='"+itemName+"']"), 3),
                 expectedVisibiity,
                 errorMsg+"Item visibility error during asset management. Column: "+columnName+", Item: "+itemName+"."
         );
