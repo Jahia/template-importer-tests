@@ -150,7 +150,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         selectView(homeV1);
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
-                isModuleStarted(moduleName),
+                isModuleStarted(moduleName.toLowerCase().replace(" ", "-")),
                 "Module '"+moduleName+"' did not start after generation.");
         checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace);
@@ -169,7 +169,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
     protected void checkJntTemplateFile(SoftAssert   softAssert,
                                         String       sourceFolderPath,
                                         String       moduleName){
-        String jntTemplateFileName = "template."+moduleName+".jsp";
+        String jntTemplateFileName = "template."+moduleName.toLowerCase().replace(" ", "-")+".jsp";
         boolean jntTemplateExist = false;
 
         File[] files = findFilesOrDirectories(sourceFolderPath+"/src/main/resources/jnt_template/html", jntTemplateFileName, "jsp");

@@ -82,7 +82,7 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToDisappear(dialogueBox, 7);
         waitForElementToDisappear(importButton, 7);
         Assert.assertEquals(
-                isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 10),
+                isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 20),
                 true,
                 "New project name ("+projectName+")is not found in projects list.");
     }

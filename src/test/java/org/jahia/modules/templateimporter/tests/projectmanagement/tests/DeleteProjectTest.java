@@ -12,12 +12,12 @@ import java.util.Map;
 /**
  * Created by sergey on 2016-06-29.
  */
-public class DeletProjectTest extends TemplateImporterRepository {
+public class DeleteProjectTest extends TemplateImporterRepository {
     @Test
     public void deleteProjectTest(){
         String projectToDeleteName = randomWord(7);
         String projectToKeepName = randomWord(5);
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "DeletProjectTest.deleteProjectTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "DeleteProjectTest.deleteProjectTest");
 
         importProject("en", projectToDeleteName, "", "AlexLevels.zip");
         importProject("en", projectToKeepName, "", "AlexLevels.zip");
@@ -34,7 +34,7 @@ public class DeletProjectTest extends TemplateImporterRepository {
 
     @Test
     public void deleteAllProjectsTest(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "DeletProjectTest.deleteAllProjectsTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "DeleteProjectTest.deleteAllProjectsTest");
         int projectsToImport = 5;
         Map<String, String> projectsInfo = new HashMap<String, String>();
 
