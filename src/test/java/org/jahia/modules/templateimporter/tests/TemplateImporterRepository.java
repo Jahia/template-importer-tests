@@ -1,6 +1,8 @@
 package org.jahia.modules.templateimporter.tests;
 
 import org.apache.commons.io.FileUtils;
+import org.jahia.modules.templateimporter.tests.businessobjects.Area;
+import org.jahia.modules.templateimporter.tests.businessobjects.View;
 import org.jahia.modules.tests.core.ModuleTest;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.openqa.selenium.*;
@@ -373,6 +375,10 @@ public class TemplateImporterRepository extends ModuleTest {
                 "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+xPath);
     }
 
+    protected void selectArea(Area area){
+        selectArea(area.getName(), area.getXpath(), area.getxOffset(), area.getyOffset());
+    }
+
     /**
      * Selects a view in current template with given parameters. Will switch to the iFrame before selection and switch
      * back after. Checks that selected area has 'ViewSelection' class after selection.
@@ -427,6 +433,10 @@ public class TemplateImporterRepository extends ModuleTest {
                               int       xOffset,
                               int       yOffset){
         selectView(viewName, nodeType, xPath, xOffset, yOffset, "");
+    }
+
+    protected void selectView(View view) {
+        selectView(view.getName(), view.getNodeType(), view.getXpath(), view.getxOffset(), view.getyOffset());
     }
 
     protected void switchToProjectFrame(){

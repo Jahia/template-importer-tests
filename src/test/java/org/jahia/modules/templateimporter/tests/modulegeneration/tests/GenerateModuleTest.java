@@ -1,6 +1,8 @@
 package org.jahia.modules.templateimporter.tests.modulegeneration.tests;
 
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
+import org.jahia.modules.templateimporter.tests.businessobjects.Area;
+import org.jahia.modules.templateimporter.tests.businessobjects.View;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -224,76 +226,5 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 viewFileExist,
                 "jsp file for "+view.getName()+" view not found. Expected file name: '"+viewFileName+"'. Expected path: "+viewFolderPath
         );
-    }
-
-    protected void selectView(View view) {
-        selectView(view.getName(), view.getNodeType(), view.getXpath(), view.getxOffset(), view.getyOffset());
-    }
-
-    protected void selectArea(Area area){
-        selectArea(area.getName(), area.getXpath(), area.getxOffset(), area.getyOffset());
-    }
-
-    /**
-     * Business Object, representation of "Area selection"
-     */
-    private class Area{
-        private String name;
-        private String xPath;
-        private String templateName;
-        private int xOffset;
-        private int yOffset;
-
-        Area(String name, String xPath, int xOffset, int yOffset, String templateName){
-            this.name = name;
-            this.xPath = xPath;
-            this.xOffset = xOffset;
-            this.yOffset = yOffset;
-            this.templateName = templateName;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public String getXpath() {
-            return xPath;
-        }
-
-        public String getTemplateName() {
-            return templateName;
-        }
-
-        public int getxOffset() {
-            return xOffset;
-        }
-
-        public int getyOffset() {
-            return yOffset;
-        }
-    }
-
-    /**
-     * Business Object, representation of "View selection"
-     */
-    private class View extends Area{
-        private String nodeType;
-
-        View(String viewName, String nodeType, String xPathToView, int xOffset, int yOffset, String templateName){
-            super(viewName, xPathToView, xOffset, yOffset, templateName);
-            this.nodeType = nodeType;
-        }
-
-        public String getNodeType() {
-            return nodeType;
-        }
-
-        public void setNodeType(String nodeType) {
-            this.nodeType = nodeType;
-        }
     }
 }
