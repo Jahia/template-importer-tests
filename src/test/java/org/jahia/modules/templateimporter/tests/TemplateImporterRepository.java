@@ -222,6 +222,7 @@ public class TemplateImporterRepository extends ModuleTest {
         clickOn(pageSelectDropdown);
         WebElement pageOption = findByXpath("//md-option[@value='"+pageFileName+"']");
         waitForElementToBeEnabled(pageOption, 5);
+        waitForElementToStopMoving(pageOption);
         clickOn(pageOption);
         typeInto(templateNameField, templateName);
         waitForElementToBeEnabled(createBtn, 5);
