@@ -18,4 +18,8 @@ public class View extends Area{
     public void setNodeType(String nodeType) {
         this.nodeType = nodeType;
     }
+
+    public boolean isArea(){
+        return false;
+    }
 }

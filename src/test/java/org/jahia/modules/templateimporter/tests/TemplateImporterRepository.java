@@ -555,7 +555,7 @@ public class TemplateImporterRepository extends ModuleTest {
                                           String        errorMsg) {
         switchToProjectFrame();
         WebElement area = findByXpath(xPath);
-        softAssert.assertNotNull(area, "Cannot find an element that you are trying to check if selected as area. XPath: '" + xPath + "'.");
+        softAssert.assertNotNull(area, errorMsg+". Cannot find an element that you are trying to check if selected as area. XPath: '" + xPath + "'.");
 
         boolean isAreaSelected = area.getAttribute("class").contains(SELECTED_AREA_MARK);
         switchToDefaultContent();

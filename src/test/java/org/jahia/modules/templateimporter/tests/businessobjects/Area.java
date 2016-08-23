@@ -41,4 +41,8 @@ public class Area {
     public int getyOffset() {
         return yOffset;
     }
+
+    public boolean isArea(){
+        return true;
+    }
 }
