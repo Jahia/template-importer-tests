@@ -451,6 +451,12 @@ public class TemplateImporterRepository extends ModuleTest {
     protected void switchToTemplate(String templateName){
         WebElement templateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
         clickOn(templateTab);
+        waitForElementToDisappear(templateTab, 3);
+        templateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
+        Assert.assertNotNull(templateName, "Template with name "+templateName+" not found after clicking on it.");
+        Assert.assertTrue(templateTab.getAttribute("class").contains("tiRaised"),
+                "Switching to template '"+templateName+"' failed. After clicking on template tab it did not become active." +
+                        "(Does not have tiRaised class.)");
         switchToProjectFrame();
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
