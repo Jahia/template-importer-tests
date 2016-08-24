@@ -41,7 +41,6 @@
     <packaging>jar</packaging>
     <properties>
         <selenium.jahia.host>www.form-factory-test.dev.org</selenium.jahia.host>
-        <selenium.browser>firefox</selenium.browser>
         <selenium.jahia.remote>true</selenium.jahia.remote>
         <selenium.jahia.context>/qa</selenium.jahia.context>
         <!-- Name of the bundle that has to be started to launch the test -->
