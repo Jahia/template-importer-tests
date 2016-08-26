@@ -154,7 +154,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
             }
 
             clickOn(changerBtn);
-            if(getBrowser().equals("firefox")){
+            if(getBrowser().equals(FIREFOX)){
                 //FirefoxDriver bug workaround
                 for (int i = 0; i<20; i++){
                     colorInput.sendKeys(Keys.BACK_SPACE);
@@ -189,7 +189,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
             WebElement selection = findByXpath(area.getXpath());
             Map<String, String> borderTypeAndColor = new HashMap<String, String>();
 
-            if(getBrowser().equals("chrome")) {
+            if(getBrowser().equals(CHROME)) {
                 String[] borderCssAttributes = selection.getCssValue("border").split(" ", 3);
                 borderTypeAndColor.put(AREA_BORDER_TYPE_KEY, borderCssAttributes[1]);
                 borderTypeAndColor.put(AREA_BORDER_COLOR_KEY, borderCssAttributes[2]);
@@ -211,7 +211,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
         int b = randInt(0, 255);
         String opacity = "0."+randInt(1, 9);
 
-        if(getBrowser().equals("chrome")){
+        if(getBrowser().equals(CHROME)){
             return "rgb("+r+", "+g+", "+b+")";
         }else{
             return "rgba("+r+", "+g+", "+b+", "+opacity+")";
