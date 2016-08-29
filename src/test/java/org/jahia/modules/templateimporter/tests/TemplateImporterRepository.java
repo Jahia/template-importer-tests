@@ -103,6 +103,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         while(!getValueFromInput(xPath).equals(text)){
             try{
+                waitForElementToStopMoving(field);
                 clickOn(field);
                 field.clear();
                 field.sendKeys(text);

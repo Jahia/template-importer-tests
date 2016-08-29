@@ -6,10 +6,12 @@ import org.jahia.modules.templateimporter.tests.businessobjects.View;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -91,6 +93,66 @@ public class SelectionColorTests extends TemplateImporterRepository{
     }
 
     @Test
+    public void areaVisibilityTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaVisibilityTest");
+        String projectName = randomWord(8);
+        Area baseA1 = new Area(randomWord(5), "//body/div[1]", 1, 0, "base");
+        Area baseA2 = new Area(randomWord(3), "//body/div[3]", 1, 0, "base");
+        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 1, 0, "home");
+        View baseV1 = new View(randomWord(6), "jnt:bootstrapMainContent", baseA2.getXpath()+"/div[1]", 1, 0, baseA2.getTemplateName());
+        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 1, 0, homeA1.getTemplateName());
+        Map<String, Map<String, String>> originalBorderColors;
+        Map<String, Map<String, String>> actualNewBorderColors;
+        Map<String, Map<String, String>> resetedBorderColors;
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(baseA1);
+        selectArea(baseA2);
+        selectView(baseV1);
+        switchToTemplate("home");
+        selectArea(homeA1);
+        selectView(homeV1);
+
+        switchToTemplate(baseA1.getTemplateName());
+        switchToTemplate(homeA1.getTemplateName());
+
+        Area[] allAreas = new Area[]{baseA1, baseA2, baseV1, homeA1, homeV1};
+        originalBorderColors = getBorderColors(allAreas);
+        turnOffVisibility();
+        actualNewBorderColors = getBorderColors(allAreas);
+        resetColors();
+        resetedBorderColors = getBorderColors(allAreas);
+
+        for(Area area:allAreas){
+            String areaName = area.getName();
+            String expectedBorderType = "none";
+            String actualBorderType = actualNewBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String expectedBorderTypeAfterReset = originalBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String actualBorderTypeAfterReset = resetedBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String expectedBorderColorAfterReset = originalBorderColors.get(areaName).get(AREA_BORDER_COLOR_KEY);
+            String actualBorderColorAfterReset = resetedBorderColors.get(areaName).get(AREA_BORDER_COLOR_KEY);
+
+            softAssert.assertEquals(
+                    actualBorderType,
+                    expectedBorderType,
+                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after visibility change."
+            );
+            softAssert.assertEquals(
+                    actualBorderTypeAfterReset,
+                    expectedBorderTypeAfterReset,
+                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after visibility reset."
+            );
+            softAssert.assertEquals(
+                    actualBorderColorAfterReset,
+                    expectedBorderColorAfterReset,
+                    "Unexpected border color for selection '"+areaName+"' ("+area.getXpath()+") after visibility reset."
+            );
+        }
+        softAssert.assertAll();
+    }
+
+    @Test
     public void areaWithLimitColorTest(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaWithLimitColorTest");
         String projectName = randomWord(8);
@@ -151,6 +213,80 @@ public class SelectionColorTests extends TemplateImporterRepository{
         }
 
         softAssert.assertAll();
+    }
+
+    @Test
+    public void areaWithLimitVisibilityTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaWithLimitVisibilityTest");
+        String projectName = randomWord(8);
+        Area baseA1 = new Area(randomWord(5), "//body/div[1]", "//body/div[1]/div[1]", 1, 0, "base");
+        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", 1, 0, "home");
+        Map<String, Map<String, String>> originalBorderColors;
+        Map<String, Map<String, String>> actualNewBorderColors;
+        Map<String, Map<String, String>> resetedBorderColors;
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(baseA1, 2);
+        switchToTemplate(homeA1.getTemplateName());
+        selectArea(homeA1, 2);
+
+        switchToTemplate(baseA1.getTemplateName());
+        switchToTemplate(homeA1.getTemplateName());
+
+        Area[] allAreas = new Area[]{baseA1, homeA1};
+        originalBorderColors = getBorderColors(allAreas);
+        turnOffVisibility();
+        actualNewBorderColors = getBorderColors(allAreas);
+        resetColors();
+        resetedBorderColors = getBorderColors(allAreas);
+
+        for(Area area:allAreas){
+            String areaName = area.getName();
+            String expectedBorderType = "none";
+            String actualBorderType = actualNewBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String expectedBorderTypeAfterReset = originalBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String actualBorderTypeAfterReset = resetedBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String expectedBorderColorAfterReset = originalBorderColors.get(areaName).get(AREA_BORDER_COLOR_KEY);
+            String actualBorderColorAfterReset = resetedBorderColors.get(areaName).get(AREA_BORDER_COLOR_KEY);
+
+            softAssert.assertEquals(
+                    actualBorderType,
+                    expectedBorderType,
+                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after visibility change."
+            );
+            softAssert.assertEquals(
+                    actualBorderTypeAfterReset,
+                    expectedBorderTypeAfterReset,
+                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after visibility reset."
+            );
+            softAssert.assertEquals(
+                    actualBorderColorAfterReset,
+                    expectedBorderColorAfterReset,
+                    "Unexpected border color for selection '"+areaName+"' ("+area.getXpath()+") after visibility reset."
+            );
+        }
+
+        softAssert.assertAll();
+    }
+
+    private void turnOffVisibility(){
+        WebElement adjustColorsBtn = findByXpath("//button[@ng-click='project.setUpColors($event)']");
+        clickOn(adjustColorsBtn);
+        WebElement applyBtn = findByXpath("//button[@ng-click='sdoc.apply()']");
+        waitForElementToStopMoving(applyBtn);
+        List<WebElement> toggles = findElementsByXpath("//md-dialog-content//md-switch");
+
+        for(WebElement toggle:toggles){
+            clickOn(toggle);
+            Assert.assertTrue(toggle.getAttribute("aria-checked").equals("false"));
+        }
+        clickOn(applyBtn);
+        waitForElementToBeInvisible(applyBtn);
+        switchToProjectFrame();
+        WebElement body = findByXpath("//body");
+        waitForElementToStopMoving(body);
+        switchToDefaultContent();
     }
 
     private void resetColors(){
