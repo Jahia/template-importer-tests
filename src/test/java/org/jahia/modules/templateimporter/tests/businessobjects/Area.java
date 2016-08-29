@@ -7,6 +7,7 @@ public class Area {
     private String name;
     private String xPath;
     private String templateName;
+    private String xPathToInternalArea;
     private int xOffset;
     private int yOffset;
 
@@ -16,6 +17,16 @@ public class Area {
         this.xOffset = xOffset;
         this.yOffset = yOffset;
         this.templateName = templateName;
+        this.xPathToInternalArea = null;
+    }
+
+    public Area(String name, String xPath, String xPathToInternalArea, int xOffset, int yOffset, String templateName){
+        this.name = name;
+        this.xPath = xPath;
+        this.xOffset = xOffset;
+        this.yOffset = yOffset;
+        this.templateName = templateName;
+        this.xPathToInternalArea = xPathToInternalArea;
     }
 
     public String getName() {
@@ -44,5 +55,9 @@ public class Area {
 
     public boolean isArea(){
         return true;
+    }
+
+    public String getxPathToInternalArea() {
+        return xPathToInternalArea;
     }
 }

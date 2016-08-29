@@ -25,6 +25,7 @@ import java.util.HashMap;
 public class TemplateImporterRepository extends ModuleTest {
     protected static final String SELECTED_AREA_MARK = "AreaSelection";
     protected static final String SELECTED_VIEW_MARK = "ViewSelection";
+    protected static final String SELECTION_AREA_LIMIT_MARK = "AreaSelectionLimit";
 
     /**
      * Open list of projects. (Just iframe)
@@ -376,6 +377,26 @@ public class TemplateImporterRepository extends ModuleTest {
                 "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+xPath);
     }
 
+    protected void selectArea(Area  area,
+                              int   expandTimes){
+        rightMouseClick(area.getXpath(), area.getxOffset(), area.getyOffset());
+        WebElement areaNameField = findByXpath("//input[@name='areaName']");
+        WebElement okButton = findByXpath("//button[@ng-click='hdc.area.ok()']");
+        waitForElementToStopMoving(areaNameField);
+        typeInto(areaNameField, area.getName());
+        for (int i = 0; i < expandTimes; i++){
+            WebElement expandArea = findByXpath("//button[@ng-click='hdc.area.expandSelection()']");
+            clickOn(expandArea);
+        }
+        waitForElementToBeEnabled(okButton, 5);
+        clickOn(okButton);
+        waitForElementToBeInvisible(okButton);
+
+        Assert.assertTrue(
+                checkIfAreaSelectedWithLimit(area.getXpath(), area.getxPathToInternalArea(), new SoftAssert(), true, ""),
+                "Area was not selected. Target element does not have '"+ SELECTION_AREA_LIMIT_MARK +"' class." + "or "+SELECTED_AREA_MARK);
+    }
+
     protected void selectArea(Area area){
         selectArea(area.getName(), area.getXpath(), area.getxOffset(), area.getyOffset());
     }
@@ -570,6 +591,39 @@ public class TemplateImporterRepository extends ModuleTest {
                 expectedResult,
                 errorMsg+". Assertion if element: '" + xPath + "' has class '" + SELECTED_AREA_MARK + "' (is selected) Failed");
         return isAreaSelected;
+    }
+
+    protected boolean checkIfAreaSelectedWithLimit(String        xPathToExternalLimit,
+                                                   String        xPathToInternalArea,
+                                                   SoftAssert    softAssert,
+                                                   boolean       expectedResult,
+                                                   String        errorMsg) {
+        switchToProjectFrame();
+        WebElement areaLimit = findByXpath(xPathToExternalLimit);
+        WebElement area = null;
+
+        if(xPathToInternalArea != null) {
+            area = findByXpath(xPathToInternalArea);
+        }
+        softAssert.assertNotNull(areaLimit, errorMsg+". Cannot find an element that you are trying to check if selected as areaLimit. XPath: '" + xPathToExternalLimit + "'.");
+        softAssert.assertNotNull(area, errorMsg+". Cannot find an element that you are trying to check if selected as area. XPath: '" + xPathToInternalArea + "'.");
+
+        boolean isAreaLimitSelected = areaLimit.getAttribute("class").contains(SELECTION_AREA_LIMIT_MARK);
+        boolean isAreaSelected = area.getAttribute("class").contains(SELECTED_AREA_MARK);
+        switchToDefaultContent();
+        softAssert.assertEquals(
+                isAreaLimitSelected,
+                expectedResult,
+                errorMsg+". Assertion if element: '" + xPathToExternalLimit + "' has class '" + SELECTION_AREA_LIMIT_MARK + "' (is selected) Failed");
+        softAssert.assertEquals(
+                isAreaLimitSelected,
+                expectedResult,
+                errorMsg+". Assertion if element: '" + xPathToExternalLimit + "' has class '" + SELECTION_AREA_LIMIT_MARK + "' (is selected) Failed");
+        if(isAreaSelected && isAreaLimitSelected){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     protected boolean checkIfAreaSelected(String        xPath,

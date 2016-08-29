@@ -90,6 +90,69 @@ public class SelectionColorTests extends TemplateImporterRepository{
         softAssert.assertAll();
     }
 
+    @Test
+    public void areaWithLimitColorTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaWithLimitColorTest");
+        String projectName = randomWord(8);
+        Area baseA1 = new Area(randomWord(5), "//body/div[1]", "//body/div[1]/div[1]", 1, 0, "base");
+        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", 1, 0, "home");
+        Map<String, Map<String, String>> originalBorderColors;
+        Map<String, String> expectedNewBorderColors;
+        Map<String, Map<String, String>> actualNewBorderColors;
+        Map<String, Map<String, String>> resetedBorderColors;
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(baseA1, 2);
+        switchToTemplate(homeA1.getTemplateName());
+        selectArea(homeA1, 2);
+
+        switchToTemplate(baseA1.getTemplateName());
+        switchToTemplate(homeA1.getTemplateName());
+
+        Area[] allAreas = new Area[]{baseA1, homeA1};
+        originalBorderColors = getBorderColors(allAreas);
+        expectedNewBorderColors = changeColors(allAreas);
+        actualNewBorderColors = getBorderColors(allAreas);
+        resetColors();
+        resetedBorderColors = getBorderColors(allAreas);
+
+        for(Area area:allAreas){
+            String areaName = area.getName();
+            String expectedBorderType = "dotted";
+            String actualBorderType = actualNewBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String expectedNewBorderColor = expectedNewBorderColors.get(areaName);
+            String actualNewBorderColor = actualNewBorderColors.get(areaName).get(AREA_BORDER_COLOR_KEY);
+            String expectedBorderTypeAfterReset = originalBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String actualBorderTypeAfterReset = resetedBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
+            String expectedBorderColorAfterReset = originalBorderColors.get(areaName).get(AREA_BORDER_COLOR_KEY);
+            String actualBorderColorAfterReset = resetedBorderColors.get(areaName).get(AREA_BORDER_COLOR_KEY);
+
+            softAssert.assertEquals(
+                    actualBorderType,
+                    expectedBorderType,
+                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after color change."
+            );
+            softAssert.assertEquals(
+                    actualNewBorderColor,
+                    expectedNewBorderColor,
+                    "Unexpected border color for selection '"+areaName+"' ("+area.getXpath()+") after color change."
+            );
+            softAssert.assertEquals(
+                    actualBorderTypeAfterReset,
+                    expectedBorderTypeAfterReset,
+                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after color reset."
+            );
+            softAssert.assertEquals(
+                    actualBorderColorAfterReset,
+                    expectedBorderColorAfterReset,
+                    "Unexpected border color for selection '"+areaName+"' ("+area.getXpath()+") after color reset."
+            );
+        }
+
+        softAssert.assertAll();
+    }
+
     private void resetColors(){
         WebElement adjustColorsBtn = findByXpath("//button[@ng-click='project.setUpColors($event)']");
         clickOn(adjustColorsBtn);
@@ -125,9 +188,15 @@ public class SelectionColorTests extends TemplateImporterRepository{
                 //Base selections here
                 if(area.isArea()){
                     //Areas here
-                    changerBtn = findByXpath("(//md-dialog-content//div[contains(., 'Base area')]/span[@ng-model='type.color'])[2]");
-                    colorInput = findByXpath("(//input[@class='sp-input'])[2]");
-                    chooseBtn = findByXpath("(//button[@class='sp-choose'])[2]");
+                    if(area.getxPathToInternalArea() == null) {
+                        changerBtn = findByXpath("(//md-dialog-content//div[contains(., 'Base area')]/span[@ng-model='type.color'])[2]");
+                        colorInput = findByXpath("(//input[@class='sp-input'])[2]");
+                        chooseBtn = findByXpath("(//button[@class='sp-choose'])[2]");
+                    }else{
+                        changerBtn = findByXpath("(//md-dialog-content//div[contains(., 'Base area')]/span[@ng-model='type.color'])[1]");
+                        colorInput = findByXpath("(//input[@class='sp-input'])[1]");
+                        chooseBtn = findByXpath("(//button[@class='sp-choose'])[1]");
+                    }
                     newColor = baColor;
                 }else{
                     //Views here
@@ -140,9 +209,15 @@ public class SelectionColorTests extends TemplateImporterRepository{
                 //Home and other non-base selections here
                 if(area.isArea()){
                     //Areas here
-                    changerBtn = findByXpath("(//md-dialog-content//div[contains(., 'Area')]/span[@ng-model='type.color'])[2]");
-                    colorInput = findByXpath("(//input[@class='sp-input'])[5]");
-                    chooseBtn = findByXpath("(//button[@class='sp-choose'])[5]");
+                    if(area.getxPathToInternalArea() == null) {
+                        changerBtn = findByXpath("(//md-dialog-content//div[contains(., 'Area')]/span[@ng-model='type.color'])[2]");
+                        colorInput = findByXpath("(//input[@class='sp-input'])[5]");
+                        chooseBtn = findByXpath("(//button[@class='sp-choose'])[5]");
+                    }else{
+                        changerBtn = findByXpath("(//md-dialog-content//div[contains(., 'Area')]/span[@ng-model='type.color'])[1]");
+                        colorInput = findByXpath("(//input[@class='sp-input'])[4]");
+                        chooseBtn = findByXpath("(//button[@class='sp-choose'])[4]");
+                    }
                     newColor = haColor;
                 }else{
                     //Views here
