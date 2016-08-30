@@ -26,6 +26,7 @@ public class TemplateImporterRepository extends ModuleTest {
     protected static final String SELECTED_AREA_MARK = "AreaSelection";
     protected static final String SELECTED_VIEW_MARK = "ViewSelection";
     protected static final String SELECTION_AREA_LIMIT_MARK = "AreaSelectionLimit";
+    protected static final String CURRENT_TEMPLATE_MARK = "tiRaised";
 
     /**
      * Open list of projects. (Just iframe)
@@ -470,19 +471,25 @@ public class TemplateImporterRepository extends ModuleTest {
         getDriver().switchTo().defaultContent();
     }
 
-    protected void switchToTemplate(String templateName){
-        WebElement templateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
-        clickOn(templateTab);
-        waitForElementToDisappear(templateTab, 3);
-        templateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
-        Assert.assertNotNull(templateName, "Template with name "+templateName+" not found after clicking on it.");
-        Assert.assertTrue(templateTab.getAttribute("class").contains("tiRaised"),
-                "Switching to template '"+templateName+"' failed. After clicking on template tab it did not become active." +
-                        "(Does not have tiRaised class.)");
-        switchToProjectFrame();
-        WebElement body = findByXpath("//body");
-        waitForElementToStopMoving(body);
-        switchToDefaultContent();
+    protected void switchToTemplate(String templateName) {
+        WebElement templateTabToClick = findByXpath("//ti-tab[contains(., '"+templateName+"')]/div[contains(@class, 'tiTabComponent')]");
+        WebElement templateTabToCheck = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
+        boolean isCurrentlyOpen = templateTabToCheck.getAttribute("class").contains(CURRENT_TEMPLATE_MARK);
+
+        if (!isCurrentlyOpen) {
+            clickOn(templateTabToClick);
+            waitForElementAttributeToContainValue(templateTabToCheck, 3, "class", CURRENT_TEMPLATE_MARK);
+
+            templateTabToCheck = findByXpath("//ti-tab[contains(., '" + templateName + "')]");
+            Assert.assertNotNull(templateName, "Template with name " + templateName + " not found after clicking on it.");
+            Assert.assertTrue(templateTabToCheck.getAttribute("class").contains(CURRENT_TEMPLATE_MARK),
+                    "Switching to template '" + templateName + "' failed. After clicking on template tab it did not become active." +
+                            "(Does not have tiRaised class.). Attempts: ");
+            switchToProjectFrame();
+            WebElement body = findByXpath("//body");
+            waitForElementToStopMoving(body);
+            switchToDefaultContent();
+        }
     }
 
     /**
