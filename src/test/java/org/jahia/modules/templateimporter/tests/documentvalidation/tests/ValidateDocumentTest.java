@@ -112,7 +112,7 @@ public class ValidateDocumentTest extends TemplateImporterRepository{
             );
             softAssert.assertEquals(
                     isVisible(By.xpath("//md-dialog//div[@ng-if='dvc.validations.invalidElementCount !== undefined']" +
-                            "[contains(., \"Element count for '" + templateName + "' page does not match 'base'\")]"), 3),
+                            "[contains(., \"Element count for '" + templateName + "' template does not match 'base'\")]"), 3),
                     expectedElementCountError,
                     errorMsg + ". 'Element count' error message visibility check failed."
             );
