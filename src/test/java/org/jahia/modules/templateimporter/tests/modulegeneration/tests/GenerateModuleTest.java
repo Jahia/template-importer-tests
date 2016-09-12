@@ -174,7 +174,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         String jntTemplateFileName = "template."+moduleName.toLowerCase().replace(" ", "-")+".jsp";
         boolean jntTemplateExist = false;
 
-        File[] files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName+"/src/main/resources/jnt_template/html", jntTemplateFileName, "jsp");
+        File[] files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/jnt_template/html", jntTemplateFileName, "jsp");
         if(files != null &&
                 files.length > 0 &&
                 files[0].exists() &&
@@ -193,7 +193,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                  String        definitionNameSpace,
                                  String        moduleName){
         String areaFileName = "tiLayoutComponent."+area.getTemplateName()+"_"+area.getName()+".jsp";
-        String areaFolderPath = sourceFolderPath+"/"+moduleName+"/src/main/resources/"+definitionNameSpace+"nt_tiLayoutComponent/html";
+        String areaFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+definitionNameSpace+"nt_tiLayoutComponent/html";
         boolean areaFileExist = false;
 
         File[] files = findFilesOrDirectories(areaFolderPath, areaFileName, "jsp");
@@ -214,7 +214,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                  View          view,
                                  String        moduleName){
         String viewFileName = view.getNodeType().replace("jnt:", "")+"."+view.getTemplateName()+"_"+view.getName()+".jsp";
-        String viewFolderPath = sourceFolderPath+"/"+moduleName+"/src/main/resources/"+view.getNodeType().replace(":", "_")+"/html";
+        String viewFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+view.getNodeType().replace(":", "_")+"/html";
         boolean viewFileExist = false;
 
         File[] files = findFilesOrDirectories(viewFolderPath, viewFileName, "jsp");
