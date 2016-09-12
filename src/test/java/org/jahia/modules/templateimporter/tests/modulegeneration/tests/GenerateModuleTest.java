@@ -39,11 +39,11 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
         checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace);
-        checkViewFile(softAssert, sourceFolderPath, baseV1);
-        checkViewFile(softAssert, sourceFolderPath, homeV1);
+        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName);
         softAssert.assertAll();
     }
 
@@ -75,11 +75,11 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
         checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace);
-        checkViewFile(softAssert, sourceFolderPath, baseV1);
-        checkViewFile(softAssert, sourceFolderPath, userV1);
+        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, userV1, moduleName);
         softAssert.assertAll();
     }
 
@@ -119,13 +119,13 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
-        checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, expectedItemsInAssetsFolder);
+        checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, expectedItemsInAssetsFolder, moduleName);
         checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace);
-        checkViewFile(softAssert, sourceFolderPath, baseV1);
-        checkViewFile(softAssert, sourceFolderPath, userV1);
+        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, userV1, moduleName);
         softAssert.assertAll();
     }
 
@@ -155,11 +155,11 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 isModuleStarted(moduleName.toLowerCase().replace(" ", "-")),
                 "Module '"+moduleName+"' did not start after generation.");
         checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace);
-        checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace);
-        checkViewFile(softAssert, sourceFolderPath, baseV1);
-        checkViewFile(softAssert, sourceFolderPath, homeV1);
+        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
+        checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
+        checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName);
         softAssert.assertAll();
     }
 
@@ -174,7 +174,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         String jntTemplateFileName = "template."+moduleName.toLowerCase().replace(" ", "-")+".jsp";
         boolean jntTemplateExist = false;
 
-        File[] files = findFilesOrDirectories(sourceFolderPath+"/src/main/resources/jnt_template/html", jntTemplateFileName, "jsp");
+        File[] files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName+"/src/main/resources/jnt_template/html", jntTemplateFileName, "jsp");
         if(files != null &&
                 files.length > 0 &&
                 files[0].exists() &&
@@ -190,9 +190,10 @@ public class GenerateModuleTest extends TemplateImporterRepository{
     protected void checkAreaFile(SoftAssert    softAssert,
                                  String        sourceFolderPath,
                                  Area          area,
-                                 String        definitionNameSpace){
+                                 String        definitionNameSpace,
+                                 String        moduleName){
         String areaFileName = "tiLayoutComponent."+area.getTemplateName()+"_"+area.getName()+".jsp";
-        String areaFolderPath = sourceFolderPath+"/src/main/resources/"+definitionNameSpace+"nt_tiLayoutComponent/html";
+        String areaFolderPath = sourceFolderPath+"/"+moduleName+"/src/main/resources/"+definitionNameSpace+"nt_tiLayoutComponent/html";
         boolean areaFileExist = false;
 
         File[] files = findFilesOrDirectories(areaFolderPath, areaFileName, "jsp");
@@ -210,9 +211,10 @@ public class GenerateModuleTest extends TemplateImporterRepository{
 
     protected void checkViewFile(SoftAssert    softAssert,
                                  String        sourceFolderPath,
-                                 View          view){
+                                 View          view,
+                                 String        moduleName){
         String viewFileName = view.getNodeType().replace("jnt:", "")+"."+view.getTemplateName()+"_"+view.getName()+".jsp";
-        String viewFolderPath = sourceFolderPath+"/src/main/resources/"+view.getNodeType().replace(":", "_")+"/html";
+        String viewFolderPath = sourceFolderPath+"/"+moduleName+"/src/main/resources/"+view.getNodeType().replace(":", "_")+"/html";
         boolean viewFileExist = false;
 
         File[] files = findFilesOrDirectories(viewFolderPath, viewFileName, "jsp");

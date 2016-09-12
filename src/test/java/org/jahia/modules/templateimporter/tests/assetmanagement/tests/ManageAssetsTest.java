@@ -59,9 +59,9 @@ public class ManageAssetsTest extends TemplateImporterRepository{
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '" + moduleName + "' did not start after generation.");
-        checkFolderInModulesResources(softAssert, sourceFolderPath, "css", cssFolderExpectedContent);
-        checkFolderInModulesResources(softAssert, sourceFolderPath, "img", imgFolderExpectedContent);
-        checkFolderInModulesResources(softAssert, sourceFolderPath, "javascript", javascriptFolderExpectedContent);
+        checkFolderInModulesResources(softAssert, sourceFolderPath, "css", cssFolderExpectedContent, moduleName);
+        checkFolderInModulesResources(softAssert, sourceFolderPath, "img", imgFolderExpectedContent,  moduleName);
+        checkFolderInModulesResources(softAssert, sourceFolderPath, "javascript", javascriptFolderExpectedContent, moduleName);
 
         softAssert.assertAll();
     }

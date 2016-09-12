@@ -676,7 +676,8 @@ public class TemplateImporterRepository extends ModuleTest {
     protected void checkFolderInModulesResources(SoftAssert    softAssert,
                                                  String        sourceFolderPath,
                                                  String        folderName,
-                                                 String[]      expectedFolderContent){
+                                                 String[]      expectedFolderContent,
+                                                 String        moduleName){
         boolean folderExist = false;
         HashMap<String, Boolean> filesFoundInAssetsFolder = new HashMap<String, Boolean>();
 
@@ -684,7 +685,7 @@ public class TemplateImporterRepository extends ModuleTest {
             filesFoundInAssetsFolder.put(filename, false);
         }
 
-        File[] files = findFilesOrDirectories(sourceFolderPath+"/src/main/resources", folderName, "");
+        File[] files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName+"/src/main/resources", folderName, "");
         if(files != null &&
                 files.length > 0 &&
                 files[0].exists() &&
