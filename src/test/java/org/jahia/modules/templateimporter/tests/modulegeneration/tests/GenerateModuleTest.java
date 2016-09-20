@@ -8,6 +8,11 @@ import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created by sergey on 2016-07-25.
@@ -25,6 +30,8 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 1, 0, "home");
         View baseV1 = new View(randomWord(6), "jnt:bootstrapMainContent", baseA2.getXpath()+"/div[1]", 1, 0, baseA2.getTemplateName());
         View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 1, 0, homeA1.getTemplateName());
+        boolean homeA1FileContainsArea = false;
+        boolean homeV1FileContainsView = false;
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
@@ -38,12 +45,39 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
-        checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
+        File templateFile = checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
+//        boolean baseAreaOneFoundInTemplate = findTextInFile(templateFile, "<template:area path=\"pagecontent\" />");
+//        softAssert.assertTrue(
+//                baseAreaOneFoundInTemplate,
+//                "Base area not found in template JSP. Name: "+baseA1.getName()+", XPath: "+baseA1.getXpath()
+//        );
+
         checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
+        File homeA1File = checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
+        if(homeA1File != null) {
+            homeA1FileContainsArea = findTextInFile(homeA1File, "<template:area path='" + homeA1.getName() + "'/>");
+        }
+        softAssert.assertTrue(
+                homeA1FileContainsArea,
+                "Home area JSP file misses area tag. Name: " + homeA1.getName() + ", XPath: " + homeA1.getXpath()
+        );
         checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
-        checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName);
+        File homeV1File = checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName);
+        if (homeV1File != null) {
+            homeV1FileContainsView = findTextInFile(homeV1File, "<div   class=\"\" >\n" +
+                    "\t\t\t\t\tLevel 3-1\n" +
+                    "\t\t\t\t\t<div   class=\"\" >\n" +
+                    "\t\t\t\t\t\tLevel 4-1\n" +
+                    "\t\t\t\t\t\t<div  >Level 5-1</div>\n" +
+                    "\t\t\t\t\t</div>\n" +
+                    "\t\t\t\t</div>");
+        }
+        softAssert.assertTrue(
+                homeV1FileContainsView,
+                "Home view JSP file misses html tags. Name: " + homeV1.getName() + ", XPath: " + homeV1.getXpath()
+        );
+
         softAssert.assertAll();
     }
 
@@ -61,6 +95,8 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         Area userA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 1, 0, userCreatedTemplateName);
         View baseV1 = new View(randomWord(6), "jnt:bootstrapMainContent", baseA2.getXpath()+"/div[1]", 1, 0, baseA2.getTemplateName());
         View userV1 = new View(randomWord(10), "jnt:html", userA1.getXpath()+"/div[1]", 1, 0, userA1.getTemplateName());
+        boolean userA1FileContainsArea = false;
+        boolean userV1FileContainsView = false;
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
@@ -74,12 +110,26 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
-        checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
+        checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
+        File userA1File = checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
+        if(userA1File != null) {
+            userA1FileContainsArea = findTextInFile(userA1File, "<template:area path='" + userA1.getName() + "'/>");
+        }
+        softAssert.assertTrue(
+                userA1FileContainsArea,
+                "User template area JSP file misses area tag. Name: " + userA1.getName() + ", XPath: " + userA1.getXpath()
+        );
         checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
-        checkViewFile(softAssert, sourceFolderPath, userV1, moduleName);
+        File userV1File = checkViewFile(softAssert, sourceFolderPath, userV1, moduleName);
+        if (userV1File != null) {
+            userV1FileContainsView = findTextInFile(userV1File, "<div  class=\"\"  >Level 3-2</div>");
+        }
+        softAssert.assertTrue(
+                userV1FileContainsView,
+                "User template view JSP file misses html tags. Name: " + userV1.getName() + ", XPath: " + userV1.getXpath()
+        );
         softAssert.assertAll();
     }
 
@@ -120,7 +170,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
         checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, expectedItemsInAssetsFolder, moduleName);
-        checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
+        checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
@@ -154,7 +204,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         softAssert.assertTrue(
                 isModuleStarted(moduleName.toLowerCase().replace(" ", "-")),
                 "Module '"+moduleName+"' did not start after generation.");
-        checkJntTemplateFile(softAssert, sourceFolderPath, moduleName);
+        checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
@@ -163,17 +213,11 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         softAssert.assertAll();
     }
 
-    @Test(enabled = false)
-    public void manageAssetsAndGenerate(){
-
-    }
-
-    protected void checkJntTemplateFile(SoftAssert   softAssert,
-                                        String       sourceFolderPath,
-                                        String       moduleName){
+    protected File checkJntTemplateFileExist(SoftAssert   softAssert,
+                                             String       sourceFolderPath,
+                                             String       moduleName){
         String jntTemplateFileName = "template."+moduleName.toLowerCase().replace(" ", "-")+".jsp";
         boolean jntTemplateExist = false;
-
         File[] files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/jnt_template/html", jntTemplateFileName, "jsp");
         if(files != null &&
                 files.length > 0 &&
@@ -181,13 +225,19 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 files[0].isFile()){
             jntTemplateExist = true;
         }
+
         softAssert.assertTrue(
                 jntTemplateExist,
                 "jnt_template file not found. Expected filename is: '"+jntTemplateFileName+"'."
         );
+        if (jntTemplateExist) {
+            return files[0];
+        } else {
+            return null;
+        }
     }
 
-    protected void checkAreaFile(SoftAssert    softAssert,
+    protected File checkAreaFile(SoftAssert    softAssert,
                                  String        sourceFolderPath,
                                  Area          area,
                                  String        definitionNameSpace,
@@ -207,9 +257,14 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 areaFileExist,
                 "jsp file for "+area.getName()+" area not found. Expected file name: '"+areaFileName+"'. Expected path: "+areaFolderPath
         );
+        if (areaFileExist) {
+            return files[0];
+        } else {
+            return null;
+        }
     }
 
-    protected void checkViewFile(SoftAssert    softAssert,
+    protected File checkViewFile(SoftAssert    softAssert,
                                  String        sourceFolderPath,
                                  View          view,
                                  String        moduleName){
@@ -228,5 +283,29 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 viewFileExist,
                 "jsp file for "+view.getName()+" view not found. Expected file name: '"+viewFileName+"'. Expected path: "+viewFolderPath
         );
+        if (viewFileExist) {
+            return files[0];
+        } else {
+            return null;
+        }
     }
+
+    protected boolean findTextInFile(File file,
+                                     String text) {
+        boolean match = false;
+        try {
+            String content = readFile(file.getAbsolutePath(), StandardCharsets.UTF_8);
+            if (content.replaceAll("\\s+", "").contains(text.replaceAll("\\s+", ""))) {
+                match = true;
+            }
+        } catch (IOException e) {
+        }
+        return match;
+    }
+
+    private static String readFile(String path, Charset encoding) throws IOException {
+        byte[] encoded = Files.readAllBytes(Paths.get(path));
+        return new String(encoded, encoding);
+    }
+
 }
