@@ -3,8 +3,6 @@ package org.jahia.modules.templateimporter.tests.selection.tests;
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -17,20 +15,13 @@ public class AreaSelectionTest extends TemplateImporterRepository {
     public void selectAreaInHomeTest() {
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectAreaInHomeTest");
         String projectName = randomWord(8);
-        String xPathToSelectInBase = "//body/div[1]";
         String xPathToSelectInHome = "//body/div[1]//div[contains(., 'Level 2-1')]";
-        String baseAreaName = randomWord(5);
         String homeAreaName = randomWord(4);
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseAreaName, xPathToSelectInBase, 1, 0);
-
-        switchToTemplate("home");
-        checkIfAreaSelected(xPathToSelectInBase, softAssert, true);
-
-        selectArea(homeAreaName, xPathToSelectInHome, 1, 0);
-        checkIfAreaSelected(xPathToSelectInBase, softAssert, true);
+        selectArea(homeAreaName, xPathToSelectInHome, 2, 0);
+        checkIfAreaSelected(xPathToSelectInHome, softAssert, true);
 
         softAssert.assertAll();
     }
@@ -39,9 +30,9 @@ public class AreaSelectionTest extends TemplateImporterRepository {
     public void selectAreaInUserCreatedTemplate() {
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectAreaInUserCreatedTemplate");
         String projectName = randomWord(8);
-        String xPathToSelectInBaseTemplate = "//body/div[1]";
+        String xPathToSelectInHomeTemplate = "//body/div[1]";
         String xPathToSelectInUsersTemplate = "//body/div[1]//div[contains(., 'Level 2-1')]";
-        String baseAreaName = randomWord(5);
+        String homeAreaName = randomWord(5);
         String userAreaName = randomWord(4);
         String newTemplateName = randomWord(10);
         String newTemplateNameTwo = randomWord(10);
@@ -50,10 +41,9 @@ public class AreaSelectionTest extends TemplateImporterRepository {
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");//Select area on base
-        selectArea(baseAreaName, xPathToSelectInBaseTemplate, 1, 0);//Create new template
-        createNewTemplate(newTemplateName, newTemplatePageFileName);//Check if selection from base is inherited to new template
-        checkIfAreaSelected(xPathToSelectInBaseTemplate, softAssert, true);//Select area in new page template
-        selectArea(userAreaName, xPathToSelectInUsersTemplate, 1, 0);//Create another template
+        selectArea(homeAreaName, xPathToSelectInHomeTemplate, 1, 0);//Create new template
+        createNewTemplate(newTemplateName, newTemplatePageFileName);//Select area in new page template
+        selectArea(userAreaName, xPathToSelectInUsersTemplate, 2, 0);//Create another template
         createNewTemplate(newTemplateNameTwo, newTemplatePageFileNameTwo);//Check that base and home did not lost their selections
         //Check that both templates are present on page
         WebElement newTemplateTab = findByXpath("//ti-tab[contains(., '"+newTemplateName+"')]");
@@ -61,43 +51,35 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         WebElement newTemplateTabTwo = findByXpath("//ti-tab[contains(., '"+newTemplateNameTwo+"')]");
         softAssert.assertNotNull(newTemplateTabTwo, "Cannot find tab with new template name '"+newTemplateNameTwo+"' after creating new template.");
 
-        checkIfAreaSelected(xPathToSelectInBaseTemplate, softAssert, true);
-        switchToTemplate("base");
-        checkIfAreaSelected(xPathToSelectInBaseTemplate, softAssert, true);
         switchToTemplate("home");
-        checkIfAreaSelected(xPathToSelectInBaseTemplate, softAssert, true);
+        checkIfAreaSelected(xPathToSelectInHomeTemplate, softAssert, true);
+        switchToTemplate(newTemplateName);
+        checkIfAreaSelected(xPathToSelectInUsersTemplate, softAssert, true);
 
         softAssert.assertAll();
     }
 
-    @Test //TI_S2C6, TI_S2C7
+    @Test //TI_S2C6, TI_S2C7, MOD-1478
     public void selectTwoAreasSameName() {
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectTwoAreasSameName");
         String projectName = randomWord(8);
-        String xPathToSelectInBaseTemplate = "//body/div[1]";
-        String xPathToBaseAreaSibling = "//div[contains(., 'Level 1-3')]";
-        String xPathToBaseAreaSiblingChild = "//div[contains(., 'Level 1-3')]/div";
-        String xPathToBaseAreaChild = "//body/div[1]//div[contains(., 'Level 2-1')]";
-        String baseAreaName = randomWord(5);
+        String xPathToSelectInHomeTemplate = "//body/div[1]";
+        String xPathToHomeAreaSibling = "//div[contains(., 'Level 1-3')]";
+        String homeAreaName = randomWord(5);
         String newTemplateName = randomWord(10);
-        String newTemplateAreaName = randomWord(8);
         String xPathNewTemplateArea = "//body/div[1]/div[1]";
         String xPathNewTemplateAreaTwo = "//body/div[1]/div[2]";
         String newTemplatePageFileName = "page1.html";
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseAreaName, xPathToSelectInBaseTemplate, 1, 0);
-        selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaSibling, 1, 0, true, softAssert, "2 sibling areas on base.");
-        selectArea(baseAreaName+"Two", xPathToBaseAreaSibling, 1, 0);
-        switchToTemplate("home");
-        selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaSiblingChild, 1, 0, true, softAssert, "Base sibling on home.");
-        selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaChild, 1, 0, true, softAssert, "Base child on home.");
+        selectArea(homeAreaName, xPathToSelectInHomeTemplate, 1, 0);
+        selectAreaToCheckName(homeAreaName, false, xPathToHomeAreaSibling, 1, 0, true, softAssert, "2 sibling areas on home.");
+
         createNewTemplate(newTemplateName, newTemplatePageFileName);
-        selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaSiblingChild, 1, 0, true, softAssert, "Base sibling on custom template.");
-        selectAreaToCheckName(baseAreaName, false, xPathToBaseAreaChild, 1, 0, true, softAssert, "Base child on custom template.");
-        selectArea(newTemplateAreaName, xPathNewTemplateArea, 1, 0);
-        selectAreaToCheckName(newTemplateAreaName, false, xPathNewTemplateAreaTwo, 1, 0, true, softAssert, "2 sibling areas on user created template.");
+        selectArea(homeAreaName, xPathNewTemplateArea, 2, 0);
+        selectAreaToCheckName(homeAreaName, false, xPathNewTemplateAreaTwo, 2, 0, true, softAssert, "Duplicate area name on same user created template.");
+        selectArea(homeAreaName+"two", xPathNewTemplateAreaTwo, 2, 0);
 
         softAssert.assertAll();
     }
@@ -238,27 +220,19 @@ public class AreaSelectionTest extends TemplateImporterRepository {
                                          boolean    closeDialogueAfterall,
                                          SoftAssert softAssert,
                                          String     errorMsg) {
-        switchToProjectFrame();
-        WebElement area = findByXpath(xPath);
-        Assert.assertNotNull(area, "Cannot find an element that you are trying to select as area. XPath: '" + xPath + "'.");
-
-        if (xOffset == 0) {
-            xOffset = area.getSize().getWidth() / 2;
-        }
-        if (yOffset == 0) {
-            yOffset = area.getSize().getHeight() / 2;
-        }
-        new Actions(getDriver()).moveToElement(area, xOffset, yOffset).contextClick().build().perform();
-        switchToDefaultContent();
+        rightMouseClick(xPath, xOffset, yOffset);
+        WebElement menuAreaBtn = findByXpath("//div[@ng-click='rmc.canBeArea && rmc.showArea()']");
+        waitForElementToStopMoving(menuAreaBtn);
+        clickOn(menuAreaBtn);
 
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
-
+        waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
-        WebElement cancelButton = findByXpath("//button[@ng-click='hdc.area.cancel()']");
-        WebElement okButton = findByXpath("//button[@ng-click='hdc.area.ok()']");
+        WebElement cancelButton = findByXpath("//button[@ng-click='sac.area.cancel()']");
+        WebElement selectButton = findByXpath("//button[@ng-click='sac.area.ok()']");
         areaNameField = findByXpath("//input[@name='areaName']");
         boolean hasNameError = areaNameField.getAttribute("class").contains("ng-invalid-");
-        boolean okButtonEnabled = okButton.isEnabled();
+        boolean okButtonEnabled = selectButton.isEnabled();
 
         if (isNameValid) {
             softAssert.assertTrue(okButtonEnabled, errorMsg+" Area name is valid, but 'OK' button disabled."+"XPath:'"+xPath+"', Area Name:"+areaName);

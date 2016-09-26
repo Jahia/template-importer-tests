@@ -26,7 +26,7 @@ public class TemplateImporterRepository extends ModuleTest {
     protected static final String SELECTED_AREA_MARK = "AreaSelection";
     protected static final String SELECTED_VIEW_MARK = "ViewSelection";
     protected static final String SELECTION_AREA_LIMIT_MARK = "AreaSelectionLimit";
-    protected static final String CURRENT_TEMPLATE_MARK = "tiRaised";
+    protected static final String CURRENT_TEMPLATE_MARK = "md-raised";
 
     /**
      * Open list of projects. (Just iframe)
@@ -64,7 +64,7 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
         WebElement projectDescriptionField = findByXpath("//textarea[@ng-model='ipc.projectDescription']");
         WebElement projectZipFileField = findByXpath("//input[@type='file']");
-        WebElement importButton = findByXpath("//button[@aria-label='Import']");
+        WebElement importButton = findByXpath("//button[@ng-click='ipc.submit()']");
         WebElement dialogueBox = findByXpath("//div[@class='md-dialog-container ng-scope']");
         try {
             createWaitDriver(5, 500).until(CustomExpectedConditions.javascriptWithoutException(jsToEnableInput));
@@ -86,7 +86,7 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToDisappear(dialogueBox, 7);
         waitForElementToDisappear(importButton, 7);
         Assert.assertEquals(
-                isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 20),
+                isVisible(By.xpath("//md-card-title-text/span[contains(., '"+projectName+"')]"), 20),
                 true,
                 "New project name ("+projectName+")is not found in projects list.");
     }
@@ -143,12 +143,15 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected void createNewTemplate(String templateName,
                                      String pageFileName){
-        WebElement createNewTemplateBtn = findByXpath("//button[@ng-click='cpc.showCreatePageDialog($event)']");
-
+        WebElement layoutBtn = findByXpath("//button[@aria-label='Layout']");
+        clickOn(layoutBtn);
+        WebElement createNewTemplateBtn = findByXpath("//button[@ng-click='project.createNewTemplate($event)']");
+        waitForElementToStopMoving(createNewTemplateBtn);
         clickOn(createNewTemplateBtn);
+
         WebElement templateNameField = findByXpath("//input[@name='pageName']");
-        WebElement pageSelectDropdown = findByXpath("//md-select[@ng-model='selectedTemplate']");
-        WebElement createBtn = findByXpath("//button[@ng-click='create()']");
+        WebElement pageSelectDropdown = findByXpath("//md-select[@ng-model='cpc.selectedTemplate']");
+        WebElement createBtn = findByXpath("//button[@ng-click='cpc.create()']");
 
         waitForElementToStopMoving(pageSelectDropdown);
         clickOn(pageSelectDropdown);
@@ -182,19 +185,21 @@ public class TemplateImporterRepository extends ModuleTest {
         List<WebElement> projectsBeforeDeletion = null;
 
         try {
-            projectsBeforeDeletion = createWaitDriver(2, 300).until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//md-card")));
+            projectsBeforeDeletion = createWaitDriver(2, 300).until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//md-card//md-checkbox[@ng-click='pc.updateSelectAll(!p.remove, $index)']")));
         }catch(TimeoutException e){}
 
         if (projectsBeforeDeletion != null && projectsBeforeDeletion.size() > 0) {
-            WebElement selectAllCheckbox = findByXpath("//md-checkbox[@aria-label='Select all']/div");
+//            WebElement selectAllCheckbox = findByXpath("//md-checkbox[@ng-click='pc.selectAllToggle()']");
             WebElement removeSelectedBtn = findByXpath("//button[@aria-label='Remove Selected Project']");
 
-            clickOn(selectAllCheckbox);
+            for(WebElement checkbox:projectsBeforeDeletion){
+                clickOn(checkbox);
+            }
             waitForElementToStopMoving(removeSelectedBtn);
             waitForElementToBeEnabled(removeSelectedBtn, 7);
             clickOn(removeSelectedBtn);
 
-            WebElement confirmRemovalBtn = findByXpath("//button[@aria-label='Remove']");
+            WebElement confirmRemovalBtn = findByXpath("//button[@ng-click='rpc.ok()']");
             waitForElementToStopMoving(confirmRemovalBtn);
             clickOn(confirmRemovalBtn);
             waitForElementToDisappear(confirmRemovalBtn, 10);
@@ -226,7 +231,7 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToStopMoving(removeSelectedBtn);
         waitForElementToBeEnabled(removeSelectedBtn, 7);
         clickOn(removeSelectedBtn);
-        WebElement confirmRemovalBtn = findByXpath("//button[@aria-label='Remove']");
+        WebElement confirmRemovalBtn = findByXpath("//button[@ng-click='rpc.ok()']");
         clickOn(confirmRemovalBtn);
         waitForElementToDisappear(confirmRemovalBtn, 10);
         waitForGlobalSpinner(1, 45);
@@ -293,15 +298,19 @@ public class TemplateImporterRepository extends ModuleTest {
                               int       xOffset,
                               int       yOffset){
         rightMouseClick(xPath, xOffset, yOffset);
+        WebElement menuAreaBtn = findByXpath("//div[@ng-click='rmc.canBeArea && rmc.showArea()']");
+        waitForElementToStopMoving(menuAreaBtn);
+        clickOn(menuAreaBtn);
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
-        WebElement okButton = findByXpath("//button[@ng-click='hdc.area.ok()']");
-        WebElement expandArea = findByXpath("//button[@ng-click='hdc.area.expandSelection()']");
+        WebElement selectBtn = findByXpath("//button[@ng-click='sac.area.ok()']");
+        WebElement expandArea = findByXpath("//button[@ng-click='sac.area.expandSelection()']");
+
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
         clickOn(expandArea);
-        waitForElementToBeEnabled(okButton, 5);
-        clickOn(okButton);
-        waitForElementToBeInvisible(okButton);
+        waitForElementToBeEnabled(selectBtn, 5);
+        clickOn(selectBtn);
+        waitForElementToBeInvisible(selectBtn);
 
         Assert.assertTrue(
                 checkIfAreaSelected(xPath),
@@ -351,19 +360,21 @@ public class TemplateImporterRepository extends ModuleTest {
                               int       yOffset,
                               String    errorMsg){
         rightMouseClick(xPath, xOffset, yOffset);
-        WebElement viewTab = findByXpath("//md-tab-item[@ng-click='$mdTabsCtrl.select(tab.getIndex())'][contains(., 'view')]");
+        WebElement menuViewBtn = findByXpath("//div[@ng-click='rmc.canBeView && rmc.showView()']");
+        waitForElementToStopMoving(menuViewBtn);
+        clickOn(menuViewBtn);
+
         WebElement viewNameField = findByXpath("//input[@name='viewName']");
         WebElement nodeTypeField = findByXpath("//input[@id='nodeTypeSelection-typeahead-input']");
-        WebElement okButton = findByXpath("//button[@ng-click='hdc.view.ok()']");
-        waitForElementToStopMoving(viewTab);
-        clickOn(viewTab);
+        WebElement selectViewBtn = findByXpath("//button[@ng-click='svc.view.ok()']");
+
         waitForElementToStopMoving(viewNameField);
         typeInto(viewNameField, viewName);
         typeInto(nodeTypeField, nodeType);
         clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
-        waitForElementToBeEnabled(okButton, 5);
-        clickOn(okButton);
-        waitForElementToBeInvisible(okButton);
+        waitForElementToBeEnabled(selectViewBtn, 5);
+        clickOn(selectViewBtn);
+        waitForElementToBeInvisible(selectViewBtn);
 
         Assert.assertTrue(
                 checkIfViewSelected(xPath),
@@ -463,7 +474,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertTrue(isSelected, "Area that you are trying to remove is not selected.");
         rightMouseClick(xPath, xOffset, yOffset);
-        WebElement removeBtn = findByXpath("//button[@ng-click='hdc.area.remove()']");
+        WebElement removeBtn = findByXpath("//div[@ng-click='rmc.removable && rmc.remove()']");
         waitForElementToStopMoving(removeBtn);
         clickOn(removeBtn);
         waitForElementToBeInvisible(removeBtn);
@@ -493,12 +504,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertTrue(isSelected, "View that you are trying to remove is not selected.");
         rightMouseClick(xPath, xOffset, yOffset);
-
-        WebElement viewTab = findByXpath("//md-tab-item[@ng-click='$mdTabsCtrl.select(tab.getIndex())'][contains(., 'view')]");
-        WebElement removeBtn = findByXpath("//button[@ng-click='hdc.view.remove()']");
-        waitForElementToStopMoving(viewTab);
-        clickOn(viewTab);
-        waitForElementToStopMoving(removeBtn);
+        WebElement removeBtn = findByXpath("//div[@ng-click='rmc.removable && rmc.remove()']");
         clickOn(removeBtn);
         waitForElementToBeInvisible(removeBtn);
         Assert.assertFalse(

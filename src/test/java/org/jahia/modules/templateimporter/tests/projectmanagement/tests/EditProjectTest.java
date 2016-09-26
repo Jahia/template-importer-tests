@@ -4,7 +4,10 @@ import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -37,7 +40,7 @@ public class EditProjectTest extends TemplateImporterRepository {
 
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
         WebElement projectDescriptionField = findByXpath("//textarea[@ng-model='project.description']");
-        WebElement saveChangesBtn = findByXpath("//button[@aria-label='Save Changes']");
+        WebElement saveChangesBtn = findByXpath("//button[@ng-click='edit()']");
 
         typeInto(projectNameField, modifiedName);
         typeInto(projectDescriptionField, modifiedDescription);
@@ -134,67 +137,67 @@ public class EditProjectTest extends TemplateImporterRepository {
         softAssert.assertAll();
     }
 
-    //TI_S1C17
-    @Test
-    public void changeProjectPicture(){
-        String projectName = randomWord(10);
-        String projectDescription = randomWord(22);
-
-        importProject("en", projectName, projectDescription, "AlexLevels.zip");
-        changeProjectPicture(projectName, "JumpingCat.gif");
-        changeProjectPicture(projectName, "FlowerCat.tif");
-        changeProjectPicture(projectName, "RaccoonCat.jpg");
-        changeProjectPicture(projectName, "TransparentBackgroundCat.png");
-    }
-
-    /**
-     * Changes project picture. To use that method you have to be on the projects list page
-     * @param projectName String, project name that you want to change picture for
-     * @param pictureFileName String, picture filename. picture has to be under "src/test/resources/testData/pictures" folder
-     */
-    protected void changeProjectPicture(String projectName, String pictureFileName){
-        Long maxMilliSecondsToWait = 5000L;
-        Long start;
-        String pictureFilePath = new File("src/test/resources/testData/pictures/"+pictureFileName).getAbsolutePath();
-        String jsToEnableInput = "function getElementByXpath(path) {" +
-                "return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
-                "}" +
-                "fileInput = getElementByXpath(\"//label[input[@type='file']]\");" +
-                "fileInput.setAttribute(\"style\", \"\");";
-
-        WebElement editImageBtn = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//button[@ng-click='pc.editImage($event, p, $index)']");
-        WebElement projectPictureElement = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//img[@alt='Project image']");
-        String oldImageLocation = projectPictureElement.getAttribute("src");
-
-        clickOn(editImageBtn);
-        WebElement saveImageBtn = findByXpath("//button[@aria-label='Save image']");
-        WebElement dialogueBox = findByXpath("//div[@class='md-dialog-container ng-scope']");
-        WebElement projectImgFileField = findByXpath("//input[@type='file']");
-
-        createWaitDriver(5, 500).until(CustomExpectedConditions.javascriptWithoutException(jsToEnableInput));
-        projectImgFileField.sendKeys(pictureFilePath);
-        waitForElementToBeEnabled(saveImageBtn, 7);
-        Assert.assertEquals(
-                saveImageBtn.isEnabled(),
-                true,
-                "Cannot save project image, because 'Save image' button disabled");
-        clickOn(saveImageBtn);
-        waitForElementToDisappear(dialogueBox, 7);
-        waitForElementToDisappear(saveImageBtn, 7);
-        waitForGlobalSpinner(1, 45);
-
-        start = new Date().getTime();
-        while (oldImageLocation.equals(
-                findByXpath("//md-card-title-text[contains(., '" + projectName + "')]/ancestor::md-card//img[@alt='Project image']").getAttribute("src"))){
-            try {
-                Thread.sleep(200L);
-            } catch (InterruptedException e) {}
-            if (new Date().getTime() - start >= maxMilliSecondsToWait) {
-                Assert.fail("Changing project picture failed. picture location did not change for "+maxMilliSecondsToWait+" milliseconds and still remain the same:" + oldImageLocation);
-                break;
-            }
-        }
-    }
+    //TI_S1C17 //Disabled due to functionality removal
+//    @Test (enabled = false)
+//    public void changeProjectPicture(){
+//        String projectName = randomWord(10);
+//        String projectDescription = randomWord(22);
+//
+//        importProject("en", projectName, projectDescription, "AlexLevels.zip");
+//        changeProjectPicture(projectName, "JumpingCat.gif");
+//        changeProjectPicture(projectName, "FlowerCat.tif");
+//        changeProjectPicture(projectName, "RaccoonCat.jpg");
+//        changeProjectPicture(projectName, "TransparentBackgroundCat.png");
+//    }
+//
+//    /**
+//     * Changes project picture. To use that method you have to be on the projects list page
+//     * @param projectName String, project name that you want to change picture for
+//     * @param pictureFileName String, picture filename. picture has to be under "src/test/resources/testData/pictures" folder
+//     */
+//    protected void changeProjectPicture(String projectName, String pictureFileName){
+//        Long maxMilliSecondsToWait = 5000L;
+//        Long start;
+//        String pictureFilePath = new File("src/test/resources/testData/pictures/"+pictureFileName).getAbsolutePath();
+//        String jsToEnableInput = "function getElementByXpath(path) {" +
+//                "return document.evaluate(path, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;" +
+//                "}" +
+//                "fileInput = getElementByXpath(\"//label[input[@type='file']]\");" +
+//                "fileInput.setAttribute(\"style\", \"\");";
+//
+//        WebElement editImageBtn = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//button[@ng-click='pc.editImage($event, p, $index)']");
+//        WebElement projectPictureElement = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//img[@alt='Project image']");
+//        String oldImageLocation = projectPictureElement.getAttribute("src");
+//
+//        clickOn(editImageBtn);
+//        WebElement saveImageBtn = findByXpath("//button[@aria-label='Save image']");
+//        WebElement dialogueBox = findByXpath("//div[@class='md-dialog-container ng-scope']");
+//        WebElement projectImgFileField = findByXpath("//input[@type='file']");
+//
+//        createWaitDriver(5, 500).until(CustomExpectedConditions.javascriptWithoutException(jsToEnableInput));
+//        projectImgFileField.sendKeys(pictureFilePath);
+//        waitForElementToBeEnabled(saveImageBtn, 7);
+//        Assert.assertEquals(
+//                saveImageBtn.isEnabled(),
+//                true,
+//                "Cannot save project image, because 'Save image' button disabled");
+//        clickOn(saveImageBtn);
+//        waitForElementToDisappear(dialogueBox, 7);
+//        waitForElementToDisappear(saveImageBtn, 7);
+//        waitForGlobalSpinner(1, 45);
+//
+//        start = new Date().getTime();
+//        while (oldImageLocation.equals(
+//                findByXpath("//md-card-title-text[contains(., '" + projectName + "')]/ancestor::md-card//img[@alt='Project image']").getAttribute("src"))){
+//            try {
+//                Thread.sleep(200L);
+//            } catch (InterruptedException e) {}
+//            if (new Date().getTime() - start >= maxMilliSecondsToWait) {
+//                Assert.fail("Changing project picture failed. picture location did not change for "+maxMilliSecondsToWait+" milliseconds and still remain the same:" + oldImageLocation);
+//                break;
+//            }
+//        }
+//    }
 
     @Test
     public void selectionTest(){
@@ -271,8 +274,17 @@ public class EditProjectTest extends TemplateImporterRepository {
      * Click 'Select All' Or 'Unselect All' checkbox
      */
     private void clickSelectUnselectAll(){
-        WebElement selectAllCheckbox = findByXpath("//md-checkbox[@aria-label='Select all']");
-        clickOn(selectAllCheckbox);
+        WebElement checkbox = findByXpath("//md-checkbox[@aria-label='Select all']");
+        try {
+            clickOn(checkbox);
+        } catch (WebDriverException e) {
+            while (!checkbox.getAttribute("aria-checked").contains("true")) {
+                try {
+                    new Actions(getDriver()).sendKeys(Keys.ARROW_UP).click(checkbox).build().perform();
+                } catch (WebDriverException ee) {
+                }
+            }
+        }
     }
 
     /**
@@ -280,13 +292,22 @@ public class EditProjectTest extends TemplateImporterRepository {
      * @param projectName String, name of project to select
      * @return true if project is selected after all
      */
-    private boolean selectProject(String projectName){
-        WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+    private boolean selectProject(String projectName) {
+        WebElement checkbox = findByXpath("//md-card-title-text[contains(., '" + projectName + "')]/ancestor::md-card//md-checkbox");
         boolean isSelected = isProjectSelected(projectName);
 
-        if (!isSelected){
-            clickOn(checkbox);
-            checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+        if (!isSelected) {
+            try {
+                clickOn(checkbox);
+            } catch (WebDriverException e) {
+                while (!checkbox.getAttribute("aria-checked").contains("true")) {
+                    try {
+                        new Actions(getDriver()).sendKeys(Keys.ARROW_UP).click(checkbox).build().perform();
+                    } catch (WebDriverException ee) {
+                    }
+                }
+            }
+            checkbox = findByXpath("//md-card-title-text[contains(., '" + projectName + "')]/ancestor::md-card//md-checkbox");
             isSelected = checkbox.getAttribute("aria-checked").contains("true");
         }
         return isSelected;
@@ -297,13 +318,22 @@ public class EditProjectTest extends TemplateImporterRepository {
      * @param projectName String, name of project to unselect
      * @return true if project is still selected after all
      */
-    private boolean unSelectProject(String projectName){
-        WebElement checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+    private boolean unSelectProject(String projectName) {
+        WebElement checkbox = findByXpath("//md-card-title-text[contains(., '" + projectName + "')]/ancestor::md-card//md-checkbox");
         boolean isSelected = isProjectSelected(projectName);
 
-        if (isSelected){
-            clickOn(checkbox);
-            checkbox = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+        if (isSelected) {
+            try {
+                clickOn(checkbox);
+            } catch (WebDriverException e) {
+                while (checkbox.getAttribute("aria-checked").contains("true")) {
+                    try {
+                        new Actions(getDriver()).sendKeys(Keys.ARROW_UP).click(checkbox).build().perform();
+                    } catch (WebDriverException ee) {
+                    }
+                }
+            }
+            checkbox = findByXpath("//md-card-title-text[contains(., '" + projectName + "')]/ancestor::md-card//md-checkbox");
             isSelected = checkbox.getAttribute("aria-checked").contains("true");
         }
         return isSelected;

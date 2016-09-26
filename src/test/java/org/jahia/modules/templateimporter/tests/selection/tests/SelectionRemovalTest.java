@@ -52,8 +52,8 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
     }
 
     @Test //TI_S2C24
-    public void areaWithViewRemovallTest(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionRemovalTest.areaWithViewRemovallTest");
+    public void areaWithViewRemovalTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionRemovalTest.areaWithViewRemovalTest");
         String projectName = randomWord(8);
         String xPathAreaA1 = "//body/div[1]";
         String xPathViewV1 = "//body/div[1]/div[1]";
@@ -61,7 +61,7 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
         String nameViewV1 = randomWord(5);
         String nodeTypeViewV1 = "jnt:bootstrapMainContent";
         int xOffsetA1Area = 1;
-        int xOffsetViewV1 = 1;
+        int xOffsetViewV1 = 2;
         int yOffsetA1Area = 0;
         int yOffsetViewV1 = 0;
 
@@ -75,7 +75,7 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
         softAssert.assertAll();
     }
 
-    @Test //TI_S2C25
+    @Test (enabled = false)//TI_S2C25 //Test disabled due to functionality change. There is no mo area inheritance.
     public void viewRemovalCrossTemplateTest(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionRemovalTest.viewRemovalCrossTemplateTest");
         String projectName = randomWord(8);
