@@ -2,6 +2,7 @@ package org.jahia.modules.templateimporter.tests;
 
 import org.apache.commons.io.FileUtils;
 import org.jahia.modules.templateimporter.tests.businessobjects.Area;
+import org.jahia.modules.templateimporter.tests.businessobjects.Component;
 import org.jahia.modules.templateimporter.tests.businessobjects.View;
 import org.jahia.modules.tests.core.ModuleTest;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
@@ -58,7 +59,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         goToProjectsList(locale);
         waitForGlobalSpinner(1, 45);
-        WebElement importProjectButton = findByXpath("//button[contains(., 'Import Project')]");
+        WebElement importProjectButton = findByXpath("//button[@ng-click='pc.importProject($event)']");
         waitForElementToStopMoving(importProjectButton);
         clickOn(importProjectButton);
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
@@ -182,37 +183,46 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected int deleteAllProjects() {
         int projectsRemoved = 0;
-        List<WebElement> projectsBeforeDeletion = null;
+        List<String> projectNames = new LinkedList<String>();
 
         try {
-            projectsBeforeDeletion = createWaitDriver(2, 300).until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//md-card//md-checkbox[@ng-click='pc.updateSelectAll(!p.remove, $index)']")));
-        }catch(TimeoutException e){}
-
-        if (projectsBeforeDeletion != null && projectsBeforeDeletion.size() > 0) {
-//            WebElement selectAllCheckbox = findByXpath("//md-checkbox[@ng-click='pc.selectAllToggle()']");
-            WebElement removeSelectedBtn = findByXpath("//button[@aria-label='Remove Selected Project']");
-
-            for(WebElement checkbox:projectsBeforeDeletion){
-                clickOn(checkbox);
+            List<WebElement> projectsBeforeDeletion = createWaitDriver(2, 300)
+                    .until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.xpath("//md-card-title-text/span[@ng-click='pc.seeProject($index)']")));
+            for(WebElement projectTitle:projectsBeforeDeletion){
+                projectNames.add(projectTitle.getText());
             }
-            waitForElementToStopMoving(removeSelectedBtn);
-            waitForElementToBeEnabled(removeSelectedBtn, 7);
-            clickOn(removeSelectedBtn);
+        } catch (TimeoutException e) {
+            return projectsRemoved;
+        }
 
-            WebElement confirmRemovalBtn = findByXpath("//button[@ng-click='rpc.ok()']");
-            waitForElementToStopMoving(confirmRemovalBtn);
-            clickOn(confirmRemovalBtn);
-            waitForElementToDisappear(confirmRemovalBtn, 10);
-            waitForGlobalSpinner(1, 45);
-
-            for (WebElement project : projectsBeforeDeletion) {
-                boolean isDeleted = waitForElementToBeInvisible(project);
-                if (isDeleted) {
-                    projectsRemoved++;
-                }
+        for(String name:projectNames){
+            if(deleteProject(name)){
+                projectsRemoved++;
             }
         }
+
         return projectsRemoved;
+    }
+
+    private void deleteAllProjectsFast(){
+        String jsToDeleteProjects = " function removeAllProjects() {\n" +
+                "const trashcans = $('[aria-label=\"Remove\"]');\n" +
+                "        for (let i = 0; i < trashcans.length; ++i) {\n" +
+                "            trashcans[i].onclick = (event) => {\n" +
+                "                $('span:contains(\"Remove\")').parent('button').click();\n" +
+                "                if (trashcans[i + 1]) {\n" +
+                "                    trashcans[i + 1].click();\n" +
+                "                }\n" +
+                "            };\n" +
+                "        }\n" +
+                "        if (trashcans.length > 0) {\n" +
+                "            trashcans[0].click();   \n" +
+                "        }\n" +
+                "    }" +
+                "removeAllProjects();";
+
+        executeScriptWithJavascript(jsToDeleteProjects);
+        waitForGlobalSpinner(2, 60);
     }
 
     /**
@@ -222,20 +232,25 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected boolean deleteProject(String projectName){
         boolean isProjectDeleted;
-        WebElement removeSelectedBtn = findByXpath("//button[@aria-label='Remove Selected Project']");
-        WebElement proectToDelete = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card");
-        WebElement checkboxToSelectProjectToDelete = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//md-checkbox");
+        WebElement proectToDelete = findByXpath("//md-card[./*/md-card-title-text[contains(., '"+projectName+"')]]//button[@ng-click='pc.removeProject($event, p)']");
 
-        Assert.assertNotNull(checkboxToSelectProjectToDelete, "Checkbox to delete a project '"+projectName+"' not found. Does project exist?");
-        clickOn(checkboxToSelectProjectToDelete);
-        waitForElementToStopMoving(removeSelectedBtn);
-        waitForElementToBeEnabled(removeSelectedBtn, 7);
-        clickOn(removeSelectedBtn);
-        WebElement confirmRemovalBtn = findByXpath("//button[@ng-click='rpc.ok()']");
+        Assert.assertNotNull(proectToDelete, "Remove button to delete a project '"+projectName+"' not found. Does project exist?");
+        try{
+            clickOn(proectToDelete);
+        }catch (WebDriverException e){
+            while(!isVisible(By.xpath("//button[@ng-click='dialog.hide()']"), 1)) {
+                try {
+                    new Actions(getDriver()).sendKeys(Keys.ARROW_UP).click(proectToDelete).build().perform();
+                }catch(WebDriverException ee){}
+            }
+        }
+
+        WebElement confirmRemovalBtn = findByXpath("//button[@ng-click='dialog.hide()']");
+        waitForElementToStopMoving(confirmRemovalBtn);
         clickOn(confirmRemovalBtn);
         waitForElementToDisappear(confirmRemovalBtn, 10);
         waitForGlobalSpinner(1, 45);
-        isProjectDeleted = waitForElementToBeInvisible(proectToDelete);
+        isProjectDeleted = waitForElementToBeInvisible(proectToDelete, 3);
 
         return isProjectDeleted;
     }
@@ -320,21 +335,26 @@ public class TemplateImporterRepository extends ModuleTest {
     protected void selectArea(Area  area,
                               int   expandTimes){
         rightMouseClick(area.getXpath(), area.getxOffset(), area.getyOffset());
+        WebElement menuAreaBtn = findByXpath("//div[@ng-click='rmc.canBeArea && rmc.showArea()']");
+        waitForElementToStopMoving(menuAreaBtn);
+        clickOn(menuAreaBtn);
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
-        WebElement okButton = findByXpath("//button[@ng-click='hdc.area.ok()']");
+        WebElement selectBtn = findByXpath("//button[@ng-click='sac.area.ok()']");
+        WebElement expandArea = findByXpath("//button[@ng-click='sac.area.expandSelection()']");
+
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, area.getName());
         for (int i = 0; i < expandTimes; i++){
-            WebElement expandArea = findByXpath("//button[@ng-click='hdc.area.expandSelection()']");
             clickOn(expandArea);
+            expandArea = findByXpath("//button[@ng-click='sac.area.expandSelection()']");
         }
-        waitForElementToBeEnabled(okButton, 5);
-        clickOn(okButton);
-        waitForElementToBeInvisible(okButton);
+        waitForElementToBeEnabled(selectBtn, 5);
+        clickOn(selectBtn);
+        waitForElementToBeInvisible(selectBtn);
 
         Assert.assertTrue(
-                checkIfAreaSelectedWithLimit(area.getXpath(), area.getxPathToInternalArea(), new SoftAssert(), true, ""),
-                "Area was not selected. Target element does not have '"+ SELECTION_AREA_LIMIT_MARK +"' class." + "or "+SELECTED_AREA_MARK);
+                checkIfAreaSelected(area.getXpath()),
+                "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+area.getXpath());
     }
 
     protected void selectArea(Area area){
@@ -401,6 +421,42 @@ public class TemplateImporterRepository extends ModuleTest {
 
     protected void selectView(View view) {
         selectView(view.getName(), view.getNodeType(), view.getXpath(), view.getxOffset(), view.getyOffset());
+    }
+
+    protected void selectComponent(Component    component,
+                                   String       errorMsg){
+        String xPath = component.getXpath();
+        int xOffset = component.getxOffset();
+        int yOffset = component.getyOffset();
+        String areaName = component.getAreaName();
+        String viewName = component.getViewName();
+        String nodeType = component.getNodeType();
+
+        rightMouseClick(xPath, xOffset, yOffset);
+        WebElement menuViewBtn = findByXpath("//div[@ng-click='rmc.canBeAreaAndView && rmc.showAreaView()']");
+        waitForElementToStopMoving(menuViewBtn);
+        clickOn(menuViewBtn);
+
+        WebElement areaNameField = findByName("areaName");
+        WebElement viewNameField = findByName("viewName");
+        WebElement nodeTypeField = findByName("nodeTypeSelection");
+        WebElement okBtn = findByXpath("//button[@ng-click='savc.ok()']");
+
+        waitForElementToStopMoving(areaNameField);
+        typeInto(areaNameField, areaName);
+        typeInto(viewNameField, viewName);
+        typeInto(nodeTypeField, nodeType);
+        clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
+        waitForElementToBeEnabled(okBtn, 5);
+        clickOn(okBtn);
+        waitForElementToBeInvisible(okBtn);
+
+        Assert.assertTrue(
+                checkIfViewSelected(xPath),
+                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class." + " XPath: "+xPath);
+        Assert.assertTrue(
+                checkIfAreaSelected(xPath),
+                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+xPath);
     }
 
     protected void switchToProjectFrame(){
@@ -534,6 +590,26 @@ public class TemplateImporterRepository extends ModuleTest {
                 expectedResult,
                 errorMsg+". Assertion if element: '" + xPath + "' has class '" + SELECTED_AREA_MARK + "' (is selected) Failed");
         return isAreaSelected;
+    }
+
+    protected boolean checkIfComponentSelected(Component    component,
+                                               SoftAssert   softAssert,
+                                               boolean      expectedResult,
+                                               String       errorMsg){
+        boolean isComponentSelected = false;
+        String missing;
+        if (expectedResult){
+            missing = " missing ";
+        }else{
+            missing = " present";
+        }
+
+        if(checkIfAreaSelected(component.getXpath(), softAssert, expectedResult, "Area mark is"+missing+errorMsg) &&
+                checkIfViewSelected(component.getXpath(), softAssert, expectedResult, "View mark is"+missing+errorMsg)){
+            isComponentSelected = true;
+        }
+
+        return isComponentSelected;
     }
 
     protected boolean checkIfAreaSelectedWithLimit(String        xPathToExternalLimit,
@@ -760,7 +836,7 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected void customTestCleanUp(){
         goToProjectsList("en");
-        deleteAllProjects();
+        deleteAllProjectsFast();
         cleanDownloadsFolder();
     }
 }

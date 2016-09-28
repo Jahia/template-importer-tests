@@ -57,6 +57,10 @@ public class Area {
         return true;
     }
 
+    public boolean isComponent(){
+        return false;
+    }
+
     public String getxPathToInternalArea() {
         return xPathToInternalArea;
     }

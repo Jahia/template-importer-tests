@@ -2,6 +2,7 @@ package org.jahia.modules.templateimporter.tests.selection.tests;
 
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.templateimporter.tests.businessobjects.Area;
+import org.jahia.modules.templateimporter.tests.businessobjects.Component;
 import org.jahia.modules.templateimporter.tests.businessobjects.View;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
@@ -24,40 +25,33 @@ public class LayoutTests extends TemplateImporterRepository{
         String newProjectName = randomWord(10);
         String usersTemplateName = randomWord(5);
         File exportedLayout;
-        Area baseA1 = new Area(randomWord(5), "//body/div[1]", 1, 0, "base");
-        Area baseA2 = new Area(randomWord(3), "//body/div[3]", 1, 0, "base");
-        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 1, 0, "home");
-        Area userA1 = new Area(randomWord(7), "//body/div[1]/div[2]", 1, 0, usersTemplateName);
-        View baseV1 = new View(randomWord(6), "jnt:bootstrapMainContent", baseA2.getXpath()+"/div[1]", 1, 0, baseA2.getTemplateName());
-        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 1, 0, homeA1.getTemplateName());
-        View userV1 = new View(randomWord(9), "jnt:html", "//body/div[1]/div[2]/div[text()='Level 3-1']", 1, 0, usersTemplateName);
+        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
+        Area userA1 = new Area(randomWord(7), "//body/div[1]/div[2]", 2, 0, usersTemplateName);
+        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
+        View userV1 = new View(randomWord(9), "jnt:html", "//body/div[1]/div[2]/div[text()='Level 3-1']", 2, 0, usersTemplateName);
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
 
         //Create and export layout
         importProject("en", oldProjectName, "", "AlexLevels.zip");
         openProjectFirstTime(oldProjectName, "index.html");
-        selectArea(baseA1);
-        selectArea(baseA2);
-        selectView(baseV1);
-        switchToTemplate("home");
         selectArea(homeA1);
         selectView(homeV1);
+        selectComponent(homeC1, "");
         createNewTemplate(usersTemplateName, "page1.html");
         selectArea(userA1);
         selectView(userV1);
 
         //Re import layout into another project and check areas and views.
-        String[] templatesToExport = new String[]{baseA1.getTemplateName(), homeA1.getTemplateName(), userA1.getTemplateName()};
+        String[] templatesToExport = new String[]{homeA1.getTemplateName(), userA1.getTemplateName()};
         exportedLayout = exportLayout(templatesToExport, oldProjectName, softAssert);
         Assert.assertNotNull(exportedLayout, "Exported layout zip file not found");
         importProject("en", newProjectName, "Project for reimport test.", "AlexLevels.zip");
         openProjectFirstTime(newProjectName, "index.html");
-        templatesToExport = new String[]{baseA1.getTemplateName(), homeA1.getTemplateName(), userA1.getTemplateName()};
+        templatesToExport = new String[]{homeA1.getTemplateName(), userA1.getTemplateName()};
         importLayout(exportedLayout, templatesToExport, softAssert);
-        checkAreaViewImport(softAssert, baseA1);
-        checkAreaViewImport(softAssert, baseA2);
-        checkAreaViewImport(softAssert, baseV1);
         checkAreaViewImport(softAssert, homeA1);
         checkAreaViewImport(softAssert, homeV1);
+        checkIfComponentSelected(homeC1, softAssert, true, "Component re-imported");
         checkAreaViewImport(softAssert, userA1);
         checkAreaViewImport(softAssert, userV1);
 
@@ -90,7 +84,11 @@ public class LayoutTests extends TemplateImporterRepository{
                 "fileInput = getElementByXpath(\"//label[input[@type='file']]\");" +
                 "fileInput.setAttribute(\"style\", \"\");";
 
-        WebElement importLayoutBtn = findByXpath("//button[@ng-click='showDialog()']");
+        WebElement menuBtn = findByXpath("//button[@aria-label='Layout']");
+        clickOn(menuBtn);
+
+        WebElement importLayoutBtn = findByXpath("//button[@ng-click='project.importLayout($event)']");
+        waitForElementToStopMoving(importLayoutBtn);
         clickOn(importLayoutBtn);
         WebElement layoutZipFileField = findByXpath("//input[@type='file']");
         WebElement importButton = findByXpath("//button[@ng-click='lifc.import()']");
@@ -134,7 +132,9 @@ public class LayoutTests extends TemplateImporterRepository{
     private File exportLayout(String[]      templateNames,
                               String        projectName,
                               SoftAssert    softAssert){
-        WebElement exportLayoutBtn = findByXpath("//button[@ng-click='project.exportLayout()']");
+        WebElement menuBtn = findByXpath("//button[@aria-label='Layout']");
+        clickOn(menuBtn);
+        WebElement exportLayoutBtn = findByXpath("//button[@ng-click='project.exportLayout($event)']");
         Assert.assertNotNull(exportLayoutBtn, "Export layout button not found");
         Assert.assertTrue(
                 isVisible(exportLayoutBtn, 3),
@@ -145,6 +145,7 @@ public class LayoutTests extends TemplateImporterRepository{
                 "Export layout button disabled."
         );
         cleanDownloadsFolder();
+        waitForElementToStopMoving(exportLayoutBtn);
         clickOn(exportLayoutBtn);
 
         WebElement selectAllCheckbox = findByXpath("//md-checkbox[@ng-click='lec.selectAll()']");

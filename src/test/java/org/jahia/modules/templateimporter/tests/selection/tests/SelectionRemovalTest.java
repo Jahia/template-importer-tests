@@ -1,6 +1,7 @@
 package org.jahia.modules.templateimporter.tests.selection.tests;
 
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
+import org.jahia.modules.templateimporter.tests.businessobjects.Component;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
@@ -48,6 +49,23 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
         checkIfViewSelected(xPathViewV1, softAssert, false, "Removed that view from an area on base");
         selectView(nameViewV1, nodeTypeViewV1, xPathViewV1, xOffsetViewV1, yOffsetViewV1, "Re-selecting same element with the same name as a view, after removing it");
         checkIfAreaSelected(xPathAreaA1, softAssert, true, "After re-selecting removed view");
+        softAssert.assertAll();
+    }
+
+    @Test
+    public void componentRemovalTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionRemovalTest.componentRemovalTest");
+        String projectName = randomWord(15);
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, "home");
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectComponent(homeC1, "Selecting component");
+        removeView(homeC1.getXpath(), homeC1.getxOffset(), homeC1.getyOffset());
+        checkIfComponentSelected(homeC1, softAssert, false, "Component after removal");
+        selectComponent(homeC1, "Selecting same component after removal");
+        checkIfComponentSelected(homeC1, softAssert, true, "Component after removal and re-selecting");
+
         softAssert.assertAll();
     }
 

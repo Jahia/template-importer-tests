@@ -126,13 +126,13 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(areaA1Name, xPathAreaA1, 1, 0);
-        clearSelections("base");
+        selectArea(areaA1Name, xPathAreaA1, 2, 0);
+        clearSelections("home");
         checkIfAreaSelected(xPathAreaA1, softAssert, false, "Clear selections button was pressed when only one area selected.");
-        selectArea(areaA1Name, xPathAreaA1, 1, 0);
-        selectView(viewName, nodeType, xPathViewV1, 1, 0);
-        selectArea(areaA2Name, xPathAreaA2, 1, 0);
-        clearSelections("base");
+        selectArea(areaA1Name, xPathAreaA1, 2, 0);
+        selectView(viewName, nodeType, xPathViewV1, 2, 0);
+        selectArea(areaA2Name, xPathAreaA2, 2, 0);
+        clearSelections("home");
         checkIfAreaSelected(xPathAreaA1, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
         checkIfAreaSelected(xPathAreaA2, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
         checkIfViewSelected(xPathViewV1, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
@@ -140,7 +140,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         softAssert.assertAll();
     }
 
-    @Test
+    @Test(enabled = false) //Test disabled because there is no more inheritance
     public void clearSelectionsCrossTemplateTest(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "TemplateManipulationTest.clearSelectionsCrossTemplateTest");
         String projectName = randomWord(20);
@@ -206,7 +206,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseAreaName, xPathToSelectInBase, 1, 0);
+        selectArea(baseAreaName, xPathToSelectInBase, 2, 0);
         checkTemplateName(templateName, pageFileName, isNameValid, reallyCreateTemplate, softAssert, errorMsg);
 
         softAssert.assertAll();
@@ -228,13 +228,15 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
                                      SoftAssert softAssert,
                                      String     errorMsg){
         boolean nameFieldShowsError;
-        WebElement createNewTemplateBtn = findByXpath("//button[@ng-click='cpc.showCreatePageDialog($event)']");
-
+        WebElement menuBtn = findByXpath("//button[@aria-label='Layout']");
+        clickOn(menuBtn);
+        WebElement createNewTemplateBtn = findByXpath("//button[@ ng-click='project.createNewTemplate($event)']");
+        waitForElementToStopMoving(createNewTemplateBtn);
         clickOn(createNewTemplateBtn);
         WebElement templateNameField = findByXpath("//input[@name='pageName']");
-        WebElement pageSelectDropdown = findByXpath("//md-select[@ng-model='selectedTemplate']");
-        WebElement createBtn = findByXpath("//button[@ng-click='create()']");
-        WebElement cancelBtn = findByXpath("//button[@ng-click='cancel()']");
+        WebElement pageSelectDropdown = findByXpath("//md-select[@ng-model='cpc.selectedTemplate']");
+        WebElement createBtn = findByXpath("//button[@ng-click='cpc.create()']");
+        WebElement cancelBtn = findByXpath("//button[@ng-click='cpc.cancel()']");
 
         if(!pageFileName.equals("")) {
             clickOn(pageSelectDropdown);
@@ -346,9 +348,9 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
     public Object[][] generateTemplateNames(){
         return new Object[][]{
                 {"ValidTemplateName1", "page1.html", true, true, "Valid name and page template creation", 0},
-                {"base", "page2.html", false, false, "Creating clone of base template", 1}, //MOD-1157
-                {"Base", "page2.html", true, true, "Creating clone of base template", 2}, //MOD-1157
-                {"BASE", "page2.html", true, false, "Creating clone of base template", 3}, //MOD-1157
+                {"base", "page2.html", true, false, "Creating clone of base template", 1}, //"base" is now a valid template name since everything will be under base automatically
+                {"Base", "page2.html", true, true, "Creating clone of base template", 2},
+                {"BASE", "page2.html", true, false, "Creating clone of base template", 3},
                 {"home", "page1.html", false, false, "Creating clone of home template", 4}, //MOD-1157
                 {"hOme", "page1.html", true, false, "Creating clone of home template", 5}, //MOD-1157
                 {" template with spaces ", "page3.html", false, false, "Template name with spaces", 6},
