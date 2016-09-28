@@ -47,14 +47,14 @@ public class ImportTest extends TemplateImporterRepository {
             softAssert.assertEquals(
                     isVisible(By.xpath("//*[@ng-if='p.description'][contains(., '" + projectDescription + "')]"), 7),
                     true,
-                    "Project descriptions is not visible. Should be: " + projectDescription);
+                    "Project descriptions is not visible. Should be: " + projectDescription+" Import attempt № ");
         }
 
         for(String projectName: projectsInfo.keySet()){
             String projectDescription = projectsInfo.get(projectName);
 
             softAssert.assertEquals(
-                    isVisible(By.xpath("//md-card-title-text/span[contains(text(), '"+projectName+"')]"), 5),
+                    isVisible(By.xpath("//md-card-title-text/span[contains(., '"+projectName+"')]"), 5),
                     true,
                     "After importing several projects, cannot find name of one of them:"+ projectName);
             softAssert.assertEquals(
