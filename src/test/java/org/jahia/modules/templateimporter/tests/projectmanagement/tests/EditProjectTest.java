@@ -60,12 +60,12 @@ public class EditProjectTest extends TemplateImporterRepository {
                 clickOn(saveChangesBtn);
                 waitForElementToBeInvisible(saveChangesBtn, 7);
                 softAssert.assertEquals(
-                        isVisible(By.xpath("//md-card-title-text/span[contains(text(), '" + modifiedName + "')]"), 7),
+                        isVisible(By.xpath("//md-card-title-text/span[contains(., '" + modifiedName + "')]"), 7),
                         true,
                         "New project name is not visible after editing project. New name.: " + modifiedName + " Old name.:" + originalName +
                                 ". New Desc.:"+modifiedDescription+". Old Desc.:"+originalDescription);
                 softAssert.assertEquals(
-                        isVisible(By.xpath("//md-card-title-text/span[contains(text(), '" + originalName + "')]"), 1),
+                        isVisible(By.xpath("//md-card-title-text/span[contains(., '" + originalName + "')]"), 1),
                         false,
                         "Old project name is still visible after editing project. New name.: " + modifiedName + " Old name.:" + originalName +
                                 ". New Desc.:"+modifiedDescription+". Old Desc.:"+originalDescription);
@@ -127,11 +127,11 @@ public class EditProjectTest extends TemplateImporterRepository {
         waitForElementToBeInvisible(cancelButton, 7);
 
         softAssert.assertEquals(
-                isVisible(By.xpath("//md-card-title-text/span[contains(text(), '" + originalName + "')]"), 7),
+                isVisible(By.xpath("//md-card-title-text/span[contains(., '" + originalName + "')]"), 7),
                 true,
                 "Cannot find project with original name after cancelling renaming. New name.: " + originalName + " Old name.:" + modifiedName);
         softAssert.assertEquals(
-                isVisible(By.xpath("//md-card-title-text/span[contains(text(), '" + modifiedName + "')]"), 1),
+                isVisible(By.xpath("//md-card-title-text/span[contains(., '" + modifiedName + "')]"), 1),
                 false,
                 "Project with modified name is found after cancelling renaming. New name.: " + originalName + " Old name.:" + modifiedName);
         softAssert.assertAll();
@@ -199,7 +199,7 @@ public class EditProjectTest extends TemplateImporterRepository {
 //        }
 //    }
 
-    @Test
+    @Test (enabled = false)//Disabled due to functionality removal
     public void selectionTest(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "EditProjectTest.selectionTest");
         String projectNameOne = randomWord(8);
