@@ -13,7 +13,6 @@
             <class name="org.jahia.modules.templateimporter.tests.selection.tests.SelectionColorTests"/>
             <class name="org.jahia.modules.templateimporter.tests.modulegeneration.tests.GenerateModuleTest"/>
             <class name="org.jahia.modules.templateimporter.tests.assetmanagement.tests.ManageAssetsTest"/>
-            <class name="org.jahia.modules.templateimporter.tests.documentvalidation.tests.ValidateDocumentTest"/>
         </classes>
     </test>
 </suite>
