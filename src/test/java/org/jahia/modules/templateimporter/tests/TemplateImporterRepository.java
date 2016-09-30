@@ -385,11 +385,17 @@ public class TemplateImporterRepository extends ModuleTest {
         clickOn(menuViewBtn);
 
         WebElement viewNameField = findByXpath("//input[@name='viewName']");
-        WebElement nodeTypeField = findByXpath("//input[@id='nodeTypeSelection-typeahead-input']");
         WebElement selectViewBtn = findByXpath("//button[@ng-click='svc.view.ok()']");
+        WebElement advsncedCheckbox = findByXpath("//md-checkbox[@ng-model='svc.view.advancedNodeTypeSelection']");
 
         waitForElementToStopMoving(viewNameField);
         typeInto(viewNameField, viewName);
+        clickOn(advsncedCheckbox);
+        WebElement nodeTypeField = findByName("nodeTypeSelection");
+        waitForElementToBeVisible(nodeTypeField);
+        waitForElementToStopMoving(nodeTypeField);
+        nodeTypeField.click();
+        nodeTypeField.clear();
         typeInto(nodeTypeField, nodeType);
         clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
         waitForElementToBeEnabled(selectViewBtn, 5);
@@ -433,18 +439,23 @@ public class TemplateImporterRepository extends ModuleTest {
         String nodeType = component.getNodeType();
 
         rightMouseClick(xPath, xOffset, yOffset);
-        WebElement menuViewBtn = findByXpath("//div[@ng-click='rmc.canBeAreaAndView && rmc.showAreaView()']");
-        waitForElementToStopMoving(menuViewBtn);
-        clickOn(menuViewBtn);
+        WebElement menuComponentBtn = findByXpath("//div[@ng-click='rmc.canBeAreaAndView && rmc.showAreaView()']");
+        waitForElementToStopMoving(menuComponentBtn);
+        clickOn(menuComponentBtn);
 
         WebElement areaNameField = findByName("areaName");
         WebElement viewNameField = findByName("viewName");
-        WebElement nodeTypeField = findByName("nodeTypeSelection");
+        WebElement advsncedCheckbox = findByXpath("//md-checkbox[@ng-model='savc.view.advancedNodeTypeSelection']");
         WebElement okBtn = findByXpath("//button[@ng-click='savc.ok()']");
 
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
         typeInto(viewNameField, viewName);
+        clickOn(advsncedCheckbox);
+        WebElement nodeTypeField = findByName("nodeTypeSelection");
+        waitForElementToBeVisible(nodeTypeField);
+        nodeTypeField.click();
+        nodeTypeField.clear();
         typeInto(nodeTypeField, nodeType);
         clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
         waitForElementToBeEnabled(okBtn, 5);
@@ -716,31 +727,66 @@ public class TemplateImporterRepository extends ModuleTest {
                                   String    definitionNameSpace,
                                   String    sourcesFolder,
                                   boolean   reallyGenerate){
-        String xPathToSuccessfulToast = "//div[contains(@class, 'toast-title')][contains(., 'All done!!! Your module is ready!!!')]";
-
-        WebElement generateModuleBtn = findByXpath("//button[@ng-click='cmc.showCreateDialog($event)']");
+        WebElement menuBtn = findByXpath("//button[@aria-label='Project']");
+        clickOn(menuBtn);
+        WebElement generateModuleBtn = findByXpath("//button[@ng-click='project.generateModule()']");
+        waitForElementToStopMoving(generateModuleBtn);
         clickOn(generateModuleBtn);
-        WebElement moduleNameField = findByXpath("//input[@name='moduleName']");
-        WebElement definitionNameSpaceField = findByXpath("//input[@name='nameSpace']");
-        WebElement sourcesFolderField = findByXpath("//input[@name='sources']");
-        WebElement createBtn = findByXpath("//button[@ng-click='create()']");
-        WebElement cancelBtn = findByXpath("//button[@ng-click='cancel()']");
+        WebElement confirmBtn = findByXpath("//button[@ng-click=\"awc.choice('generate')\"]");
+        waitForElementToStopMoving(confirmBtn);
+        clickOn(confirmBtn);
+        WebElement moduleNameField = findByName("moduleName");
+        WebElement definitionNameSpaceField = findByName("nameSpace");
+        WebElement sourcesFolderField = findByName("sources");
+        WebElement createBtn = findByXpath("//button[@ng-click='cmc.create()']");
+        WebElement cancelBtn = findByXpath("//button[@ng-click='cmc.cancel()']");
         waitForElementToStopMoving(moduleNameField);
         typeInto(moduleNameField, moduleName);
         typeInto(definitionNameSpaceField, definitionNameSpace);
         typeInto(sourcesFolderField, sourcesFolder);
         if(reallyGenerate){
-            waitForElementToBeEnabled(createBtn, 5);
             clickOn(createBtn);
             waitForElementToBeInvisible(createBtn);
             Long start = new Date().getTime();
-            waitForGlobalSpinner(2, 180);
-            Long finish = new Date().getTime();
+            WebElement continueBtn = findByXpath("//button[@ng-click='esc.nextStep()']");
             Assert.assertTrue(
-                    isVisible(By.xpath(xPathToSuccessfulToast), 2),
-                    "Success toast not found after module generation. " +
-                            "Global spinner was visible for at least "+(finish-start)+" milliseconds. (Maximum is 180000)");
-            clickOn(By.xpath(xPathToSuccessfulToast));
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module created')]"), 120),
+                    "Module generation failed at module creation stage. Time spent on generation: "+(new Date().getTime() - start - 120000L)+" milliseconds"
+            );
+            waitForElementToBeEnabled(continueBtn, 5);
+            clickOn(continueBtn);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module deployed')]"), 30),
+                    "Module generation failed at deployment stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+            );
+            waitForElementToBeEnabled(continueBtn, 5);
+            clickOn(continueBtn);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Base template generated')]"), 30),
+                    "Module generation failed at base template generation stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+            );
+            waitForElementToBeEnabled(continueBtn, 5);
+            clickOn(continueBtn);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Assets copied')]"), 30),
+                    "Module generation failed at assets copying stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+            );
+            waitForElementToBeEnabled(continueBtn, 5);
+            clickOn(continueBtn);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Templates created')]"), 30),
+                    "Module generation failed at templates creation stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+            );
+            waitForElementToBeInvisible(continueBtn);
+
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@message-key='angular.tiCreateModuleDirective.message.allDone']"), 5),
+                    "All stages of Module generation passed, but module generation failed anyway." +
+                            "Final message that module successfully generated is not visible.\n" +
+                            "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
+            WebElement okBtn = findByXpath("//button[@ng-click='esc.close()']");
+            clickOn(okBtn);
+            waitForElementToBeInvisible(okBtn);
         }else{
             waitForElementToBeEnabled(cancelBtn, 5);
             clickOn(cancelBtn);
