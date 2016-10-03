@@ -103,29 +103,28 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
         String userCreatedTemplateName = randomWord(10);
         String pageForUserCreatedTemplate = "page3.html";
-        Area baseA1 = new Area(randomWord(5), "//body/div[1]", 1, 0, "base");
-        Area baseA2 = new Area(randomWord(3), "//body/div[3]", 1, 0, "base");
-        Area userA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 1, 0, userCreatedTemplateName);
-        View baseV1 = new View(randomWord(6), "jnt:bootstrapMainContent", baseA2.getXpath()+"/div[1]", 1, 0, baseA2.getTemplateName());
-        View userV1 = new View(randomWord(10), "jnt:html", userA1.getXpath()+"/div[1]", 1, 0, userA1.getTemplateName());
+        Area userA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, userCreatedTemplateName);
+        View userV1 = new View(randomWord(10), "jnt:html", userA1.getXpath()+"/div[1]", 2, 0, userA1.getTemplateName());
+        Component userC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, userA1.getTemplateName());
+        String expectedAreFileContentForComponent = "<template:area path=\""+userC1.getAreaName()+"\" />";
+        String expectedViewFileContentForComponent = "<div  class=\"\"  >\n" +
+                "\t\t\tLevel 1-3\n" +
+                "\t\t</div>";
         boolean userA1FileContainsArea = false;
         boolean userV1FileContainsView = false;
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseA1);
-        selectArea(baseA2);
-        selectView(baseV1);
+
         createNewTemplate(userCreatedTemplateName, pageForUserCreatedTemplate);
         selectArea(userA1);
         selectView(userV1);
+        selectComponent(userC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
         checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
         File userA1File = checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
         if(userA1File != null) {
             userA1FileContainsArea = findTextInFile(userA1File, "<template:area path='" + userA1.getName() + "'/>");
@@ -134,15 +133,23 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 userA1FileContainsArea,
                 "User template area JSP file misses area tag. Name: " + userA1.getName() + ", XPath: " + userA1.getXpath()
         );
-        checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
         File userV1File = checkViewFile(softAssert, sourceFolderPath, userV1, moduleName);
         if (userV1File != null) {
-            userV1FileContainsView = findTextInFile(userV1File, "<div  class=\"\"  >Level 3-2</div>");
+            userV1FileContainsView = findTextInFile(userV1File, "<div   class=\"marginLeft \" >Level 3-2</div>");
         }
         softAssert.assertTrue(
                 userV1FileContainsView,
                 "User template view JSP file misses html tags. Name: " + userV1.getName() + ", XPath: " + userV1.getXpath()
         );
+        checkComponentFiles(
+                softAssert,
+                sourceFolderPath,
+                userC1,
+                definitionNameSpace,
+                moduleName,
+                expectedAreFileContentForComponent,
+                expectedViewFileContentForComponent);
+
         softAssert.assertAll();
     }
 
@@ -164,31 +171,27 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 "js subfolder",
                 "subfolder"
         };
-        Area baseA1 = new Area(randomWord(5), "//body/div[1]", 1, 0, "base");
-        Area baseA2 = new Area(randomWord(3), "//body/div[3]", 1, 0, "base");
-        Area userA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 1, 0, userCreatedTemplateName);
-        View baseV1 = new View(randomWord(6), "jnt:bootstrapMainContent", baseA2.getXpath()+"/div[1]", 1, 0, baseA2.getTemplateName());
-        View userV1 = new View(randomWord(10), "jnt:html", userA1.getXpath()+"/div[1]", 1, 0, userA1.getTemplateName());
+        Area userA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, userCreatedTemplateName);
+        View userV1 = new View(randomWord(10), "jnt:html", userA1.getXpath()+"/div[1]", 2, 0, userA1.getTemplateName());
+        Component userC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, userA1.getTemplateName());
 
         importProject("en", projectName, "", "Assets.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseA1);
-        selectArea(baseA2);
-        selectView(baseV1);
         createNewTemplate(userCreatedTemplateName, pageForUserCreatedTemplate);
         selectArea(userA1);
         selectView(userV1);
+        selectComponent(userC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
         checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, expectedItemsInAssetsFolder, moduleName);
         checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
-        checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
         checkViewFile(softAssert, sourceFolderPath, userV1, moduleName);
+        checkAreaFileForComponent(softAssert, sourceFolderPath, userC1, definitionNameSpace, moduleName);
+        checkViewFileForComponent(softAssert, sourceFolderPath, userC1, moduleName);
+
         softAssert.assertAll();
     }
 
@@ -199,30 +202,25 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         String moduleName = randomWord(10)+" "+"A";
         String definitionNameSpace = randomWord(3);
         String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
-        Area baseA1 = new Area(randomWord(5), "//body/div[1]", 1, 0, "base");
-        Area baseA2 = new Area(randomWord(3), "//body/div[3]", 1, 0, "base");
-        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 1, 0, "home");
-        View baseV1 = new View(randomWord(6), "jnt:bootstrapMainContent", baseA2.getXpath()+"/div[1]", 1, 0, baseA2.getTemplateName());
-        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 1, 0, homeA1.getTemplateName());
+        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
+        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-        selectArea(baseA1);
-        selectArea(baseA2);
-        selectView(baseV1);
-        switchToTemplate("home");
         selectArea(homeA1);
         selectView(homeV1);
+        selectComponent(homeC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
                 isModuleStarted(moduleName.toLowerCase().replace(" ", "-")),
                 "Module '"+moduleName+"' did not start after generation.");
         checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA1, definitionNameSpace, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, baseA2, definitionNameSpace, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
-        checkViewFile(softAssert, sourceFolderPath, baseV1, moduleName);
         checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName);
+        checkAreaFileForComponent(softAssert, sourceFolderPath, homeC1, definitionNameSpace, moduleName);
+        checkViewFileForComponent(softAssert, sourceFolderPath, homeC1, moduleName);
+
         softAssert.assertAll();
     }
 
