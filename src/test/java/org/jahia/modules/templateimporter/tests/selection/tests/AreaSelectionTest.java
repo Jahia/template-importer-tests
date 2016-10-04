@@ -51,6 +51,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         WebElement newTemplateTabTwo = findByXpath("//ti-tab[contains(., '"+newTemplateNameTwo+"')]");
         softAssert.assertNotNull(newTemplateTabTwo, "Cannot find tab with new template name '"+newTemplateNameTwo+"' after creating new template.");
 
+        waitForGlobalSpinner(1, 9);
         switchToTemplate("home");
         checkIfAreaSelected(xPathToSelectInHomeTemplate, softAssert, true);
         switchToTemplate(newTemplateName);
