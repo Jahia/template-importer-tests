@@ -85,7 +85,10 @@ public class ManageAssetsTest extends TemplateImporterRepository{
     }
 
     private void openAssetsManagement() {
+        WebElement menuBtn = findByXpath("//button[@aria-label='Settings']");
+        clickOn(menuBtn);
         WebElement assetManagementBtn = findByXpath("//button[@ng-click='project.mapAssets()']");
+        waitForElementToStopMoving(assetManagementBtn);
         clickOn(assetManagementBtn);
         Assert.assertTrue(
                 isVisible(By.xpath("//span[contains(., 'Template Importer - Assets Management')]"), 7),
