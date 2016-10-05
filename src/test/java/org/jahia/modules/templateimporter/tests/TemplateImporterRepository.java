@@ -163,6 +163,7 @@ public class TemplateImporterRepository extends ModuleTest {
         typeInto(templateNameField, templateName);
         waitForElementToBeEnabled(createBtn, 5);
         clickOn(createBtn);
+        waitForGlobalSpinner(1, 30);
         waitForElementToBeInvisible(createBtn);
 
         WebElement newTemplateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
@@ -280,6 +281,7 @@ public class TemplateImporterRepository extends ModuleTest {
         WebElement editProjectBtn = findByXpath("//md-card-title-text[contains(., '"+projectName+"')]/ancestor::md-card//button[@ng-click='pc.seeProject($index)']");
 
         clickOn(editProjectBtn);
+        waitForGlobalSpinner(1, 30);
         WebElement importBtn = findByXpath("//button[@ng-click='sbtc.submit()']");
         WebElement baseTemplateSelector = findByXpath("//md-select[@ng-model='sbtc.project.baseTemplate']");
         waitForElementToStopMoving(baseTemplateSelector);
@@ -485,6 +487,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         if (!isCurrentlyOpen) {
             clickOn(templateTabToClick);
+            waitForGlobalSpinner(1, 30);
             waitForElementAttributeToContainValue(templateTabToCheck, 3, "class", CURRENT_TEMPLATE_MARK);
 
             templateTabToCheck = findByXpath("//ti-tab[contains(., '" + templateName + "')]");
