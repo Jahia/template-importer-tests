@@ -109,6 +109,31 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         sausageSelectArea(randomWord(10), fourthDiv, "/html/body/div[2]");
     }
 
+    @Test
+    public void zoomOutTest(){
+        String projectName = randomWord(12);
+        String secondDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[2]";
+        String thirdDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[3]";
+        String firstDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[1]";
+        String forthDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[4]";
+        String body = "//md-sidenav//dom-viewer//div[contains(@class, 'tiDomViewerHeader') and .//strong[normalize-space(.) = 'BODY']]";
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        openTreeExplorer();
+        zoomIn(firstDiv);
+        zoomIn(thirdDiv);
+        zoomIn(secondDiv);
+        zoomOut(secondDiv);
+        zoomOut(secondDiv);
+        zoomOut(forthDiv);
+        zoomOut(firstDiv);
+        Assert.assertTrue(
+                isVisible(By.xpath(body), 2),
+                "After all that zooming in and out, we should be at root level again, but bodybtag is not visible in th tree!"
+        );
+    }
+
     private void sausageSelectView(String    viewName,
                                      String    nodeType,
                                      String    pageXpath,
@@ -268,6 +293,8 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         Assert.assertNotNull(treeElement, "Element in the tee explorer not found. XPath: "+xPathToTree);
         new Actions(getDriver()).moveToElement(treeElement).build().perform();
         WebElement zoomInBtn = treeElement.findElement(By.xpath(".//button[@ng-click='zoomIn()']"));
+        waitForElementToBeEnabled(zoomInBtn, 1);
+        Assert.assertTrue(zoomInBtn.isEnabled(), "Zoom in button disabled for element: "+xPathToTree);
         clickOn(zoomInBtn);
         waitForElementToDisappear(zoomInBtn, 1);
     }
@@ -277,6 +304,8 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         Assert.assertNotNull(treeElement, "Element in the tee explorer not found. XPath: "+xPathToTree);
         new Actions(getDriver()).moveToElement(treeElement).build().perform();
         WebElement menuBtn = treeElement.findElement(By.xpath(".//button[@ng-click='showMenu()($event)']"));
+        waitForElementToBeEnabled(menuBtn, 1);
+        Assert.assertTrue(menuBtn.isEnabled(), "Menu button disabled for element: "+xPathToTree);
         clickOn(menuBtn);
     }
 
@@ -285,6 +314,8 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         Assert.assertNotNull(treeElement, "Element in the tee explorer not found. XPath: "+xPathToTree);
         new Actions(getDriver()).moveToElement(treeElement).build().perform();
         WebElement zoomOutBtn = treeElement.findElement(By.xpath(".//button[@ng-click='zoomOut()']"));
+        waitForElementToBeEnabled(zoomOutBtn, 1);
+        Assert.assertTrue(zoomOutBtn.isEnabled(), "Zoom out button disabled for element: "+xPathToTree);
         clickOn(zoomOutBtn);
         waitForElementToDisappear(zoomOutBtn, 1);
     }

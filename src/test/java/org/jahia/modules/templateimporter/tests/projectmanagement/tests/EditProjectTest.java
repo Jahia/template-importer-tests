@@ -40,12 +40,12 @@ public class EditProjectTest extends TemplateImporterRepository {
 
         WebElement projectNameField = findByXpath("//input[@name='projectName']");
         WebElement projectDescriptionField = findByXpath("//textarea[@ng-model='project.description']");
-        WebElement saveChangesBtn = findByXpath("//button[@ng-click='edit()']");
 
         typeInto(projectNameField, modifiedName);
         typeInto(projectDescriptionField, modifiedDescription);
         boolean doesUIShowNameError = projectNameField.getAttribute("class").contains("ng-invalid-");
         boolean doesUIShowDescriptionError = projectDescriptionField.getAttribute("class").contains("ng-invalid-");
+        WebElement saveChangesBtn = findByXpath("//button[@ng-click='edit()']");
 
         if (isValidName) {
             if (isValidDescription) {
