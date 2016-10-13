@@ -802,11 +802,13 @@ public class TemplateImporterRepository extends ModuleTest {
      * @param softAssert instance of soft assert you are working with
      * @param sourceFolderPath String, absolute path to the module's sources folder. You specified that folder in module generation dialogue.
      * @param folderName String, folder to look into in sourceFolderPath/src/main/resources/
+     * @param isMappedAsset boolean, true if looking for folder under .../resources, false if under .../resources/unmapped_assets
      * @param expectedFolderContent String[], Array of filenames you expect to find in folderName
      */
     protected void checkFolderInModulesResources(SoftAssert    softAssert,
                                                  String        sourceFolderPath,
                                                  String        folderName,
+                                                 boolean       isMappedAsset,
                                                  String[]      expectedFolderContent,
                                                  String        moduleName){
         boolean folderExist = false;
@@ -816,7 +818,12 @@ public class TemplateImporterRepository extends ModuleTest {
             filesFoundInAssetsFolder.put(filename, false);
         }
 
-        File[] files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName+"/src/main/resources", folderName, "");
+        File[] files;
+        if(isMappedAsset){
+            files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName+"/src/main/resources", folderName, "");
+        }else{
+            files = findFilesOrDirectories(sourceFolderPath+"/"+moduleName+"/src/main/resources/unmapped_assets", folderName, "");
+        }
         if(files != null &&
                 files.length > 0 &&
                 files[0].exists() &&

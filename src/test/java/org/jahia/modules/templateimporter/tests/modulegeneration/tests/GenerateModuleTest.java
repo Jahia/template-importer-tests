@@ -185,7 +185,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
-        checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, expectedItemsInAssetsFolder, moduleName);
+        checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, false, expectedItemsInAssetsFolder, moduleName);
         checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
         checkAreaFile(softAssert, sourceFolderPath, userA1, definitionNameSpace, moduleName);
         checkViewFile(softAssert, sourceFolderPath, userV1, moduleName);
