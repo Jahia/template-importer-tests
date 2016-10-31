@@ -53,7 +53,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
         File templateFile = checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
-        boolean baseAreaOneFoundInTemplate = findTextInFile(templateFile, "<template:area path='pageContent'></template:area>");
+        boolean baseAreaOneFoundInTemplate = findTextInFile(templateFile, "<template:area path='baseContent'></template:area>");
         softAssert.assertTrue(
                 baseAreaOneFoundInTemplate,
                 "Base area not found in template JSP."
