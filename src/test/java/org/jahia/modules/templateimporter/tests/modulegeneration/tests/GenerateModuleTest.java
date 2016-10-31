@@ -5,6 +5,10 @@ import org.jahia.modules.templateimporter.tests.businessobjects.Area;
 import org.jahia.modules.templateimporter.tests.businessobjects.Component;
 import org.jahia.modules.templateimporter.tests.businessobjects.View;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -14,6 +18,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Date;
 
 /**
  * Created by sergey on 2016-07-25.
@@ -49,6 +54,156 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         selectView(homeV1);
         selectComponent(homeC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
+        softAssert.assertTrue(
+                isModuleStarted(moduleName),
+                "Module '"+moduleName+"' did not start after generation.");
+        File templateFile = checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
+        boolean baseAreaOneFoundInTemplate = findTextInFile(templateFile, "<template:area path='baseContent'></template:area>");
+        softAssert.assertTrue(
+                baseAreaOneFoundInTemplate,
+                "Base area not found in template JSP."
+        );
+
+        File homeA1File = checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
+        if(homeA1File != null) {
+            homeA1FileContainsArea = findTextInFile(homeA1File, "<template:area path='" + homeA1.getName() + "'/>");
+        }
+        softAssert.assertTrue(
+                homeA1FileContainsArea,
+                "Home area JSP file misses area tag. Name: " + homeA1.getName() + ", XPath: " + homeA1.getXpath()
+        );
+        File homeV1File = checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName);
+        if (homeV1File != null) {
+            homeV1FileContainsView = findTextInFile(homeV1File, "<div class=\"marginLeft \"   >\n" +
+                    "\t\t\t\t\tLevel 3-1\n" +
+                    "\t\t\t\t\t<div class=\"marginLeft \"  >\n" +
+                    "\t\t\t\t\t\tLevel 4-1\n" +
+                    "\t\t\t\t\t\t<div class=\"marginLeft\"  >Level 5-1</div>\n" +
+                    "\t\t\t\t\t</div>\n" +
+                    "\t\t\t\t</div>");
+        }
+        softAssert.assertTrue(
+                homeV1FileContainsView,
+                "Home view JSP file misses html tags. Name: " + homeV1.getName() + ", XPath: " + homeV1.getXpath()
+        );
+
+        checkComponentFiles(
+                softAssert,
+                sourceFolderPath,
+                homeC1,
+                definitionNameSpace,
+                moduleName,
+                expectedAreFileContentForComponent,
+                expectedViewFileContentForComponent);
+
+        softAssert.assertAll();
+    }
+
+    @Test
+    public void generateModuleWithAutoContinueTest(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "GenerateModuleTest.generateModuleWithAutoContinueTest");
+        String projectName = randomWord(8);
+        String moduleName = randomWord(10);
+        String definitionNameSpace = randomWord(3);
+        String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
+        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
+        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
+        String expectedAreFileContentForComponent = "<template:area path=\""+homeC1.getAreaName()+"\" />";
+        String expectedViewFileContentForComponent = "<div  class=\"\"  >\n" +
+                "\t\t\tLevel 1-3\n" +
+                "\t\t\t<div   class=\"marginLeft \" >\n" +
+                "\t\t\t\tLevel 2-1\n" +
+                "\t\t\t\t<div   class=\"marginLeft\" >\n" +
+                "\t\t\t\t\tLevel 3-1\n" +
+                "\t\t\t\t\t<div   class=\"marginLeft\" >Level 4-1</div>\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t</div>";
+        boolean homeA1FileContainsArea = false;
+        boolean homeV1FileContainsView = false;
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(homeA1);
+        selectView(homeV1);
+        selectComponent(homeC1, "");
+        generateModuleAutoContinue(moduleName, definitionNameSpace, sourceFolderPath, true);
+        softAssert.assertTrue(
+                isModuleStarted(moduleName),
+                "Module '"+moduleName+"' did not start after generation.");
+        File templateFile = checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
+        boolean baseAreaOneFoundInTemplate = findTextInFile(templateFile, "<template:area path='baseContent'></template:area>");
+        softAssert.assertTrue(
+                baseAreaOneFoundInTemplate,
+                "Base area not found in template JSP."
+        );
+
+        File homeA1File = checkAreaFile(softAssert, sourceFolderPath, homeA1, definitionNameSpace, moduleName);
+        if(homeA1File != null) {
+            homeA1FileContainsArea = findTextInFile(homeA1File, "<template:area path='" + homeA1.getName() + "'/>");
+        }
+        softAssert.assertTrue(
+                homeA1FileContainsArea,
+                "Home area JSP file misses area tag. Name: " + homeA1.getName() + ", XPath: " + homeA1.getXpath()
+        );
+        File homeV1File = checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName);
+        if (homeV1File != null) {
+            homeV1FileContainsView = findTextInFile(homeV1File, "<div class=\"marginLeft \"   >\n" +
+                    "\t\t\t\t\tLevel 3-1\n" +
+                    "\t\t\t\t\t<div class=\"marginLeft \"  >\n" +
+                    "\t\t\t\t\t\tLevel 4-1\n" +
+                    "\t\t\t\t\t\t<div class=\"marginLeft\"  >Level 5-1</div>\n" +
+                    "\t\t\t\t\t</div>\n" +
+                    "\t\t\t\t</div>");
+        }
+        softAssert.assertTrue(
+                homeV1FileContainsView,
+                "Home view JSP file misses html tags. Name: " + homeV1.getName() + ", XPath: " + homeV1.getXpath()
+        );
+
+        checkComponentFiles(
+                softAssert,
+                sourceFolderPath,
+                homeC1,
+                definitionNameSpace,
+                moduleName,
+                expectedAreFileContentForComponent,
+                expectedViewFileContentForComponent);
+
+        softAssert.assertAll();
+    }
+
+    @Test
+    public void generateModuleMixedMode(){
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "GenerateModuleTest.generateModuleMixedMode");
+        String projectName = randomWord(8);
+        String moduleName = randomWord(10);
+        String definitionNameSpace = randomWord(3);
+        String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
+        Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
+        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
+        String expectedAreFileContentForComponent = "<template:area path=\""+homeC1.getAreaName()+"\" />";
+        String expectedViewFileContentForComponent = "<div  class=\"\"  >\n" +
+                "\t\t\tLevel 1-3\n" +
+                "\t\t\t<div   class=\"marginLeft \" >\n" +
+                "\t\t\t\tLevel 2-1\n" +
+                "\t\t\t\t<div   class=\"marginLeft\" >\n" +
+                "\t\t\t\t\tLevel 3-1\n" +
+                "\t\t\t\t\t<div   class=\"marginLeft\" >Level 4-1</div>\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t</div>";
+        boolean homeA1FileContainsArea = false;
+        boolean homeV1FileContainsView = false;
+
+        importProject("en", projectName, "", "AlexLevels.zip");
+        openProjectFirstTime(projectName, "index.html");
+        selectArea(homeA1);
+        selectView(homeV1);
+        selectComponent(homeC1, "");
+        generateModuleManualAndAutoContinue(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
@@ -222,6 +377,204 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         checkViewFileForComponent(softAssert, sourceFolderPath, homeC1, moduleName);
 
         softAssert.assertAll();
+    }
+
+
+    /**
+     * Click on 'Generate module', fill in all the fields, click create or cancel
+     * @param moduleName String, Module name
+     * @param definitionNameSpace String Definition name space
+     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
+     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
+     */
+    protected void generateModuleAutoContinue(String    moduleName,
+                                              String    definitionNameSpace,
+                                              String    sourcesFolder,
+                                              boolean   reallyGenerate){
+        WebElement menuBtn = findByXpath("//button[@aria-label='Project']");
+        clickOn(menuBtn);
+        WebElement generateModuleBtn = findByXpath("//button[@ng-click='project.generateModule()']");
+        waitForElementToStopMoving(generateModuleBtn);
+        clickOn(generateModuleBtn);
+        WebElement confirmBtn = findByXpath("//button[@ng-click=\"awc.choice('generate')\"]");
+        waitForElementToStopMoving(confirmBtn);
+        clickOn(confirmBtn);
+        WebElement moduleNameField = findByName("moduleName");
+        WebElement definitionNameSpaceField = findByName("nameSpace");
+        WebElement sourcesFolderField = findByName("sources");
+        WebElement createBtn = findByXpath("//button[@ng-click='cmc.create()']");
+        WebElement cancelBtn = findByXpath("//button[@ng-click='cmc.cancel()']");
+        waitForElementToStopMoving(moduleNameField);
+        typeInto(moduleNameField, moduleName);
+        typeInto(definitionNameSpaceField, definitionNameSpace);
+        typeInto(sourcesFolderField, sourcesFolder);
+        if(reallyGenerate){
+            clickOn(createBtn);
+            waitForElementToBeInvisible(createBtn);
+            Long start = new Date().getTime();
+            WebElement continueBtn = findByXpath("//button[@ng-click='esc.nextStep()']");
+            //Module creation
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module created')]"), 120),
+                    "Module generation failed at module creation stage. Time spent on generation: "+(new Date().getTime() - start - 120000L)+" milliseconds"
+            );
+            //Deployment
+            WebElement autoContinueCheckbox = findByXpath("//md-checkbox[@ng-model='esc.autoContinue']/div");
+            waitForElementToBeEnabled(continueBtn, 5);
+            clickOn(autoContinueCheckbox);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Deploying module in')]"), 5),
+                    "Automatic Module generation failed at deployment stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module deployed')]"), 60), //30 sec for the time and 30 for deployment itself
+                    "Automatic Module generation failed at deployment stage. Module not deployed. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+            );
+            //Base template generation
+            waitForElementToBeEnabled(continueBtn, 5);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Generate base template in')]"), 5),
+                    "Automatic Module generation failed at base template generation stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Base template generated')]"), 60),
+                    "Automatic Module generation failed at base template generation stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+            );
+            //Asset files copying
+            waitForElementToBeEnabled(continueBtn, 5);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Copying asset files in')]"), 5),
+                    "Automatic Module generation failed at assets copying stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Assets copied')]"), 60),
+                    "Automatic Module generation failed at assets copying stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+            );
+            //Other templates creation
+            waitForElementToBeEnabled(continueBtn, 5);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Creating templates in')]"), 5),
+                    "Automatic Module generation failed at templates creation stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Templates created')]"), 60),
+                    "Automatic Module generation failed at templates creation stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+            );
+            waitForElementToBeInvisible(continueBtn);
+
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@message-key='angular.tiCreateModuleDirective.message.allDone']"), 5),
+                    "All stages of Automatic Module generation passed, but module generation failed anyway." +
+                            "Final message that module successfully generated is not visible.\n" +
+                            "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
+            WebElement okBtn = findByXpath("//button[@ng-click='esc.close()']");
+            clickOn(okBtn);
+            waitForElementToBeInvisible(okBtn);
+        }else{
+            waitForElementToBeEnabled(cancelBtn, 5);
+            clickOn(cancelBtn);
+            waitForElementToBeInvisible(cancelBtn);
+        }
+    }
+
+
+    /**
+     * Click on 'Generate module', fill in all the fields, click create or cancel
+     * @param moduleName String, Module name
+     * @param definitionNameSpace String Definition name space
+     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
+     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
+     */
+    protected void generateModuleManualAndAutoContinue(String    moduleName,
+                                              String    definitionNameSpace,
+                                              String    sourcesFolder,
+                                              boolean   reallyGenerate){
+        WebElement menuBtn = findByXpath("//button[@aria-label='Project']");
+        clickOn(menuBtn);
+        WebElement generateModuleBtn = findByXpath("//button[@ng-click='project.generateModule()']");
+        waitForElementToStopMoving(generateModuleBtn);
+        clickOn(generateModuleBtn);
+        WebElement confirmBtn = findByXpath("//button[@ng-click=\"awc.choice('generate')\"]");
+        waitForElementToStopMoving(confirmBtn);
+        clickOn(confirmBtn);
+        WebElement moduleNameField = findByName("moduleName");
+        WebElement definitionNameSpaceField = findByName("nameSpace");
+        WebElement sourcesFolderField = findByName("sources");
+        WebElement createBtn = findByXpath("//button[@ng-click='cmc.create()']");
+        WebElement cancelBtn = findByXpath("//button[@ng-click='cmc.cancel()']");
+        waitForElementToStopMoving(moduleNameField);
+        typeInto(moduleNameField, moduleName);
+        typeInto(definitionNameSpaceField, definitionNameSpace);
+        typeInto(sourcesFolderField, sourcesFolder);
+        if(reallyGenerate){
+            clickOn(createBtn);
+            waitForElementToBeInvisible(createBtn);
+            Long start = new Date().getTime();
+            WebElement continueBtn = findByXpath("//button[@ng-click='esc.nextStep()']");
+            //Module creation
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module created')]"), 120),
+                    "Module generation failed at module creation stage. Time spent on generation: "+(new Date().getTime() - start - 120000L)+" milliseconds"
+            );
+            //Deployment
+            WebElement autoContinueCheckbox = findByXpath("//md-checkbox[@ng-model='esc.autoContinue']/div");
+            waitForElementToBeEnabled(continueBtn, 5);
+            clickOn(autoContinueCheckbox);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Deploying module in')]"), 5),
+                    "Automatic Module generation failed at deployment stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module deployed')]"), 60), //30 sec for the time and 30 for deployment itself
+                    "Automatic Module generation failed at deployment stage. Module not deployed. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+            );
+            //Base template generation
+            waitForElementToBeEnabled(continueBtn, 5);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Generate base template in')]"), 5),
+                    "Automatic Module generation failed at base template generation stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Base template generated')]"), 60),
+                    "Automatic Module generation failed at base template generation stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+            );
+            //Asset files copying
+            waitForElementToBeEnabled(continueBtn, 5);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Copying asset files in')]"), 5),
+                    "Automatic Module generation failed at assets copying stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            new Actions(getDriver()).moveToElement(continueBtn, 100, 100).build().perform();
+            clickOn(continueBtn);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Assets copied')]"), 36), //30 sec for copying and 5 for timer, 1 extra
+                    "Automatic Module generation failed at assets copying stage. Time spent on generation: "+(new Date().getTime() - start - 36000L)+" milliseconds"
+            );
+            //Other templates creation
+            waitForElementToBeEnabled(continueBtn, 5);
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Creating templates in')]"), 5),
+                    "Automatic Module generation failed at templates creation stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+            );
+            Assert.assertTrue(
+                    isVisible(By.xpath("//md-list-item[contains(., 'Templates created')]"), 60),
+                    "Automatic Module generation failed at templates creation stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+            );
+            waitForElementToBeInvisible(continueBtn);
+
+            Assert.assertTrue(
+                    isVisible(By.xpath("//span[@message-key='angular.tiCreateModuleDirective.message.allDone']"), 5),
+                    "All stages of Automatic Module generation passed, but module generation failed anyway." +
+                            "Final message that module successfully generated is not visible.\n" +
+                            "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
+            WebElement okBtn = findByXpath("//button[@ng-click='esc.close()']");
+            clickOn(okBtn);
+            waitForElementToBeInvisible(okBtn);
+        }else{
+            waitForElementToBeEnabled(cancelBtn, 5);
+            clickOn(cancelBtn);
+            waitForElementToBeInvisible(cancelBtn);
+        }
     }
 
     protected File checkJntTemplateFileExist(SoftAssert   softAssert,
