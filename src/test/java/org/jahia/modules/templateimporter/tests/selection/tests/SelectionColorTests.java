@@ -256,7 +256,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
     }
 
     private void turnOffVisibility(){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Settings']");
+        WebElement menuBtn = findByXpath("//i[text()='settings']/ancestor::button");
         clickOn(menuBtn);
         WebElement adjustColorsBtn = findByXpath("//button[@ng-click='project.setUpColors($event)']");
         waitForElementToStopMoving(adjustColorsBtn);
@@ -279,7 +279,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
     }
 
     private void resetColors(){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Settings']");
+        WebElement menuBtn = findByXpath("//i[text()='settings']/ancestor::button");
         clickOn(menuBtn);
         WebElement adjustColorsBtn = findByXpath("//button[@ng-click='project.setUpColors($event)']");
         waitForElementToStopMoving(adjustColorsBtn);
@@ -300,7 +300,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
         String hvColor = generateRGB();
         String hcColor = generateRGB();
 
-        WebElement menuBtn = findByXpath("//button[@aria-label='Settings']");
+        WebElement menuBtn = findByXpath("//i[text()='settings']/ancestor::button");
         clickOn(menuBtn);
         WebElement adjustColorsBtn = findByXpath("//button[@ng-click='project.setUpColors($event)']");
         waitForElementToStopMoving(adjustColorsBtn);

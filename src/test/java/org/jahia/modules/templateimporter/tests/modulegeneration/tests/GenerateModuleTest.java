@@ -391,7 +391,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                               String    definitionNameSpace,
                                               String    sourcesFolder,
                                               boolean   reallyGenerate){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Project']");
+        WebElement menuBtn = findByXpath("//i[text()='dvr']/ancestor::button");
         clickOn(menuBtn);
         WebElement generateModuleBtn = findByXpath("//button[@ng-click='project.generateModule()']");
         waitForElementToStopMoving(generateModuleBtn);
@@ -489,7 +489,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                               String    definitionNameSpace,
                                               String    sourcesFolder,
                                               boolean   reallyGenerate){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Project']");
+        WebElement menuBtn = findByXpath("//i[text()='dvr']/ancestor::button");
         clickOn(menuBtn);
         WebElement generateModuleBtn = findByXpath("//button[@ng-click='project.generateModule()']");
         waitForElementToStopMoving(generateModuleBtn);

@@ -321,7 +321,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
     }
 
     private void openTreeExplorer(){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Layout']");
+        WebElement menuBtn = findByXpath("//i[text()='view_quilt']/ancestor::button");
         clickOn(menuBtn);
         WebElement treeExplorerBtn = findByXpath("//button[@ng-click='project.showTreeExplorer($event)']");
         waitForElementToStopMoving(treeExplorerBtn);
@@ -359,7 +359,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
     }
 
     private void resetSelectability(){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Settings']");
+        WebElement menuBtn = findByXpath("//i[text()='settings']/ancestor::button");
         clickOn(menuBtn);
         WebElement configureSelectorBtn = findByXpath("//button[@ng-click='project.configureSelector($event)']");
 
@@ -374,7 +374,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
     }
 
     private void turnOnSelectabilityForAll(){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Settings']");
+        WebElement menuBtn = findByXpath("//i[text()='settings']/ancestor::button");
         clickOn(menuBtn);
         WebElement configureSelectorBtn = findByXpath("//button[@ng-click='project.configureSelector($event)']");
         waitForElementToStopMoving(configureSelectorBtn);

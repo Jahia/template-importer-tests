@@ -85,7 +85,7 @@ public class ManageAssetsTest extends TemplateImporterRepository{
     }
 
     private void openAssetsManagement() {
-        WebElement menuBtn = findByXpath("//button[@aria-label='Settings']");
+        WebElement menuBtn = findByXpath("//i[text()='settings']/ancestor::button");
         clickOn(menuBtn);
         WebElement assetManagementBtn = findByXpath("//button[@ng-click='project.mapAssets()']");
         waitForElementToStopMoving(assetManagementBtn);

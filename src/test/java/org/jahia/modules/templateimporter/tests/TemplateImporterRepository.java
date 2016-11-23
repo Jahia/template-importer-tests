@@ -144,7 +144,7 @@ public class TemplateImporterRepository extends ModuleTest {
      */
     protected void createNewTemplate(String templateName,
                                      String pageFileName){
-        WebElement layoutBtn = findByXpath("//button[@aria-label='Layout']");
+        WebElement layoutBtn = findByXpath("//i[text()='view_quilt']/ancestor::button");
         clickOn(layoutBtn);
         WebElement createNewTemplateBtn = findByXpath("//button[@ng-click='project.createNewTemplate($event)']");
         waitForElementToStopMoving(createNewTemplateBtn);
@@ -730,7 +730,7 @@ public class TemplateImporterRepository extends ModuleTest {
                                   String    definitionNameSpace,
                                   String    sourcesFolder,
                                   boolean   reallyGenerate){
-        WebElement menuBtn = findByXpath("//button[@aria-label='Project']");
+        WebElement menuBtn = findByXpath("//i[text()='dvr']/ancestor::button");
         clickOn(menuBtn);
         WebElement generateModuleBtn = findByXpath("//button[@ng-click='project.generateModule()']");
         waitForElementToStopMoving(generateModuleBtn);
