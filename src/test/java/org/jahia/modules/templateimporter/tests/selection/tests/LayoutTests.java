@@ -84,7 +84,7 @@ public class LayoutTests extends TemplateImporterRepository{
                 "fileInput = getElementByXpath(\"//label[input[@type='file']]\");" +
                 "fileInput.setAttribute(\"style\", \"\");";
 
-        WebElement menuBtn = findByXpath("//i[text()='view_quilt']/ancestor::button");
+        WebElement menuBtn = findByXpath("//md-icon[text()='view_quilt']/ancestor::button");
         clickOn(menuBtn);
 
         WebElement importLayoutBtn = findByXpath("//button[@ng-click='project.importLayout($event)']");
@@ -132,7 +132,7 @@ public class LayoutTests extends TemplateImporterRepository{
     private File exportLayout(String[]      templateNames,
                               String        projectName,
                               SoftAssert    softAssert){
-        WebElement menuBtn = findByXpath("//i[text()='view_quilt']/ancestor::button");
+        WebElement menuBtn = findByXpath("//md-icon[text()='view_quilt']/ancestor::button");
         clickOn(menuBtn);
         WebElement exportLayoutBtn = findByXpath("//button[@ng-click='project.exportLayout($event)']");
         Assert.assertNotNull(exportLayoutBtn, "Export layout button not found");

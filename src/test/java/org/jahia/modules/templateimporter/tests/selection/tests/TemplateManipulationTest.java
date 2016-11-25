@@ -228,7 +228,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
                                      SoftAssert softAssert,
                                      String     errorMsg){
         boolean nameFieldShowsError;
-        WebElement menuBtn = findByXpath("//i[text()='view_quilt']/ancestor::button");
+        WebElement menuBtn = findByXpath("//md-icon[text()='view_quilt']/ancestor::button");
         clickOn(menuBtn);
         WebElement createNewTemplateBtn = findByXpath("//button[@ ng-click='project.createNewTemplate($event)']");
         waitForElementToStopMoving(createNewTemplateBtn);
