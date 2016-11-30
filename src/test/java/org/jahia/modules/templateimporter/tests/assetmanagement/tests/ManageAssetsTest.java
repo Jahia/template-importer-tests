@@ -21,7 +21,7 @@ public class ManageAssetsTest extends TemplateImporterRepository{
 
     @Test
     public void checkDefaultFoldersCopying() {
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "GenerateModuleTest.checkDefaultFoldersCopying");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "ManageAssetsTest.checkDefaultFoldersCopying");
         String projectName = randomWord(8);
         String moduleName = randomWord(10);
         String definitionNameSpace = randomWord(3);
