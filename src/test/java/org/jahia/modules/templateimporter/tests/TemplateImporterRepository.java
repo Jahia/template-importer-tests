@@ -206,20 +206,25 @@ public class TemplateImporterRepository extends ModuleTest {
     }
 
     private void deleteAllProjectsFast(){
-        String jsToDeleteProjects = " function removeAllProjects() {\n" +
-                "const trashcans = $('[aria-label=\"Remove\"]');\n" +
-                "        for (let i = 0; i < trashcans.length; ++i) {\n" +
-                "            trashcans[i].onclick = (event) => {\n" +
-                "                $('span:contains(\"Remove\")').parent('button').click();\n" +
-                "                if (trashcans[i + 1]) {\n" +
-                "                    trashcans[i + 1].click();\n" +
-                "                }\n" +
-                "            };\n" +
-                "        }\n" +
-                "        if (trashcans.length > 0) {\n" +
-                "            trashcans[0].click();   \n" +
-                "        }\n" +
-                "    }" +
+        String jsToDeleteProjects = "function removeAllProjects() {\n" +
+                "  var trashcans = $('button[aria-label=\"Remove\"]');\n" +
+                "  var projects = []\n" +
+                "  trashcans.each(function(index, item){\n" +
+                "    item.onclick = function (event) {\n" +
+                "      var confirmRemovalButton = $('.md-confirm-button');\n" +
+                "      if (confirmRemovalButton.length > 0) {\n" +
+                "        confirmRemovalButton.click();\n" +
+                "      }\n" +
+                "      if (projects.length > 0) {\n" +
+                "        projects.pop().click();\n" +
+                "      }\n" +
+                "    };\n" +
+                "    projects.push(item);\n" +
+                "  });\n" +
+                "  if (projects.length > 0) {\n" +
+                "    projects.pop().click();\n" +
+                "  }\n" +
+                "}\n" +
                 "removeAllProjects();";
 
         executeScriptWithJavascript(jsToDeleteProjects);
