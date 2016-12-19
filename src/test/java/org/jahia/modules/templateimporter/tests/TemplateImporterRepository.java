@@ -782,7 +782,7 @@ public class TemplateImporterRepository extends ModuleTest {
             waitForElementToBeEnabled(continueBtn, 5);
             clickOn(continueBtn);
             Assert.assertTrue(
-                    isVisible(By.xpath("//md-list-item[contains(., 'Templates created')]"), 30),
+                    isVisible(By.xpath("//md-list-item[contains(., 'Templates created')]"), 60),
                     "Module generation failed at templates creation stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
             );
             waitForElementToBeInvisible(continueBtn);
