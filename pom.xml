@@ -35,16 +35,16 @@
         <relativePath/>
     </parent>
     <groupId>org.jahia.modules.templateimporter.tests</groupId>
-    <artifactId>template-importer-tests</artifactId>
+    <artifactId>demo-Builder-tests</artifactId>
     <name>Jahia Selenium Tests Template Importer</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
-        <selenium.jahia.host>www.template-importer-test.dev.org</selenium.jahia.host>
+        <selenium.jahia.host>www.demo-builder-test.dev.org</selenium.jahia.host>
         <selenium.jahia.remote>true</selenium.jahia.remote>
         <selenium.jahia.context>/qa</selenium.jahia.context>
         <!-- Name of the bundle that has to be started to launch the test -->
-        <system.jahia.bundle.mandatory>template-importer</system.jahia.bundle.mandatory>
+        <system.jahia.bundle.mandatory>demo-builder</system.jahia.bundle.mandatory>
     </properties>
     <profiles>
         <profile>
