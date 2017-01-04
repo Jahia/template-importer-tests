@@ -327,7 +327,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         waitForElementToStopMoving(treeExplorerBtn);
         clickOn(treeExplorerBtn);
         waitForElementToBeInvisible(treeExplorerBtn);
-        WebElement treeViewHeader = findByXpath("//md-toolbar/h1[text()='Tree View']");
+        WebElement treeViewHeader = findByXpath("//md-toolbar/h1/span[@message-key='angular.sideNavDirective.label.treeView']");
         waitForElementToStopMoving(treeViewHeader);
     }
 

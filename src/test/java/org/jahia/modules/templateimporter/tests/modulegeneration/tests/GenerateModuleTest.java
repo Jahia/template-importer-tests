@@ -459,7 +459,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
             waitForElementToBeInvisible(continueBtn);
 
             Assert.assertTrue(
-                    isVisible(By.xpath("//span[@message-key='angular.tiCreateModuleDirective.message.allDone']"), 5),
+                    isVisible(By.xpath("//span[@message-key='angular.dbCreateModuleDirective.message.allDone']"), 5),
                     "All stages of Automatic Module generation passed, but module generation failed anyway." +
                             "Final message that module successfully generated is not visible.\n" +
                             "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
@@ -559,7 +559,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
             waitForElementToBeInvisible(continueBtn);
 
             Assert.assertTrue(
-                    isVisible(By.xpath("//span[@message-key='angular.tiCreateModuleDirective.message.allDone']"), 5),
+                    isVisible(By.xpath("//span[@message-key='angular.dbCreateModuleDirective.message.allDone']"), 5),
                     "All stages of Automatic Module generation passed, but module generation failed anyway." +
                             "Final message that module successfully generated is not visible.\n" +
                             "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
