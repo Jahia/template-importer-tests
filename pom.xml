@@ -44,7 +44,7 @@
         <selenium.jahia.remote>true</selenium.jahia.remote>
         <selenium.jahia.context>/qa</selenium.jahia.context>
         <!-- Name of the bundle that has to be started to launch the test -->
-        <system.jahia.bundle.mandatory>demo-starterr</system.jahia.bundle.mandatory>
+        <system.jahia.bundle.mandatory>demo-starter</system.jahia.bundle.mandatory>
     </properties>
     <profiles>
         <profile>
