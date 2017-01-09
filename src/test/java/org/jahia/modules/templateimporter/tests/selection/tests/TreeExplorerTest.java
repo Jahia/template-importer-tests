@@ -16,7 +16,6 @@ import java.util.List;
  * Created by sergey on 2016-10-06.
  */
 public class TreeExplorerTest extends TemplateImporterRepository {
-    private static final String DOM_OUTLINE_MARK = "DomOutlined";
 
     @Test
     public void treeHighlightingTest(){

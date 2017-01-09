@@ -34,17 +34,17 @@
         <version>7.1.0.0</version>
         <relativePath/>
     </parent>
-    <groupId>org.jahia.modules.templateimporter.tests</groupId>
-    <artifactId>demo-Builder-tests</artifactId>
-    <name>Jahia Selenium Tests Template Importer</name>
+    <groupId>org.jahia.modules.demostarter.tests</groupId>
+    <artifactId>demo-starter-tests</artifactId>
+    <name>Jahia Selenium Tests for Demo Starter</name>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
     <properties>
-        <selenium.jahia.host>www.demo-builder-test.dev.org</selenium.jahia.host>
+        <selenium.jahia.host>www.demo-starter-test.dev.org</selenium.jahia.host>
         <selenium.jahia.remote>true</selenium.jahia.remote>
         <selenium.jahia.context>/qa</selenium.jahia.context>
         <!-- Name of the bundle that has to be started to launch the test -->
-        <system.jahia.bundle.mandatory>demo-builder</system.jahia.bundle.mandatory>
+        <system.jahia.bundle.mandatory>demo-starterr</system.jahia.bundle.mandatory>
     </properties>
     <profiles>
         <profile>

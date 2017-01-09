@@ -122,7 +122,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         String areaA1Name = randomWord(5);
         String areaA2Name = randomWord(5);
         String viewName = randomWord(5);
-        String nodeType = "jnt:bootstrapMainContent";
+        String nodeType = "jnt:bigText";
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
@@ -254,7 +254,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
                 errorMsg+".\nTemplate name field shows error: "+nameFieldShowsError+",\n" +
                         "Template name is: "+templateName+".");
         if (isValidName){
-            softAssert.assertTrue(waitForElementToBeEnabled(createBtn, 5), errorMsg+"Create button disabled with valid name: '"+templateName+"'");
+            softAssert.assertTrue(waitForElementToBeEnabled(createBtn, 5), errorMsg+". Create button disabled with valid name: '"+templateName+"'");
             if(reallyCreateTemplate){
                 clickOn(createBtn);
                 waitForElementToBeInvisible(createBtn);
@@ -266,7 +266,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
                 switchToDefaultContent();
             }
         }else{
-            softAssert.assertFalse(waitForElementToBeEnabled(createBtn, 1), errorMsg+"Create button enabled with invalid name: '"+templateName+"'");
+            softAssert.assertFalse(waitForElementToBeEnabled(createBtn, 1), errorMsg+". Create button enabled with invalid name: '"+templateName+"'");
             if(!reallyCreateTemplate){
                 clickOn(cancelBtn);
                 waitForElementToBeInvisible(cancelBtn);

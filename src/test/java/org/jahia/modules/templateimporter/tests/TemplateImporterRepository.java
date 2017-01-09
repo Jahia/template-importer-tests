@@ -28,13 +28,14 @@ public class TemplateImporterRepository extends ModuleTest {
     protected static final String SELECTED_VIEW_MARK = "ViewSelection";
     protected static final String SELECTION_AREA_LIMIT_MARK = "AreaSelectionLimit";
     protected static final String CURRENT_TEMPLATE_MARK = "md-raised";
+    protected static final String DOM_OUTLINE_MARK = "DomOutlined";
 
     /**
      * Open list of projects. (Just iframe)
      * @param locale Is used as part of url to projects list.
      */
     protected void goToProjectsList(String locale){
-        getDriver().get(getPath("/cms/adminframe/default/" + locale + "/settings.demo-builder.html"));
+        getDriver().get(getPath("/cms/adminframe/default/" + locale + "/settings.demo-starter.html"));
         waitForGlobalSpinner(2, 45);
     }
 
@@ -165,6 +166,7 @@ public class TemplateImporterRepository extends ModuleTest {
         clickOn(createBtn);
         waitForGlobalSpinner(1, 30);
         waitForElementToBeInvisible(createBtn);
+        shortSleep();
 
         WebElement newTemplateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
         Assert.assertNotNull(newTemplateTab, "Cannot find tab with new template name '"+templateName+"' after creating new template.");
@@ -411,7 +413,8 @@ public class TemplateImporterRepository extends ModuleTest {
 
         Assert.assertTrue(
                 checkIfViewSelected(xPath),
-                errorMsg+". View was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class." + " XPath: "+xPath);
+                errorMsg+". View was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class. Target element  XPath: "+
+                        xPath+". Are you sure Node Type " +nodeType+" exist?");
     }
 
     /**
@@ -486,7 +489,7 @@ public class TemplateImporterRepository extends ModuleTest {
     }
 
     protected void switchToTemplate(String templateName) {
-        WebElement templateTabToClick = findByXpath("//ti-tab[contains(., '"+templateName+"')]/div[contains(@class, 'tiTabComponent')]");
+        WebElement templateTabToClick = findByXpath("//ti-tab[contains(., '"+templateName+"')]/div[@ng-click='updateNavState();']");
         WebElement templateTabToCheck = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
         boolean isCurrentlyOpen = templateTabToCheck.getAttribute("class").contains(CURRENT_TEMPLATE_MARK);
 
@@ -528,6 +531,8 @@ public class TemplateImporterRepository extends ModuleTest {
         if(yOffset == 0){
             yOffset =  area.getSize().getHeight()/2;
         }
+        waitForElementToBeVisible(area);
+        waitForElementToStopMoving(area);
         new Actions(getDriver()).moveToElement(area, xOffset, yOffset).contextClick().build().perform();
         switchToDefaultContent();
     }
@@ -755,43 +760,53 @@ public class TemplateImporterRepository extends ModuleTest {
         if(reallyGenerate){
             clickOn(createBtn);
             waitForElementToBeInvisible(createBtn);
-            Long start = new Date().getTime();
+            Long moduleGenerationStart = new Date().getTime();
+            Long phaseStart = new Date().getTime();
             WebElement continueBtn = findByXpath("//button[@ng-click='esc.nextStep()']");
             Assert.assertTrue(
-                    isVisible(By.xpath("//md-list-item[contains(., 'Module created')]"), 120),
-                    "Module generation failed at module creation stage. Time spent on generation: "+(new Date().getTime() - start - 120000L)+" milliseconds"
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module created')]"), 150),
+                    "Module generation failed at module creation stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds\n" +
+                            "Time spent on module generation overall:"+(new Date().getTime() - moduleGenerationStart)+" milliseconds"
             );
             waitForElementToBeEnabled(continueBtn, 5);
             clickOn(continueBtn);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
-                    isVisible(By.xpath("//md-list-item[contains(., 'Module deployed')]"), 30),
-                    "Module generation failed at deployment stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+                    isVisible(By.xpath("//md-list-item[contains(., 'Module deployed')]"), 60),
+                    "Module generation failed at deployment stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds\n" +
+                            "Time spent on module generation overall:"+(new Date().getTime() - moduleGenerationStart)+" milliseconds"
             );
             waitForElementToBeEnabled(continueBtn, 5);
             clickOn(continueBtn);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Base template generated')]"), 30),
-                    "Module generation failed at base template generation stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+                    "Module generation failed at base template generation stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds\n" +
+                            "\"Time spent on module generation overall:\"+(new Date().getTime() - moduleGenerationStart)+\" milliseconds\""
             );
             waitForElementToBeEnabled(continueBtn, 5);
             clickOn(continueBtn);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Assets copied')]"), 30),
-                    "Module generation failed at assets copying stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+                    "Module generation failed at assets copying stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds\n" +
+                            "Time spent on module generation overall:"+(new Date().getTime() - moduleGenerationStart)+" milliseconds"
             );
             waitForElementToBeEnabled(continueBtn, 5);
             clickOn(continueBtn);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Templates created')]"), 60),
-                    "Module generation failed at templates creation stage. Time spent on generation: "+(new Date().getTime() - start - 30000L)+" milliseconds"
+                    "Module generation failed at templates creation stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds\n" +
+                            "Time spent on module generation overall:"+(new Date().getTime() - moduleGenerationStart)+" milliseconds"
             );
             waitForElementToBeInvisible(continueBtn);
 
             Assert.assertTrue(
-                    isVisible(By.xpath("//span[@message-key='angular.tiCreateModuleDirective.message.allDone']"), 5),
+                    isVisible(By.xpath("//span[@message-key='angular.dsCreateModuleDirective.message.allDone']"), 5),
                     "All stages of Module generation passed, but module generation failed anyway." +
-                            "Final message that module successfully generated is not visible.\n" +
-                            "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
+                            " Final message that module successfully generated is not visible.\n" +
+                            "Module generation took "+(new Date().getTime() - moduleGenerationStart)+" milliseconds");
             WebElement okBtn = findByXpath("//button[@ng-click='esc.close()']");
             clickOn(okBtn);
             waitForElementToBeInvisible(okBtn);
@@ -898,6 +913,6 @@ public class TemplateImporterRepository extends ModuleTest {
     protected void customTestCleanUp(){
         goToProjectsList("en");
         deleteAllProjectsFast();
-        cleanDownloadsFolder();
+//        cleanDownloadsFolder();
     }
 }

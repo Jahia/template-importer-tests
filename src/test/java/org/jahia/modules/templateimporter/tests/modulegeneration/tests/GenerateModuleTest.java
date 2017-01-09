@@ -407,62 +407,67 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         if(reallyGenerate){
             clickOn(createBtn);
             waitForElementToBeInvisible(createBtn);
-            Long start = new Date().getTime();
             WebElement continueBtn = findByXpath("//button[@ng-click='esc.nextStep()']");
+            Long moduleGenerationStart = new Date().getTime();
+            Long phaseStart = new Date().getTime();
             //Module creation
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Module created')]"), 120),
-                    "Module generation failed at module creation stage. Time spent on generation: "+(new Date().getTime() - start - 120000L)+" milliseconds"
+                    "Module generation failed at module creation stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             //Deployment
             WebElement autoContinueCheckbox = findByXpath("//md-checkbox[@ng-model='esc.autoContinue']/div");
             waitForElementToBeEnabled(continueBtn, 5);
             clickOn(autoContinueCheckbox);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
                     isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Deploying module in')]"), 5),
-                    "Automatic Module generation failed at deployment stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+                    "Automatic Module generation failed at deployment stage. Timer not started. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Module deployed')]"), 60), //30 sec for the time and 30 for deployment itself
-                    "Automatic Module generation failed at deployment stage. Module not deployed. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+                    "Automatic Module generation failed at deployment stage. Module not deployed. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             //Base template generation
             waitForElementToBeEnabled(continueBtn, 5);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
                     isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Generate base template in')]"), 5),
-                    "Automatic Module generation failed at base template generation stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+                    "Automatic Module generation failed at base template generation stage. Timer not started. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Base template generated')]"), 60),
-                    "Automatic Module generation failed at base template generation stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+                    "Automatic Module generation failed at base template generation stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             //Asset files copying
             waitForElementToBeEnabled(continueBtn, 5);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
                     isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Copying asset files in')]"), 5),
-                    "Automatic Module generation failed at assets copying stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+                    "Automatic Module generation failed at assets copying stage. Timer not started. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Assets copied')]"), 60),
-                    "Automatic Module generation failed at assets copying stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+                    "Automatic Module generation failed at assets copying stage. Time spent on generation: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             //Other templates creation
             waitForElementToBeEnabled(continueBtn, 5);
+            phaseStart = new Date().getTime();
             Assert.assertTrue(
                     isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Creating templates in')]"), 5),
-                    "Automatic Module generation failed at templates creation stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
+                    "Automatic Module generation failed at templates creation stage. Timer not started. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Templates created')]"), 90),
-                    "Automatic Module generation failed at templates creation stage. Time spent on generation: "+(new Date().getTime() - start - 60000L)+" milliseconds"
+                    "Automatic Module generation failed at templates creation stage. Time spent on stage: "+(new Date().getTime() - phaseStart)+" milliseconds"
             );
             waitForElementToBeInvisible(continueBtn);
 
             Assert.assertTrue(
-                    isVisible(By.xpath("//span[@message-key='angular.dbCreateModuleDirective.message.allDone']"), 5),
+                    isVisible(By.xpath("//span[@message-key='angular.dsCreateModuleDirective.message.allDone']"), 5),
                     "All stages of Automatic Module generation passed, but module generation failed anyway." +
                             "Final message that module successfully generated is not visible.\n" +
-                            "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
+                            "Module generation took "+(new Date().getTime() - moduleGenerationStart)+" milliseconds");
             WebElement okBtn = findByXpath("//button[@ng-click='esc.close()']");
             clickOn(okBtn);
             waitForElementToBeInvisible(okBtn);
@@ -516,6 +521,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
             WebElement autoContinueCheckbox = findByXpath("//md-checkbox[@ng-model='esc.autoContinue']/div");
             waitForElementToBeEnabled(continueBtn, 5);
             clickOn(autoContinueCheckbox);
+            new Actions(getDriver()).moveToElement(continueBtn, 100, -100).build().perform();
             Assert.assertTrue(
                     isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Deploying module in')]"), 5),
                     "Automatic Module generation failed at deployment stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
@@ -540,7 +546,6 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                     isVisible(By.xpath("//span[@ng-if='!esc.loading && esc.autoContinue' and contains(text(), 'Copying asset files in')]"), 5),
                     "Automatic Module generation failed at assets copying stage. Timer not started. Time spent on generation: "+(new Date().getTime() - start - 5000)+" milliseconds"
             );
-            new Actions(getDriver()).moveToElement(continueBtn, 100, 100).build().perform();
             clickOn(continueBtn);
             Assert.assertTrue(
                     isVisible(By.xpath("//md-list-item[contains(., 'Assets copied')]"), 36), //30 sec for copying and 5 for timer, 1 extra
@@ -559,7 +564,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
             waitForElementToBeInvisible(continueBtn);
 
             Assert.assertTrue(
-                    isVisible(By.xpath("//span[@message-key='angular.dbCreateModuleDirective.message.allDone']"), 5),
+                    isVisible(By.xpath("//span[@message-key='angular.dsCreateModuleDirective.message.allDone']"), 5),
                     "All stages of Automatic Module generation passed, but module generation failed anyway." +
                             "Final message that module successfully generated is not visible.\n" +
                             "Module generation took "+(new Date().getTime() - start - 5000L)+" milliseconds");
@@ -602,8 +607,8 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                  Area area,
                                  String moduleName,
                                  String definitionNameSpace){
-        String areaFileName = "tiLayoutComponent."+area.getTemplateName()+"_"+area.getName()+".jsp";
-        String areaFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+definitionNameSpace+"nt_tiLayoutComponent/html";
+        String areaFileName = "dbLayoutComponent."+area.getTemplateName()+"_"+area.getName()+".jsp";
+        String areaFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+definitionNameSpace+"nt_dbLayoutComponent/html";
         boolean areaFileExist = false;
 
         File[] files = findFilesOrDirectories(areaFolderPath, areaFileName, "jsp");
@@ -629,8 +634,8 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                              Component component,
                                              String moduleName,
                                              String definitionNameSpace) {
-        String areaFileName = "tiLayoutComponent." + component.getTemplateName() + "_" + component.getAreaName() + ".jsp";
-        String areaFolderPath = sourceFolderPath + "/" + moduleName.toLowerCase().replace(" ", "-") + "/src/main/resources/" + definitionNameSpace + "nt_tiLayoutComponent/html";
+        String areaFileName = "dbLayoutComponent." + component.getTemplateName() + "_" + component.getAreaName() + ".jsp";
+        String areaFolderPath = sourceFolderPath + "/" + moduleName.toLowerCase().replace(" ", "-") + "/src/main/resources/" + definitionNameSpace + "nt_dbLayoutComponent/html";
         boolean areaFileExist = false;
 
         File[] files = findFilesOrDirectories(areaFolderPath, areaFileName, "jsp");

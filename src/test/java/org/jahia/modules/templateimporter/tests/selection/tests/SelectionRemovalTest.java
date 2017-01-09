@@ -34,7 +34,7 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
         String xPathViewV1 = "//body/div[1]/div[1]/div[1]";
         String nameAreaA1 = randomWord(5);
         String nameViewV1 = randomWord(5);
-        String nodeTypeViewV1 = "jnt:bootstrapMainContent";
+        String nodeTypeViewV1 = "jnt:bigText";
         int xOffsetA1Area = 2;
         int xOffsetViewV1 = 1;
         int yOffsetA1Area = 0;
@@ -77,7 +77,7 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
         String xPathViewV1 = "//body/div[1]/div[1]";
         String nameAreaA1 = randomWord(5);
         String nameViewV1 = randomWord(5);
-        String nodeTypeViewV1 = "jnt:bootstrapMainContent";
+        String nodeTypeViewV1 = "jnt:bigText";
         int xOffsetA1Area = 1;
         int xOffsetViewV1 = 2;
         int yOffsetA1Area = 0;

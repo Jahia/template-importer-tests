@@ -91,8 +91,8 @@ public class ManageAssetsTest extends TemplateImporterRepository{
         waitForElementToStopMoving(assetManagementBtn);
         clickOn(assetManagementBtn);
         Assert.assertTrue(
-                isVisible(By.xpath("//span[contains(., 'Template Importer - Assets Management')]"), 7),
-                "Title 'Template Importer - Assets Management' is not visible after clicking asset management button."
+                isVisible(By.xpath("//span[contains(., 'Assets Management')]"), 7),
+                "Title 'Assets Management' is not visible after clicking asset management button."
         );
     }
 
