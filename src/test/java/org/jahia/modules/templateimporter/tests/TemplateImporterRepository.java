@@ -913,6 +913,6 @@ public class TemplateImporterRepository extends ModuleTest {
     protected void customTestCleanUp(){
         goToProjectsList("en");
         deleteAllProjectsFast();
-//        cleanDownloadsFolder();
+        cleanDownloadsFolder();
     }
 }

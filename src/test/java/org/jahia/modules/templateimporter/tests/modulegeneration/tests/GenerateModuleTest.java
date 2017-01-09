@@ -607,8 +607,8 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                  Area area,
                                  String moduleName,
                                  String definitionNameSpace){
-        String areaFileName = "dbLayoutComponent."+area.getTemplateName()+"_"+area.getName()+".jsp";
-        String areaFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+definitionNameSpace+"nt_dbLayoutComponent/html";
+        String areaFileName = "dsLayoutComponent."+area.getTemplateName()+"_"+area.getName()+".jsp";
+        String areaFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+definitionNameSpace+"nt_dsLayoutComponent/html";
         boolean areaFileExist = false;
 
         File[] files = findFilesOrDirectories(areaFolderPath, areaFileName, "jsp");
@@ -634,8 +634,8 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                                              Component component,
                                              String moduleName,
                                              String definitionNameSpace) {
-        String areaFileName = "dbLayoutComponent." + component.getTemplateName() + "_" + component.getAreaName() + ".jsp";
-        String areaFolderPath = sourceFolderPath + "/" + moduleName.toLowerCase().replace(" ", "-") + "/src/main/resources/" + definitionNameSpace + "nt_dbLayoutComponent/html";
+        String areaFileName = "dsLayoutComponent." + component.getTemplateName() + "_" + component.getAreaName() + ".jsp";
+        String areaFolderPath = sourceFolderPath + "/" + moduleName.toLowerCase().replace(" ", "-") + "/src/main/resources/" + definitionNameSpace + "nt_dsLayoutComponent/html";
         boolean areaFileExist = false;
 
         File[] files = findFilesOrDirectories(areaFolderPath, areaFileName, "jsp");
