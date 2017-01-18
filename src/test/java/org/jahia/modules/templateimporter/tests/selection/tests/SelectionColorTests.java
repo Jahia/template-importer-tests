@@ -3,7 +3,7 @@ package org.jahia.modules.templateimporter.tests.selection.tests;
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.templateimporter.tests.businessobjects.Area;
 import org.jahia.modules.templateimporter.tests.businessobjects.Component;
-import org.jahia.modules.templateimporter.tests.businessobjects.View;
+import org.jahia.modules.templateimporter.tests.businessobjects.Selection;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -28,8 +28,8 @@ public class SelectionColorTests extends TemplateImporterRepository{
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.colorSettingsTest");
         String projectName = randomWord(8);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
-        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
-        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
+//        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
         Map<String, Map<String, String>> originalBorderColors;
         Map<String, String> expectedNewBorderColors;
         Map<String, Map<String, String>> actualNewBorderColors;
@@ -38,21 +38,20 @@ public class SelectionColorTests extends TemplateImporterRepository{
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         selectArea(homeA1);
-        selectView(homeV1);
         selectComponent(homeC1, "");
 
         createNewTemplate(randomWord(5), "page1.html");
         switchToTemplate(homeA1.getTemplateName());
 
-        Area[] allAreas = new Area[]{homeA1, homeV1, homeC1};
+        Selection[] allAreas = new Selection[]{homeA1, homeC1};
         originalBorderColors = getBorderColors(allAreas);
         expectedNewBorderColors = changeColors(allAreas);
         actualNewBorderColors = getBorderColors(allAreas);
         resetColors();
         resetedBorderColors = getBorderColors(allAreas);
 
-        for(Area area:allAreas){
-            String areaName = area.getName();
+        for(Selection sel:allAreas){
+            String areaName = sel.getName();
             String expectedBorderType = "solid";
             String actualBorderType = actualNewBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
             String expectedNewBorderColor = expectedNewBorderColors.get(areaName);
@@ -65,22 +64,22 @@ public class SelectionColorTests extends TemplateImporterRepository{
             softAssert.assertEquals(
                     actualBorderType,
                     expectedBorderType,
-                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after color change."
+                    "Unexpected border type for selection '"+areaName+"' ("+sel.getXpath()+") after color change."
             );
             softAssert.assertEquals(
                     actualNewBorderColor,
                     expectedNewBorderColor,
-                    "Unexpected border color for selection '"+areaName+"' ("+area.getXpath()+") after color change."
+                    "Unexpected border color for selection '"+areaName+"' ("+sel.getXpath()+") after color change."
             );
             softAssert.assertEquals(
                     actualBorderTypeAfterReset,
                     expectedBorderTypeAfterReset,
-                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after color reset."
+                    "Unexpected border type for selection '"+areaName+"' ("+sel.getXpath()+") after color reset."
             );
             softAssert.assertEquals(
                     actualBorderColorAfterReset,
                     expectedBorderColorAfterReset,
-                    "Unexpected border color for selection '"+areaName+"' ("+area.getXpath()+") after color reset."
+                    "Unexpected border color for selection '"+areaName+"' ("+sel.getXpath()+") after color reset."
             );
         }
 
@@ -93,8 +92,8 @@ public class SelectionColorTests extends TemplateImporterRepository{
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaVisibilityTest");
         String projectName = randomWord(8);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
-        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
-        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
+//        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
         Map<String, Map<String, String>> originalBorderColors;
         Map<String, Map<String, String>> actualNewBorderColors;
         Map<String, Map<String, String>> resetedBorderColors;
@@ -102,21 +101,20 @@ public class SelectionColorTests extends TemplateImporterRepository{
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         selectArea(homeA1);
-        selectView(homeV1);
         selectComponent(homeC1, "");
 
         createNewTemplate(randomWord(5), "page1.html");
         switchToTemplate(homeA1.getTemplateName());
 
-        Area[] allAreas = new Area[]{homeC1, homeA1, homeV1};
-        originalBorderColors = getBorderColors(allAreas);
+        Selection[] allSelections = new Selection[]{homeC1, homeA1};
+        originalBorderColors = getBorderColors(allSelections);
         turnOffVisibility();
-        actualNewBorderColors = getBorderColors(allAreas);
+        actualNewBorderColors = getBorderColors(allSelections);
         resetColors();
-        resetedBorderColors = getBorderColors(allAreas);
+        resetedBorderColors = getBorderColors(allSelections);
 
-        for(Area area:allAreas){
-            String areaName = area.getName();
+        for(Selection sel:allSelections){
+            String areaName = sel.getName();
             String expectedBorderType = "none";
             String actualBorderType = actualNewBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
             String expectedBorderTypeAfterReset = originalBorderColors.get(areaName).get(AREA_BORDER_TYPE_KEY);
@@ -127,25 +125,25 @@ public class SelectionColorTests extends TemplateImporterRepository{
             softAssert.assertEquals(
                     actualBorderType,
                     expectedBorderType,
-                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after visibility change."
+                    "Unexpected border type for selection '"+areaName+"' ("+sel.getXpath()+") after visibility change."
             );
             softAssert.assertEquals(
                     actualBorderTypeAfterReset,
                     expectedBorderTypeAfterReset,
-                    "Unexpected border type for selection '"+areaName+"' ("+area.getXpath()+") after visibility reset."
+                    "Unexpected border type for selection '"+areaName+"' ("+sel.getXpath()+") after visibility reset."
             );
             softAssert.assertEquals(
                     actualBorderColorAfterReset,
                     expectedBorderColorAfterReset,
-                    "Unexpected border color for selection '"+areaName+"' ("+area.getXpath()+") after visibility reset."
+                    "Unexpected border color for selection '"+areaName+"' ("+sel.getXpath()+") after visibility reset."
             );
         }
         softAssert.assertAll();
     }
 
-    @Test
+    @Test(enabled = false) //Test disabled due to functionality removal
     public void areaWithLimitColorTest(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaWithLimitColorTest");
+      /*  SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaWithLimitColorTest");
         String projectName = randomWord(8);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", 2, 0, "home");
         Map<String, Map<String, String>> originalBorderColors;
@@ -200,12 +198,12 @@ public class SelectionColorTests extends TemplateImporterRepository{
             );
         }
 
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
-    @Test
+    @Test(enabled = false) //Test disabled due to functionality removal
     public void areaWithLimitVisibilityTest(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaWithLimitVisibilityTest");
+      /*  SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionColorTests.areaWithLimitVisibilityTest");
         String projectName = randomWord(8);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", "//body/div[1]//div[contains(., 'Level 2-1')]/div[1]", 2, 0, "home");
         Map<String, Map<String, String>> originalBorderColors;
@@ -252,7 +250,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
             );
         }
 
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     private void turnOffVisibility(){
@@ -288,16 +286,17 @@ public class SelectionColorTests extends TemplateImporterRepository{
         waitForElementToStopMoving(resetBtn);
         clickOn(resetBtn);
         waitForElementToBeInvisible(resetBtn);
+        shortSleep();
         switchToProjectFrame();
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
         switchToDefaultContent();
     }
 
-    private Map<String, String> changeColors(Area[] areas){
+    private Map<String, String> changeColors(Selection[] selections){
+        //TODO update locators for the buttons, inputs and toggles
         Map<String, String> newColors = new HashMap<String, String>();
         String haColor = generateRGB();
-        String hvColor = generateRGB();
         String hcColor = generateRGB();
 
         WebElement menuBtn = findByXpath("//md-icon[text()='settings']/ancestor::button");
@@ -308,42 +307,27 @@ public class SelectionColorTests extends TemplateImporterRepository{
         WebElement applyBtn = findByXpath("//button[@ng-click='sdoc.apply()']");
         waitForElementToStopMoving(applyBtn);
 
-        for (Area area : areas) {
+        for (Selection selection : selections) {
             WebElement changerBtn;
             WebElement colorInput;
             WebElement chooseBtn;
             String newColor;
 
             //Home and other non-base selections here
-            if (area.isArea()) {
+            if (selection.isArea()) {
                 //Areas here
-                if (area.getxPathToInternalArea() == null) {
                     //No internal area, means it is not dotted area (not expanded twice)
-                    changerBtn = findByXpath("(//md-dialog-content//div[contains(., 'Area')]/span[@ng-model='type.color'])[2]");
-                    colorInput = findByXpath("(//input[@class='sp-input'])[3]");
-                    chooseBtn = findByXpath("(//button[@class='sp-choose'])[3]");
-                } else {
-                    changerBtn = findByXpath("//md-dialog-content//div[contains(., 'Area dotted')]/span[@ng-model='type.color']");
+                    changerBtn = findByXpath("(//div[contains(@class, 'sp-replacer')])[2]");
                     colorInput = findByXpath("(//input[@class='sp-input'])[2]");
                     chooseBtn = findByXpath("(//button[@class='sp-choose'])[2]");
-                }
                 newColor = haColor;
             } else {
-                if (area.isComponent()) {
                     //Components are here
-                    changerBtn = findByXpath("//md-dialog-content//div[contains(., 'Component')]/span[@ng-model='type.color']");
+                    changerBtn = findByXpath("(//div[contains(@class, 'sp-replacer')])[1]");
                     colorInput = findByXpath("(//input[@class='sp-input'])[1]");
                     chooseBtn = findByXpath("(//button[@class='sp-choose'])[1]");
                     newColor = hcColor;
-                } else {
-                    //Views here
-                    changerBtn = findByXpath("//md-dialog-content//div[contains(., 'View')]/span[@ng-model='type.color']");
-                    colorInput = findByXpath("(//input[@class='sp-input'])[4]");
-                    chooseBtn = findByXpath("(//button[@class='sp-choose'])[4]");
-                    newColor = hvColor;
-                }
             }
-
 
             clickOn(changerBtn);
             if (getBrowser().equals(FIREFOX)) {
@@ -359,12 +343,13 @@ public class SelectionColorTests extends TemplateImporterRepository{
             waitForElementToBeEnabled(chooseBtn, 3);
             clickOn(chooseBtn);
             waitForElementToBeInvisible(chooseBtn);
-            newColors.put(area.getName(), newColor);
+            newColors.put(selection.getName(), newColor);
         }
 
         applyBtn = findByXpath("//button[@ng-click='sdoc.apply()']");
         clickOn(applyBtn);
         waitForElementToBeInvisible(applyBtn);
+        shortSleep();
         switchToProjectFrame();
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);
@@ -373,12 +358,12 @@ public class SelectionColorTests extends TemplateImporterRepository{
         return newColors;
     }
 
-    private Map<String, Map<String, String>> getBorderColors(Area[] areas){
+    private Map<String, Map<String, String>> getBorderColors(Selection[] selections){
         Map<String, Map<String, String>> map = new HashMap<String, Map<String, String>>();
 
         switchToProjectFrame();
-        for(Area area:areas){
-            WebElement selection = findByXpath(area.getXpath());
+        for(Selection sel:selections){
+            WebElement selection = findByXpath(sel.getXpath());
             Map<String, String> borderTypeAndColor = new HashMap<String, String>();
 
             if(getBrowser().equals(CHROME)) {
@@ -390,7 +375,7 @@ public class SelectionColorTests extends TemplateImporterRepository{
                 borderTypeAndColor.put(AREA_BORDER_TYPE_KEY, selection.getCssValue("border-bottom-style"));
                 borderTypeAndColor.put(AREA_BORDER_COLOR_KEY, selection.getCssValue("border-bottom-color"));
             }
-            map.put(area.getName(), borderTypeAndColor);
+            map.put(sel.getName(), borderTypeAndColor);
         }
         switchToDefaultContent();
 

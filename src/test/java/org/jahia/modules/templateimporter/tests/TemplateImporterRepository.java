@@ -3,7 +3,7 @@ package org.jahia.modules.templateimporter.tests;
 import org.apache.commons.io.FileUtils;
 import org.jahia.modules.templateimporter.tests.businessobjects.Area;
 import org.jahia.modules.templateimporter.tests.businessobjects.Component;
-import org.jahia.modules.templateimporter.tests.businessobjects.View;
+import org.jahia.modules.templateimporter.tests.businessobjects.Selection;
 import org.jahia.modules.tests.core.ModuleTest;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.openqa.selenium.*;
@@ -25,8 +25,7 @@ import java.util.HashMap;
  */
 public class TemplateImporterRepository extends ModuleTest {
     protected static final String SELECTED_AREA_MARK = "AreaSelection";
-    protected static final String SELECTED_VIEW_MARK = "ViewSelection";
-    protected static final String SELECTION_AREA_LIMIT_MARK = "AreaSelectionLimit";
+    protected static final String SELECTED_COMPONENT_MARK = "ComponentSelection";
     protected static final String CURRENT_TEMPLATE_MARK = "md-raised";
     protected static final String DOM_OUTLINE_MARK = "DomOutlined";
 
@@ -327,11 +326,9 @@ public class TemplateImporterRepository extends ModuleTest {
         clickOn(menuAreaBtn);
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
         WebElement selectBtn = findByXpath("//button[@ng-click='sac.area.ok()']");
-        WebElement expandArea = findByXpath("//button[@ng-click='sac.area.expandSelection()']");
 
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
-        clickOn(expandArea);
         waitForElementToBeEnabled(selectBtn, 5);
         clickOn(selectBtn);
         waitForElementToBeInvisible(selectBtn);
@@ -341,103 +338,78 @@ public class TemplateImporterRepository extends ModuleTest {
                 "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+xPath);
     }
 
-    protected void selectArea(Area  area,
-                              int   expandTimes){
-        rightMouseClick(area.getXpath(), area.getxOffset(), area.getyOffset());
-        WebElement menuAreaBtn = findByXpath("//div[@ng-click='rmc.canBeArea && rmc.showArea()']");
-        waitForElementToStopMoving(menuAreaBtn);
-        clickOn(menuAreaBtn);
-        WebElement areaNameField = findByXpath("//input[@name='areaName']");
-        WebElement selectBtn = findByXpath("//button[@ng-click='sac.area.ok()']");
-        WebElement expandArea = findByXpath("//button[@ng-click='sac.area.expandSelection()']");
-
-        waitForElementToStopMoving(areaNameField);
-        typeInto(areaNameField, area.getName());
-        for (int i = 0; i < expandTimes; i++){
-            clickOn(expandArea);
-            expandArea = findByXpath("//button[@ng-click='sac.area.expandSelection()']");
-        }
-        waitForElementToBeEnabled(selectBtn, 5);
-        clickOn(selectBtn);
-        waitForElementToBeInvisible(selectBtn);
-
-        Assert.assertTrue(
-                checkIfAreaSelected(area.getXpath()),
-                "Area was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+area.getXpath());
-    }
-
     protected void selectArea(Area area){
         selectArea(area.getName(), area.getXpath(), area.getxOffset(), area.getyOffset());
     }
 
-    /**
-     * Selects a view in current template with given parameters. Will switch to the iFrame before selection and switch
-     * back after. Checks that selected area has 'ViewSelection' class after selection.
-     * @param viewName String, name of the area
-     * @param xPath String, XPath to the element you want to select
-     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
-     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
-     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
-     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
-     * @param errorMsg Error message that will be prepended to the assertion error message. Describe use case here. Example:
-     *                Reselecting view after deletion
-     */
-    protected void selectView(String    viewName,
-                              String    nodeType,
-                              String    xPath,
-                              int       xOffset,
-                              int       yOffset,
-                              String    errorMsg){
-        rightMouseClick(xPath, xOffset, yOffset);
-        WebElement menuViewBtn = findByXpath("//div[@ng-click='rmc.canBeView && rmc.showView()']");
-        waitForElementToStopMoving(menuViewBtn);
-        clickOn(menuViewBtn);
-
-        WebElement viewNameField = findByXpath("//input[@name='viewName']");
-        WebElement selectViewBtn = findByXpath("//button[@ng-click='svc.view.ok()']");
-        WebElement advsncedCheckbox = findByXpath("//md-checkbox[@ng-model='svc.view.advancedNodeTypeSelection']");
-
-        waitForElementToStopMoving(viewNameField);
-        typeInto(viewNameField, viewName);
-        clickOn(advsncedCheckbox);
-        WebElement nodeTypeField = findByName("nodeTypeSelection");
-        waitForElementToBeVisible(nodeTypeField);
-        waitForElementToStopMoving(nodeTypeField);
-        nodeTypeField.click();
-        nodeTypeField.clear();
-        typeInto(nodeTypeField, nodeType);
-        clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
-        waitForElementToBeEnabled(selectViewBtn, 5);
-        clickOn(selectViewBtn);
-        waitForElementToBeInvisible(selectViewBtn);
-
-        Assert.assertTrue(
-                checkIfViewSelected(xPath),
-                errorMsg+". View was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class. Target element  XPath: "+
-                        xPath+". Are you sure Node Type " +nodeType+" exist?");
-    }
-
-    /**
-     * Selects a view in current template with given parameters. Will switch to the iFrame before selection and switch
-     * back after. Checks that selected area has 'ViewSelection' class after selection.
-     * @param viewName String, name of the area
-     * @param xPath String, XPath to the element you want to select
-     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
-     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
-     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
-     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
-     */
-    protected void selectView(String    viewName,
-                              String    nodeType,
-                              String    xPath,
-                              int       xOffset,
-                              int       yOffset){
-        selectView(viewName, nodeType, xPath, xOffset, yOffset, "");
-    }
-
-    protected void selectView(View view) {
-        selectView(view.getName(), view.getNodeType(), view.getXpath(), view.getxOffset(), view.getyOffset());
-    }
+//    /**
+//     * Selects a view in current template with given parameters. Will switch to the iFrame before selection and switch
+//     * back after. Checks that selected area has 'ViewSelection' class after selection.
+//     * @param viewName String, name of the area
+//     * @param xPath String, XPath to the element you want to select
+//     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
+//     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+//     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
+//     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+//     * @param errorMsg Error message that will be prepended to the assertion error message. Describe use case here. Example:
+//     *                Reselecting view after deletion
+//     */
+//    protected void selectView(String    viewName,
+//                              String    nodeType,
+//                              String    xPath,
+//                              int       xOffset,
+//                              int       yOffset,
+//                              String    errorMsg){
+//        rightMouseClick(xPath, xOffset, yOffset);
+//        WebElement menuViewBtn = findByXpath("//div[@ng-click='rmc.canBeView && rmc.showView()']");
+//        waitForElementToStopMoving(menuViewBtn);
+//        clickOn(menuViewBtn);
+//
+//        WebElement viewNameField = findByXpath("//input[@name='viewName']");
+//        WebElement selectViewBtn = findByXpath("//button[@ng-click='svc.view.ok()']");
+//        WebElement advsncedCheckbox = findByXpath("//md-checkbox[@ng-model='svc.view.advancedNodeTypeSelection']");
+//
+//        waitForElementToStopMoving(viewNameField);
+//        typeInto(viewNameField, viewName);
+//        clickOn(advsncedCheckbox);
+//        WebElement nodeTypeField = findByName("nodeTypeSelection");
+//        waitForElementToBeVisible(nodeTypeField);
+//        waitForElementToStopMoving(nodeTypeField);
+//        nodeTypeField.click();
+//        nodeTypeField.clear();
+//        typeInto(nodeTypeField, nodeType);
+//        clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
+//        waitForElementToBeEnabled(selectViewBtn, 5);
+//        clickOn(selectViewBtn);
+//        waitForElementToBeInvisible(selectViewBtn);
+//
+//        Assert.assertTrue(
+//                checkIfViewSelected(xPath),
+//                errorMsg+". View was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class. Target element  XPath: "+
+//                        xPath+". Are you sure Node Type " +nodeType+" exist?");
+//    }
+//
+//    /**
+//     * Selects a view in current template with given parameters. Will switch to the iFrame before selection and switch
+//     * back after. Checks that selected area has 'ViewSelection' class after selection.
+//     * @param viewName String, name of the area
+//     * @param xPath String, XPath to the element you want to select
+//     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
+//     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+//     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
+//     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+//     */
+//    protected void selectView(String    viewName,
+//                              String    nodeType,
+//                              String    xPath,
+//                              int       xOffset,
+//                              int       yOffset){
+//        selectView(viewName, nodeType, xPath, xOffset, yOffset, "");
+//    }
+//
+//    protected void selectView(View view) {
+//        selectView(view.getName(), view.getNodeType(), view.getXpath(), view.getxOffset(), view.getyOffset());
+//    }
 
     protected void selectComponent(Component    component,
                                    String       errorMsg){
@@ -446,38 +418,66 @@ public class TemplateImporterRepository extends ModuleTest {
         int yOffset = component.getyOffset();
         String areaName = component.getAreaName();
         String viewName = component.getViewName();
-        String nodeType = component.getNodeType();
+        String componentName = component.getName();
 
         rightMouseClick(xPath, xOffset, yOffset);
-        WebElement menuComponentBtn = findByXpath("//div[@ng-click='rmc.canBeAreaAndView && rmc.showAreaView()']");
+        WebElement menuComponentBtn = findByXpath("//div[@ng-click='rmc.canBeComponent && rmc.showComponent()']");
         waitForElementToStopMoving(menuComponentBtn);
         clickOn(menuComponentBtn);
 
         WebElement areaNameField = findByName("areaName");
         WebElement viewNameField = findByName("viewName");
-        WebElement advsncedCheckbox = findByXpath("//md-checkbox[@ng-model='savc.view.advancedNodeTypeSelection']");
-        WebElement okBtn = findByXpath("//button[@ng-click='savc.ok()']");
+        WebElement componentNameField = findByName("componentName");
+
+        WebElement okBtn = findByXpath("//button[@ng-click='scc.ok()']");
 
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
+        typeInto(componentNameField, componentName);
         typeInto(viewNameField, viewName);
-        clickOn(advsncedCheckbox);
-        WebElement nodeTypeField = findByName("nodeTypeSelection");
-        waitForElementToBeVisible(nodeTypeField);
-        nodeTypeField.click();
-        nodeTypeField.clear();
-        typeInto(nodeTypeField, nodeType);
-        clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
-        waitForElementToBeEnabled(okBtn, 5);
+
         clickOn(okBtn);
         waitForElementToBeInvisible(okBtn);
 
         Assert.assertTrue(
-                checkIfViewSelected(xPath),
-                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class." + " XPath: "+xPath);
+                checkIfComponentSelected(component, new SoftAssert(), true, ""),
+                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_COMPONENT_MARK+"' class." + " XPath: "+xPath);
+    }
+
+    protected void selectComponent(Component    component,
+                                   Component    componentWhosNameWeReuse,
+                                   String       errorMsg){
+        String xPath = component.getXpath();
+        int xOffset = component.getxOffset();
+        int yOffset = component.getyOffset();
+        String areaName = component.getAreaName();
+        String viewName = component.getViewName();
+        String componentName = componentWhosNameWeReuse.getName();
+
+        rightMouseClick(xPath, xOffset, yOffset);
+        WebElement menuComponentBtn = findByXpath("//div[@ng-click='rmc.canBeComponent && rmc.showComponent()']");
+        waitForElementToStopMoving(menuComponentBtn);
+        clickOn(menuComponentBtn);
+
+        WebElement areaNameField = findByName("areaName");
+        WebElement viewNameField = findByName("viewName");
+        WebElement componentNameSelector = findByXpath("//md-select[@ng-model='scc.view.componentType']");
+
+        WebElement okBtn = findByXpath("//button[@ng-click='scc.ok()']");
+
+        waitForElementToStopMoving(areaNameField);
+        typeInto(areaNameField, areaName);
+        typeInto(viewNameField, viewName);
+        clickOn(componentNameSelector);
+        WebElement componentNameOption = findByXpath("//md-option[@value='"+componentName+"']");
+        clickOn(componentNameOption);
+
+        clickOn(okBtn);
+        waitForElementToBeInvisible(okBtn);
+
         Assert.assertTrue(
-                checkIfAreaSelected(xPath),
-                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+xPath);
+                checkIfComponentSelected(component, new SoftAssert(), true, ""),
+                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_COMPONENT_MARK+"' class." + " XPath: "+xPath);
     }
 
     protected void switchToProjectFrame(){
@@ -570,26 +570,33 @@ public class TemplateImporterRepository extends ModuleTest {
     }
 
     /**
-     * Removes area. Click on area than click 'Remove' and assert that area removed.
-     * @param xPath String, xPath to your target element
-     * @param xOffset int, Horizontal offset in pixels, from the <u>left</u> border of element.
-     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
-     * @param yOffset int, Vertical offset in pixels, from the <u>top</u> border of element.
-     *                Pass negative value to move left. Pass 0 to use calculated center of the element (Default click behaviour).
+     *
+     * @param selection
      */
-    protected  void removeView(String   xPath,
-                               int      xOffset,
-                               int      yOffset){
-        boolean isSelected = checkIfViewSelected(xPath, new SoftAssert(), true);
+    protected  void removeSelection(Selection   selection){
+        boolean isSelected;
+        String xPath = selection.getXpath();
 
-        Assert.assertTrue(isSelected, "View that you are trying to remove is not selected.");
-        rightMouseClick(xPath, xOffset, yOffset);
+        if(selection.isArea()){
+            isSelected = checkIfAreaSelected(xPath);
+        }else{
+            isSelected = checkIfComponentSelected((Component)selection, new SoftAssert(), true, "");
+        }
+
+        Assert.assertTrue(isSelected, "Selection that you are trying to remove is not selected.");
+        rightMouseClick(xPath, selection.getxOffset(), selection.getyOffset());
         WebElement removeBtn = findByXpath("//div[@ng-click='rmc.removable && rmc.remove()']");
         clickOn(removeBtn);
         waitForElementToBeInvisible(removeBtn);
+        boolean isStillVisible;
+        if(selection.isArea()){
+            isStillVisible = checkIfAreaSelected(xPath);
+        }else{
+            isStillVisible = checkIfComponentSelected((Component)selection, new SoftAssert(), true, "");
+        }
         Assert.assertFalse(
-                checkIfViewSelected(xPath),
-                "View was not removed. XPath:'"+xPath+"'. Horizontal offset:"+xOffset+", Vertical offset:"+yOffset);
+                isStillVisible,
+                "Selection was not removed. XPath:'"+xPath+"'. Horizontal offset:"+selection.getxOffset()+", Vertical offset:"+selection.getyOffset());
     }
 
     /**
@@ -620,53 +627,19 @@ public class TemplateImporterRepository extends ModuleTest {
                                                SoftAssert   softAssert,
                                                boolean      expectedResult,
                                                String       errorMsg){
-        boolean isComponentSelected = false;
-        String missing;
-        if (expectedResult){
-            missing = " missing ";
-        }else{
-            missing = " present";
-        }
+        String xPath = component.getXpath();
 
-        if(checkIfAreaSelected(component.getXpath(), softAssert, expectedResult, "Area mark is"+missing+errorMsg) &&
-                checkIfViewSelected(component.getXpath(), softAssert, expectedResult, "View mark is"+missing+errorMsg)){
-            isComponentSelected = true;
-        }
-
-        return isComponentSelected;
-    }
-
-    protected boolean checkIfAreaSelectedWithLimit(String        xPathToExternalLimit,
-                                                   String        xPathToInternalArea,
-                                                   SoftAssert    softAssert,
-                                                   boolean       expectedResult,
-                                                   String        errorMsg) {
         switchToProjectFrame();
-        WebElement areaLimit = findByXpath(xPathToExternalLimit);
-        WebElement area = null;
+        WebElement selection = findByXpath(xPath);
+        softAssert.assertNotNull(selection, errorMsg+". Cannot find an element that you are trying to check if selected as component. XPath: '" + xPath + "'.");
 
-        if(xPathToInternalArea != null) {
-            area = findByXpath(xPathToInternalArea);
-        }
-        softAssert.assertNotNull(areaLimit, errorMsg+". Cannot find an element that you are trying to check if selected as areaLimit. XPath: '" + xPathToExternalLimit + "'.");
-        softAssert.assertNotNull(area, errorMsg+". Cannot find an element that you are trying to check if selected as area. XPath: '" + xPathToInternalArea + "'.");
-
-        boolean isAreaLimitSelected = areaLimit.getAttribute("class").contains(SELECTION_AREA_LIMIT_MARK);
-        boolean isAreaSelected = area.getAttribute("class").contains(SELECTED_AREA_MARK);
+        boolean isSelectionSelected = selection.getAttribute("class").contains(SELECTED_COMPONENT_MARK);
         switchToDefaultContent();
         softAssert.assertEquals(
-                isAreaLimitSelected,
+                isSelectionSelected,
                 expectedResult,
-                errorMsg+". Assertion if element: '" + xPathToExternalLimit + "' has class '" + SELECTION_AREA_LIMIT_MARK + "' (is selected) Failed");
-        softAssert.assertEquals(
-                isAreaLimitSelected,
-                expectedResult,
-                errorMsg+". Assertion if element: '" + xPathToExternalLimit + "' has class '" + SELECTION_AREA_LIMIT_MARK + "' (is selected) Failed");
-        if(isAreaSelected && isAreaLimitSelected){
-            return true;
-        }else{
-            return false;
-        }
+                errorMsg+". Assertion if element: '" + xPath + "' has class '" + SELECTED_COMPONENT_MARK + "' (is selected) Failed");
+        return isSelectionSelected;
     }
 
     protected boolean checkIfAreaSelected(String        xPath,
@@ -684,35 +657,6 @@ public class TemplateImporterRepository extends ModuleTest {
         return checkIfAreaSelected(xPath, new SoftAssert(), false);
     }
 
-    /**
-     * Check if area is selected (has ViewSelection class)
-     * @param xPath String, XPath to the view
-     * @param softAssert Instance of SoftAssert you are working with. Will fail if visibility result is not expected.
-     * @param expectedResult boolean, your expectation if area should be selected.
-     * @return True if area selected, otherwise false
-     */
-    protected boolean checkIfViewSelected(String        xPath,
-                                          SoftAssert    softAssert,
-                                          boolean       expectedResult,
-                                          String        errorMsg) {
-        switchToProjectFrame();
-        WebElement area = findByXpath(xPath);
-        softAssert.assertNotNull(area, "Cannot find an element that you are trying to check if selected as view. XPath: '" + xPath + "'.");
-
-        boolean isViewSelected = area.getAttribute("class").contains(SELECTED_VIEW_MARK);
-        switchToDefaultContent();
-        softAssert.assertEquals(
-                isViewSelected,
-                expectedResult,
-                errorMsg+". Assertion if element: '" + xPath + "' has class '" + SELECTED_VIEW_MARK + "' (is selected) Failed");
-        return isViewSelected;
-    }
-
-    protected boolean checkIfViewSelected(String        xPath,
-                                          SoftAssert    softAssert,
-                                          boolean       expectedResult) {
-        return checkIfViewSelected(xPath, softAssert, expectedResult, "");
-    }
 
     protected void removeTemplate(String templateName){
         WebElement templateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
@@ -884,15 +828,6 @@ public class TemplateImporterRepository extends ModuleTest {
         url = returnJavascriptResponse("document.location.pathname");
         switchToDefaultContent();
         return url;
-    }
-
-    /**
-     * Check if area is selected (has AreaSelection class)
-     * @param xPath String, XPath to the view
-     * @return True if area selected, otherwise false
-     */
-    protected boolean checkIfViewSelected(String xPath){
-        return checkIfViewSelected(xPath, new SoftAssert(), false);
     }
 
     protected void cleanDownloadsFolder() {

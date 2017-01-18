@@ -117,12 +117,9 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "TemplateManipulationTest.clearSelectionsTest");
         String projectName = randomWord(20);
         String xPathAreaA1 = "//body/div[1]";
-        String xPathViewV1 = "//body/div[1]/div[1]";
         String xPathAreaA2 = "//body/div[2]";
         String areaA1Name = randomWord(5);
         String areaA2Name = randomWord(5);
-        String viewName = randomWord(5);
-        String nodeType = "jnt:bigText";
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
@@ -130,19 +127,17 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         clearSelections("home");
         checkIfAreaSelected(xPathAreaA1, softAssert, false, "Clear selections button was pressed when only one area selected.");
         selectArea(areaA1Name, xPathAreaA1, 2, 0);
-        selectView(viewName, nodeType, xPathViewV1, 2, 0);
         selectArea(areaA2Name, xPathAreaA2, 2, 0);
         clearSelections("home");
         checkIfAreaSelected(xPathAreaA1, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
         checkIfAreaSelected(xPathAreaA2, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
-        checkIfViewSelected(xPathViewV1, softAssert, false, "Clear selections button was pressed when 2 areas and a view are selected.");
 
         softAssert.assertAll();
     }
 
     @Test(enabled = false) //Test disabled because there is no more inheritance
     public void clearSelectionsCrossTemplateTest(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "TemplateManipulationTest.clearSelectionsCrossTemplateTest");
+   /*     SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "TemplateManipulationTest.clearSelectionsCrossTemplateTest");
         String projectName = randomWord(20);
         String xPathAreaA1 = "//body/div[1]";
         String xPathViewV1 = "//body/div[1]/div[1]/div[1]";
@@ -176,7 +171,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         switchToTemplate("base");
         checkIfAreaSelected(xPathAreaA1, softAssert, true, "Cleared areas on child page (home).");
 
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     @Test (dataProvider = "generateTemplateNames")

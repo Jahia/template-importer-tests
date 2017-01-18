@@ -87,7 +87,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
 
     @Test (enabled = false)//TI_S2C5
     public void selectAreaInHomeWithoutBase(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectAreaInHomeWithoutBase");
+/*        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectAreaInHomeWithoutBase");
         String projectName = randomWord(8);
         String xPathToSelectInHome = "//body/div[1]";
         String expectedToastText = "Cannot select inside an area not selected in base page";
@@ -99,12 +99,12 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         selectWrongElement(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
         createNewTemplate(newTemplateName, "page1.html");
         selectWrongElement(xPathToSelectInHome, 1, 0, expectedToastText, softAssert, "Selecting home when base is not selected");
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     @Test (enabled = false)//TI_S2C8, TI_S2C19
     public void selectParentArea(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentArea");
+/*        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentArea");
         String projectName = randomWord(8);
         String xPathToArea = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]";
         String areaName = randomWord(7);
@@ -116,12 +116,12 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         selectArea(areaName, xPathToArea, 2, 0);
         selectWrongElement(xPathToParentArea, 1, 0, expectedToastText, softAssert, "After selecting parent of existing area");
 
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     @Test (enabled = false)//TI_S2C33
     public void selectSiblingAreaInOtherTemplate(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSiblingAreaInOtherTemplate");
+/*        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSiblingAreaInOtherTemplate");
         String projectName = randomWord(8);
         String xPathToArea = "//body/div[1]//div[contains(., 'Level 2-1')]";
         String areaName = randomWord(7);
@@ -135,12 +135,12 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         checkIfAreaSelected(xPathToArea, softAssert, true);
         selectWrongElement(xPathToSiblingArea, 2, 0, expectedToastText, softAssert, "After selecting sibling of base-area on home");
         checkIfAreaSelected(xPathToSiblingArea, softAssert, false);
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     @Test (enabled = false)//TI_S2C18, TI_S2C20, TI_S2C21
     public void selectParentOfView(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentOfView");
+/*        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectParentOfView");
         String projectName = randomWord(8);
         String areaA1Name = randomWord(6);
         String viewV1Name = randomWord(8);
@@ -159,12 +159,12 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         selectWrongElement(parentOfViewXpath, 1, 0, expectedToastParentOfView, softAssert, "Selecting node between area and view.");
         selectWrongElement(childOfViewXpath, 1, 0, expectedToastChildOfView, softAssert, "Selecting node between area and view.");
 
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     @Test (enabled = false)//TI_S2C26
     public void selectSameAreaOnAnotherTemplate(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSameAreaOnAnotherTemplate");
+/*        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSameAreaOnAnotherTemplate");
         String projectName = randomWord(8);
         String xPathToArea = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]";
         String areaName = randomWord(7);
@@ -176,12 +176,12 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         switchToTemplate("home");
         selectWrongElement(xPathToArea, 2, 0, expectedToastText, softAssert, true, false, "Selecting the same element on base and home");
 
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     @Test (enabled = false)//TI_S2C27
     public void selectSameViewOnAnotherTemplate(){
-        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSameViewOnAnotherTemplate");
+/*        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "AreaSelectionTest.selectSameViewOnAnotherTemplate");
         String projectName = randomWord(8);
         String xPathToArea = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]";
         String xPathToView = "//body/div[1]/div[contains(., 'Level 3-1')][1]/div[1]/div[1]";
@@ -197,7 +197,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
         switchToTemplate("home");
         selectWrongElement(xPathToView, 1, 0, expectedToastText, softAssert, false, true, "Selecting the same element on base and home");
 
-        softAssert.assertAll();
+        softAssert.assertAll();*/
     }
 
     /**
@@ -249,7 +249,7 @@ public class AreaSelectionTest extends TemplateImporterRepository {
             waitForElementToBeInvisible(cancelButton);
         }
     }
-
+/*
     protected void selectWrongElement(String       xPath,
                                       int          xOffset,
                                       int          yOffset,
@@ -280,5 +280,5 @@ public class AreaSelectionTest extends TemplateImporterRepository {
                                       SoftAssert   softAssert,
                                       String       errorMsg){
         selectWrongElement(xPath, xOffset, yOffset, toastErrorMsg, softAssert, false, false, errorMsg);
-    }
+    }*/
 }

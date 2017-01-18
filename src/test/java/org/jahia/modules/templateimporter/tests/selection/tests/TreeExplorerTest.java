@@ -98,13 +98,12 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         String projectName = randomWord(8);
         String fifsDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[5]";
         String fourthDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[4]";
-        String firstDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[1]";
-        Component homeC1 = new Component(randomWord(5), randomWord(4), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, "home");
+//        String firstDiv = "(//md-sidenav//dom-viewer//div[@class='tiDomViewerHeader' and .//strong[normalize-space(.) = 'DIV']])[1]";
+        Component homeC1 = new Component(randomWord(5), randomWord(4), randomWord(6), "/html/body/div[3]", 2, 0, "home");
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         sausageSelectComponent(homeC1, fifsDiv, "Selecting component from sausage menu");
-        sausageSelectView(randomWord(4), "jnt:html", "/html/body/div[1]", firstDiv, "Selecting view from sausage menu");
         sausageSelectArea(randomWord(10), fourthDiv, "/html/body/div[2]");
     }
 
@@ -133,7 +132,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         );
     }
 
-    private void sausageSelectView(String    viewName,
+/*    private void sausageSelectView(String    viewName,
                                      String    nodeType,
                                      String    pageXpath,
                                      String    treeXpath,
@@ -165,7 +164,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         Assert.assertTrue(
                 checkIfViewSelected(pageXpath),
                 errorMsg+". View was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class." + " XPath: "+pageXpath);
-    }
+    }*/
 
     private void sausageSelectComponent(Component   component,
                                         String      treeXpath,
@@ -173,39 +172,31 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         String xPath = component.getXpath();
         String areaName = component.getAreaName();
         String viewName = component.getViewName();
-        String nodeType = component.getNodeType();
+        String componentName = component.getName();
 
         openTreeExplorer();
         clickSausageMenu(treeXpath);
-        WebElement menuComponentBtn = findByXpath("//div[@ng-click='snmc.canBeAreaAndView && snmc.showAreaView()']");
+        WebElement menuComponentBtn = findByXpath("//div[@ng-click='snmc.canBeComponent && snmc.showComponent()']");
         waitForElementToStopMoving(menuComponentBtn);
         clickOn(menuComponentBtn);
 
         WebElement areaNameField = findByName("areaName");
         WebElement viewNameField = findByName("viewName");
-        WebElement advsncedCheckbox = findByXpath("//md-checkbox[@ng-model='savc.view.advancedNodeTypeSelection']");
-        WebElement okBtn = findByXpath("//button[@ng-click='savc.ok()']");
+        WebElement componentNameField = findByName("viewName");
+
+        WebElement okBtn = findByXpath("//button[@ng-click='scc.ok()']");
 
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
         typeInto(viewNameField, viewName);
-        clickOn(advsncedCheckbox);
-        WebElement nodeTypeField = findByName("nodeTypeSelection");
-        waitForElementToBeVisible(nodeTypeField);
-        nodeTypeField.click();
-        nodeTypeField.clear();
-        typeInto(nodeTypeField, nodeType);
-        clickOn(By.xpath("//div[@ng-click='tc.select(item)'][contains(., '"+nodeType+"')]"));
-        waitForElementToBeEnabled(okBtn, 5);
+        typeInto(componentNameField, componentName);
+
         clickOn(okBtn);
         waitForElementToBeInvisible(okBtn);
 
         Assert.assertTrue(
-                checkIfViewSelected(xPath),
-                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_VIEW_MARK+"' class." + " XPath: "+xPath);
-        Assert.assertTrue(
-                checkIfAreaSelected(xPath),
-                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_AREA_MARK+"' class." + " XPath: "+xPath);
+                checkIfComponentSelected(component, new SoftAssert(), true, ""),
+                errorMsg+". Component was not selected. Target element does not have '"+SELECTED_COMPONENT_MARK+"' class." + " XPath: "+xPath);
     }
 
     private void sausageSelectArea(String    areaName,

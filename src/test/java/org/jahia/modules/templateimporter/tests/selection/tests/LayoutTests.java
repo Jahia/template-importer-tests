@@ -3,7 +3,6 @@ package org.jahia.modules.templateimporter.tests.selection.tests;
 import org.jahia.modules.templateimporter.tests.TemplateImporterRepository;
 import org.jahia.modules.templateimporter.tests.businessobjects.Area;
 import org.jahia.modules.templateimporter.tests.businessobjects.Component;
-import org.jahia.modules.templateimporter.tests.businessobjects.View;
 import org.jahia.modules.tests.utils.CustomExpectedConditions;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.TimeoutException;
@@ -20,6 +19,7 @@ import java.io.File;
 public class LayoutTests extends TemplateImporterRepository{
     @Test
     public void layoutReimportTest(){
+        //TODO replace commented views with areas or components
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "LayoutTests.layoutReimportTest");
         String oldProjectName = randomWord(8);
         String newProjectName = randomWord(10);
@@ -27,19 +27,19 @@ public class LayoutTests extends TemplateImporterRepository{
         File exportedLayout;
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
         Area userA1 = new Area(randomWord(7), "//body/div[1]/div[2]", 2, 0, usersTemplateName);
-        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
-        View userV1 = new View(randomWord(9), "jnt:html", "//body/div[1]/div[2]/div[text()='Level 3-1']", 2, 0, usersTemplateName);
-        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "jnt:html", "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
+//        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
+//        View userV1 = new View(randomWord(9), "jnt:html", "//body/div[1]/div[2]/div[text()='Level 3-1']", 2, 0, usersTemplateName);
+        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
 
         //Create and export layout
         importProject("en", oldProjectName, "", "AlexLevels.zip");
         openProjectFirstTime(oldProjectName, "index.html");
         selectArea(homeA1);
-        selectView(homeV1);
+//        selectView(homeV1);
         selectComponent(homeC1, "");
         createNewTemplate(usersTemplateName, "page1.html");
         selectArea(userA1);
-        selectView(userV1);
+//        selectView(userV1);
 
         //Re import layout into another project and check areas and views.
         String[] templatesToExport = new String[]{homeA1.getTemplateName(), userA1.getTemplateName()};
@@ -49,29 +49,23 @@ public class LayoutTests extends TemplateImporterRepository{
         openProjectFirstTime(newProjectName, "index.html");
         templatesToExport = new String[]{homeA1.getTemplateName(), userA1.getTemplateName()};
         importLayout(exportedLayout, templatesToExport, softAssert);
-        checkAreaViewImport(softAssert, homeA1);
-        checkAreaViewImport(softAssert, homeV1);
+        checkAreaImport(softAssert, homeA1);
+//        checkAreaImport(softAssert, homeV1);
         checkIfComponentSelected(homeC1, softAssert, true, "Component re-imported");
-        checkAreaViewImport(softAssert, userA1);
-        checkAreaViewImport(softAssert, userV1);
+        checkAreaImport(softAssert, userA1);
+//        checkAreaImport(softAssert, userV1);
 
         softAssert.assertAll();
     }
 
-    private void checkAreaViewImport(SoftAssert softAssert,
-                                     Area       area){
+    private void checkAreaImport(SoftAssert softAssert,
+                                 Area       area){
         String areaOrVIew;
 
         switchToTemplate(area.getTemplateName());
-        if(area.isArea()){
             areaOrVIew = "Area";
             checkIfAreaSelected(area.getXpath(), softAssert, true, areaOrVIew+" is not selected on template '"+area.getTemplateName()+
                     "' after re import");
-        }else{
-            areaOrVIew = "View";
-            checkIfViewSelected(area.getXpath(), softAssert, true, areaOrVIew+" is not selected on template '"+area.getTemplateName()+
-                    "' after re import");
-        }
     }
 
     private void importLayout(File          archivedLayout,

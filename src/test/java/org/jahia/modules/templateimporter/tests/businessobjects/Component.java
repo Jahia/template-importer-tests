@@ -3,12 +3,12 @@ package org.jahia.modules.templateimporter.tests.businessobjects;
 /**
  * Created by sergey on 2016-09-27.
  */
-public class Component extends View {
+public class Component extends Selection {
     private String areaName;
     private String viewName;
 
-    public Component(String componentName, String areaName, String viewName, String nodeType, String xPathToComponent, int xOffset, int yOffset, String templateName){
-        super(componentName, nodeType, xPathToComponent, xOffset, yOffset, templateName);
+    public Component(String componentName, String areaName, String viewName, String xPathToComponent, int xOffset, int yOffset, String templateName){
+        super(componentName, xPathToComponent, xOffset, yOffset, templateName);
         this.areaName = areaName;
         this.viewName = viewName;
     }
