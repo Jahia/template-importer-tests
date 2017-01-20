@@ -234,6 +234,7 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
         WebElement cancelBtn = findByXpath("//button[@ng-click='cpc.cancel()']");
 
         if(!pageFileName.equals("")) {
+            waitForElementToStopMoving(pageSelectDropdown);
             clickOn(pageSelectDropdown);
             WebElement pageOption = findByXpath("//md-option[@value='" + pageFileName + "']");
             softAssert.assertNotNull(pageOption, "Page with filename '" + pageFileName + "' is not available for selection");

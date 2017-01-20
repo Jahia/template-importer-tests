@@ -230,6 +230,7 @@ public class TemplateImporterRepository extends ModuleTest {
 
         executeScriptWithJavascript(jsToDeleteProjects);
         waitForGlobalSpinner(2, 60);
+        shortSleep();
     }
 
     /**
@@ -846,8 +847,8 @@ public class TemplateImporterRepository extends ModuleTest {
      * AfterClass method, deletes all projects, clean Downloads folder.
      */
     protected void customTestCleanUp(){
-        goToProjectsList("en");
-        deleteAllProjectsFast();
-        cleanDownloadsFolder();
+//        goToProjectsList("en");
+//        deleteAllProjectsFast();
+//        cleanDownloadsFolder();
     }
 }

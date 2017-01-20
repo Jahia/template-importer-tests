@@ -71,27 +71,22 @@ public class SelectionRemovalTest extends TemplateImporterRepository{
 
     @Test //TI_S2C24
     public void areaWithViewRemovalTest(){
-        //TODO transform that test into area with component removal test
-/*        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionRemovalTest.areaWithViewRemovalTest");
+        SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "SelectionRemovalTest.areaWithViewRemovalTest");
         String projectName = randomWord(8);
         String xPathAreaA1 = "//body/div[1]";
-        String xPathViewV1 = "//body/div[1]/div[1]";
+        Component hC = new Component(randomWord(5), randomWord(4), randomWord(3), "//body/div[1]/div[1]", 2, 0, "home");
         String nameAreaA1 = randomWord(5);
-        String nameViewV1 = randomWord(5);
-        String nodeTypeViewV1 = "jnt:bigText";
         int xOffsetA1Area = 1;
-        int xOffsetViewV1 = 2;
         int yOffsetA1Area = 0;
-        int yOffsetViewV1 = 0;
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         selectArea(nameAreaA1, xPathAreaA1, xOffsetA1Area, yOffsetA1Area);
-        selectView(nameViewV1, nodeTypeViewV1, xPathViewV1, xOffsetViewV1, yOffsetViewV1);
+        selectComponent(hC, "Selecting component inside area.");
         removeArea(xPathAreaA1, xOffsetA1Area, yOffsetA1Area);
         checkIfAreaSelected(xPathAreaA1, softAssert, false);
-        checkIfViewSelected(xPathViewV1, softAssert, false);
-        softAssert.assertAll();*/
+        checkIfComponentSelected(hC, softAssert, false, "Component is still selected after parent area removal.");
+        softAssert.assertAll();
     }
 
     @Test (enabled = false)//TI_S2C25 //Test disabled due to functionality change. There is no mo area inheritance.

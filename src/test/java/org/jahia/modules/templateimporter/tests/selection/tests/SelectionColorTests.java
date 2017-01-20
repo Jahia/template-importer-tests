@@ -294,7 +294,6 @@ public class SelectionColorTests extends TemplateImporterRepository{
     }
 
     private Map<String, String> changeColors(Selection[] selections){
-        //TODO update locators for the buttons, inputs and toggles
         Map<String, String> newColors = new HashMap<String, String>();
         String haColor = generateRGB();
         String hcColor = generateRGB();

@@ -182,7 +182,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
 
         WebElement areaNameField = findByName("areaName");
         WebElement viewNameField = findByName("viewName");
-        WebElement componentNameField = findByName("viewName");
+        WebElement componentNameField = findByName("componentName");
 
         WebElement okBtn = findByXpath("//button[@ng-click='scc.ok()']");
 
@@ -209,11 +209,9 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         clickOn(menuAreaBtn);
         WebElement areaNameField = findByXpath("//input[@name='areaName']");
         WebElement selectBtn = findByXpath("//button[@ng-click='sac.area.ok()']");
-        WebElement expandArea = findByXpath("//button[@ng-click='sac.area.expandSelection()']");
 
         waitForElementToStopMoving(areaNameField);
         typeInto(areaNameField, areaName);
-        clickOn(expandArea);
         waitForElementToBeEnabled(selectBtn, 5);
         clickOn(selectBtn);
         waitForElementToBeInvisible(selectBtn);
@@ -338,7 +336,7 @@ public class TreeExplorerTest extends TemplateImporterRepository {
         switchToProjectFrame();
         WebElement pageElement = findByXpath(xPathForPage);
         Assert.assertNotNull(pageElement, "Element in the page not found. XPath: "+pageElement);
-        isHighlighted = pageElement.getAttribute("class").contains(DOM_OUTLINE_MARK);
+        isHighlighted = waitForElementAttributeToContainValue(pageElement, 1, "class", DOM_OUTLINE_MARK);
         softAssert.assertTrue(
                 isHighlighted,
                 "Element is not highlighted on the page, after hovering related node in tree explorer. Tree node: "

@@ -19,7 +19,6 @@ import java.io.File;
 public class LayoutTests extends TemplateImporterRepository{
     @Test
     public void layoutReimportTest(){
-        //TODO replace commented views with areas or components
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "LayoutTests.layoutReimportTest");
         String oldProjectName = randomWord(8);
         String newProjectName = randomWord(10);
@@ -27,19 +26,31 @@ public class LayoutTests extends TemplateImporterRepository{
         File exportedLayout;
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
         Area userA1 = new Area(randomWord(7), "//body/div[1]/div[2]", 2, 0, usersTemplateName);
-//        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
-//        View userV1 = new View(randomWord(9), "jnt:html", "//body/div[1]/div[2]/div[text()='Level 3-1']", 2, 0, usersTemplateName);
-        Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
+        Component homeC1 = new Component(
+                randomWord(10),
+                randomWord(6),
+                randomWord(8),
+                homeA1.getXpath()+"/div[1]",
+                2,
+                0,
+                homeA1.getTemplateName());
+        Component userC1 = new Component(
+                homeC1.getName(),
+                randomWord(12),
+                randomWord(1),
+                "//body/div[1]/div[2]/div[text()='Level 3-1']",
+                2,
+                0,
+                usersTemplateName);
 
         //Create and export layout
         importProject("en", oldProjectName, "", "AlexLevels.zip");
         openProjectFirstTime(oldProjectName, "index.html");
         selectArea(homeA1);
-//        selectView(homeV1);
-        selectComponent(homeC1, "");
+        selectComponent(homeC1, "selecting componenet");
         createNewTemplate(usersTemplateName, "page1.html");
         selectArea(userA1);
-//        selectView(userV1);
+        selectComponent(userC1, homeC1, "reusing component's name from home page");
 
         //Re import layout into another project and check areas and views.
         String[] templatesToExport = new String[]{homeA1.getTemplateName(), userA1.getTemplateName()};
@@ -50,10 +61,9 @@ public class LayoutTests extends TemplateImporterRepository{
         templatesToExport = new String[]{homeA1.getTemplateName(), userA1.getTemplateName()};
         importLayout(exportedLayout, templatesToExport, softAssert);
         checkAreaImport(softAssert, homeA1);
-//        checkAreaImport(softAssert, homeV1);
         checkIfComponentSelected(homeC1, softAssert, true, "Component re-imported");
         checkAreaImport(softAssert, userA1);
-//        checkAreaImport(softAssert, userV1);
+        checkIfComponentSelected(userC1, softAssert, true, "Component re-imported");
 
         softAssert.assertAll();
     }
