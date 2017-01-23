@@ -5,9 +5,6 @@ import org.jahia.modules.templateimporter.tests.businessobjects.Area;
 import org.jahia.modules.templateimporter.tests.businessobjects.Component;
 import org.jahia.modules.tests.utils.SoftAssertWithScreenshot;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -17,7 +14,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Date;
 
 /**
  * Created by sergey on 2016-07-25.
@@ -31,80 +27,111 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         String definitionNameSpace = randomWord(3);
         String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
+        Area nestedArea = new Area(randomWord(1), homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
         Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
-        String expectedAreFileContentForComponent = "<template:area path=\""+homeC1.getAreaName()+"\" />";
-        String expectedViewFileContentForComponent = "<div  class=\"\"  >\n" +
-                "\t\t\tLevel 1-3\n" +
-                "\t\t\t<div   class=\"marginLeft \" >\n" +
-                "\t\t\t\tLevel 2-1\n" +
-                "\t\t\t\t<div   class=\"marginLeft\" >\n" +
-                "\t\t\t\t\tLevel 3-1\n" +
-                "\t\t\t\t\t<div   class=\"marginLeft\" >Level 4-1</div>\n" +
-                "\t\t\t\t</div>\n" +
+        String expectedPageFileContent = "\t\t<div >\n" +
+                "\t\t\t<a href=\"index.html\" >index</a>\n" +
+                "\t\t\t<a href=\"page1.html\" >Page 1</a>\n" +
+                "\t\t\t<a href=\"page2.html\" >Page 2</a>\n" +
+                "\t\t\t<a href=\"page3.html\" >Page 3</a>\n" +
+                "\t\t\t<h2 >Index</h2>\n" +
+                "\t\t\tLevel 1-1\n" +
+                "\t\t\t<div class=\"marginLeft \" ><template:module path=\""+homeA1.getName()+"\" /></div>\n" +
+                "\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\tLevel 2-2\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >Level 3-1</div>\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >Level 3-2</div>\n" +
                 "\t\t\t</div>\n" +
-                "\t\t</div>";
-        boolean homeA1FileContainsArea = false;
-        boolean homeV1FileContainsView = false;
+                "\t\t</div>\n" +
+                "\t\t<div >Level 1-2</div>\n" +
+                "\t\t<div class=\"\" ><template:module path=\""+homeC1.getAreaName()+"\"></template:module></div>\n" +
+                "\t\t<div >Level 1-4</div>\n";
+        String expectedViewFileContentForComponent = "\t\t\tLevel 1-3\n" +
+                "\t\t\t<div class=\"marginLeft \" >\n" +
+                "\t\t\t\tLevel 2-1\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\t\tLevel 3-1\n" +
+                "\t\t\t\t\t<div class=\"marginLeft\" >Level 4-1</div>\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t</div>";
+        String expectedFileContentForArea = "<div class=\"marginLeft \"><template:module path=\""+nestedArea.getName()+"\" /></div>";
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         selectArea(homeA1);
+        selectArea(nestedArea);
         selectComponent(homeC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
         File templateFile = checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
+        File areaFile = checkAreaFile(softAssert, sourceFolderPath, homeA1, moduleName, definitionNameSpace, nestedArea);
         boolean baseAreaOneFoundInTemplate = findTextInFile(templateFile, "<template:area path='baseContent'></template:area>");
+        boolean templateFileContainsBodyTag = findTextInFile(templateFile, "</body>");
+        templateFileContainsBodyTag = (templateFileContainsBodyTag && findTextInFile(templateFile, "<body >"));
+
+        if (areaFile != null) {
+            boolean nestedAreaFileContainsAreaTag = findTextInFile(areaFile, expectedFileContentForArea);
+            softAssert.assertTrue(
+                    nestedAreaFileContainsAreaTag,
+                    "JSP file for nested area is missing area tag (or contains unexpected characters)."
+            );
+        }else{
+            // No need to fail here, it is already failed in checkAreaFile() method.
+        }
         softAssert.assertTrue(
                 baseAreaOneFoundInTemplate,
                 "Base area not found in template JSP."
         );
-
-        File homeA1File = checkAreaFile(softAssert, sourceFolderPath, homeA1, moduleName, definitionNameSpace);
-        if(homeA1File != null) {
-            homeA1FileContainsArea = findTextInFile(homeA1File, "<template:area path='" + homeA1.getName() + "'/>");
-        }
         softAssert.assertTrue(
-                homeA1FileContainsArea,
-                "Home area JSP file misses area tag. Name: " + homeA1.getName() + ", XPath: " + homeA1.getXpath()
+                templateFileContainsBodyTag,
+                "Template.jsp does not contain <body> tag!"
         );
-//        File homeV1File = checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName, definitionNameSpace);
-//        if (homeV1File != null) {
-//            homeV1FileContainsView = findTextInFile(homeV1File, "<div class=\"marginLeft \"   >\n" +
-//                    "\t\t\t\t\tLevel 3-1\n" +
-//                    "\t\t\t\t\t<div class=\"marginLeft \"  >\n" +
-//                    "\t\t\t\t\t\tLevel 4-1\n" +
-//                    "\t\t\t\t\t\t<div class=\"marginLeft\"  >Level 5-1</div>\n" +
-//                    "\t\t\t\t\t</div>\n" +
-//                    "\t\t\t\t</div>");
-//        }
-//        softAssert.assertTrue(
-//                homeV1FileContainsView,
-//                "Home view JSP file misses html tags. Name: " + homeV1.getName() + ", XPath: " + homeV1.getXpath()
-//        );
-
+        checkPageFile(
+                softAssert,
+                sourceFolderPath,
+                homeA1.getTemplateName(),
+                moduleName,
+                definitionNameSpace,
+                expectedPageFileContent,
+                false
+        );
         checkComponentFiles(
                 softAssert,
                 sourceFolderPath,
                 homeC1,
-                moduleName, definitionNameSpace,
-                expectedAreFileContentForComponent,
+                moduleName,
+                definitionNameSpace,
                 expectedViewFileContentForComponent);
+        checkPageInPreview(
+                moduleName,
+                homeA1.getTemplateName(),
+                homeA1.getXpath(),
+                false,
+                softAssert,
+                "Empty area"
+        );
+        checkPageInPreview(
+                moduleName,
+                homeC1.getTemplateName(),
+                "/html/body/div[3][contains(., 'Level 1-3')]",
+                true,
+                softAssert,
+                "Component"
+        );
 
         softAssert.assertAll();
     }
 
-    @Test
+    /*@Test
     public void generateModuleWithAutoContinueTest(){
-        //TODO replace commented view with area or component
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "GenerateModuleTest.generateModuleWithAutoContinueTest");
         String projectName = randomWord(8);
         String moduleName = randomWord(10);
         String definitionNameSpace = randomWord(3);
         String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
-//        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
         Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
         String expectedAreFileContentForComponent = "<template:area path=\""+homeC1.getAreaName()+"\" />";
         String expectedViewFileContentForComponent = "<div  class=\"\"  >\n" +
@@ -143,20 +170,6 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 homeA1FileContainsArea,
                 "Home area JSP file misses area tag. Name: " + homeA1.getName() + ", XPath: " + homeA1.getXpath()
         );
-//        File homeV1File = checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName, definitionNameSpace);
-//        if (homeV1File != null) {
-//            homeV1FileContainsView = findTextInFile(homeV1File, "<div class=\"marginLeft \"   >\n" +
-//                    "\t\t\t\t\tLevel 3-1\n" +
-//                    "\t\t\t\t\t<div class=\"marginLeft \"  >\n" +
-//                    "\t\t\t\t\t\tLevel 4-1\n" +
-//                    "\t\t\t\t\t\t<div class=\"marginLeft\"  >Level 5-1</div>\n" +
-//                    "\t\t\t\t\t</div>\n" +
-//                    "\t\t\t\t</div>");
-//        }
-//        softAssert.assertTrue(
-//                homeV1FileContainsView,
-//                "Home view JSP file misses html tags. Name: " + homeV1.getName() + ", XPath: " + homeV1.getXpath()
-//        );
 
         checkComponentFiles(
                 softAssert,
@@ -177,7 +190,6 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         String definitionNameSpace = randomWord(3);
         String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
-//        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
         Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
         String expectedAreFileContentForComponent = "<template:area path=\""+homeC1.getAreaName()+"\" />";
         String expectedViewFileContentForComponent = "<div  class=\"\"  >\n" +
@@ -191,7 +203,6 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 "\t\t\t</div>\n" +
                 "\t\t</div>";
         boolean homeA1FileContainsArea = false;
-        boolean homeV1FileContainsView = false;
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
@@ -216,20 +227,6 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 homeA1FileContainsArea,
                 "Home area JSP file misses area tag. Name: " + homeA1.getName() + ", XPath: " + homeA1.getXpath()
         );
-//        File homeV1File = checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName, definitionNameSpace);
-//        if (homeV1File != null) {
-//            homeV1FileContainsView = findTextInFile(homeV1File, "<div class=\"marginLeft \"   >\n" +
-//                    "\t\t\t\t\tLevel 3-1\n" +
-//                    "\t\t\t\t\t<div class=\"marginLeft \"  >\n" +
-//                    "\t\t\t\t\t\tLevel 4-1\n" +
-//                    "\t\t\t\t\t\t<div class=\"marginLeft\"  >Level 5-1</div>\n" +
-//                    "\t\t\t\t\t</div>\n" +
-//                    "\t\t\t\t</div>");
-//        }
-//        softAssert.assertTrue(
-//                homeV1FileContainsView,
-//                "Home view JSP file misses html tags. Name: " + homeV1.getName() + ", XPath: " + homeV1.getXpath()
-//        );
 
         checkComponentFiles(
                 softAssert,
@@ -240,62 +237,148 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 expectedViewFileContentForComponent);
 
         softAssert.assertAll();
-    }
+    }*/
 
     @Test
     public void moduleWithUserCreatedTemplates(){
         SoftAssert softAssert = new SoftAssertWithScreenshot(getDriver(), "GenerateModuleTest.moduleWithUserCreatedTemplates");
         String projectName = randomWord(8);
         String moduleName = randomWord(10);
-        String definitionNameSpace = randomWord(5);
-        String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
-        String userCreatedTemplateName = randomWord(10);
+        String definitionNameSpace = randomWord(3);
+        String userCreatedTemplateName = randomWord(9);
         String pageForUserCreatedTemplate = "page3.html";
+        String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
         Area userA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, userCreatedTemplateName);
-//        View userV1 = new View(randomWord(10), "jnt:html", userA1.getXpath()+"/div[1]", 2, 0, userA1.getTemplateName());
+        Area userNestedArea = new Area(randomWord(1), userA1.getXpath()+"/div[1]", 2, 0, userA1.getTemplateName());
         Component userC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, userA1.getTemplateName());
-        String expectedAreFileContentForComponent = "<template:area path=\""+userC1.getAreaName()+"\" />";
-        String expectedViewFileContentForComponent = "<div  class=\"\"  >\n" +
+        String expectedUsersPageFileContent = "\t\t<div >\n" +
+                "\t\t\t<a href=\"index.html\" >index</a>\n" +
+                "\t\t\t<a href=\"page1.html\" >Page 1</a>\n" +
+                "\t\t\t<a href=\"page2.html\" >Page 2</a>\n" +
+                "\t\t\t<a href=\"page3.html\" >Page 3</a>\n" +
+                "\t\t\t<h2 >Page 3</h2>\n" +
+                "\t\t\tLevel 1-1\n" +
+                "\t\t\t<div class=\"marginLeft \" ><template:module path=\""+userA1.getName()+"\" /></div>\n" +
+                "\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\tLevel 2-2\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >Level 3-1</div>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t</div>\n" +
+                "\t\t<div >Level 1-2</div>\n" +
+                "\t\t<div class=\"\" ><template:module path=\""+userC1.getAreaName()+"\"></template:module></div>\n" +
+                "\t\t<div >Level 1-4</div>\n";
+        String expectedHomePageContent = "\t\t<div >\n" +
+                "\t\t\t<a href=\"index.html\" >index</a>\n" +
+                "\t\t\t<a href=\"page1.html\" >Page 1</a>\n" +
+                "\t\t\t<a href=\"page2.html\" >Page 2</a>\n" +
+                "\t\t\t<a href=\"page3.html\" >Page 3</a>\n" +
+                "\t\t\t<h2 >Index</h2>\n" +
+                "\t\t\tLevel 1-1\n" +
+                "\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\tLevel 2-1\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\t\tLevel 3-1\n" +
+                "\t\t\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\t\t\tLevel 4-1\n" +
+                "\t\t\t\t\t\t<div class=\"marginLeft\" >Level 5-1</div>\n" +
+                "\t\t\t\t\t</div>\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >Level 3-2</div>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\tLevel 2-2\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >Level 3-1</div>\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >Level 3-2</div>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t</div>\n" +
+                "\t\t<div >Level 1-2</div>\n" +
+                "\t\t<div >\n" +
                 "\t\t\tLevel 1-3\n" +
-                "\t\t</div>";
-        boolean userA1FileContainsArea = false;
-        boolean userV1FileContainsView = false;
+                "\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\tLevel 2-1\n" +
+                "\t\t\t\t<div class=\"marginLeft\" >\n" +
+                "\t\t\t\t\tLevel 3-1\n" +
+                "\t\t\t\t\t<div class=\"marginLeft\" >Level 4-1</div>\n" +
+                "\t\t\t\t</div>\n" +
+                "\t\t\t</div>\n" +
+                "\t\t</div>\n" +
+                "\t\t<div >Level 1-4</div>\n";
+        String expectedViewFileContentForComponent = "Level 1-3";
+        String expectedFileContentForArea = "<div class=\"marginLeft \"><template:module path=\""+userNestedArea.getName()+"\" /></div>";
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
-
         createNewTemplate(userCreatedTemplateName, pageForUserCreatedTemplate);
         selectArea(userA1);
-//        selectView(userV1);
+        selectArea(userNestedArea);
         selectComponent(userC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
                 isModuleStarted(moduleName),
                 "Module '"+moduleName+"' did not start after generation.");
-        checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
-        File userA1File = checkAreaFile(softAssert, sourceFolderPath, userA1, moduleName, definitionNameSpace);
-        if(userA1File != null) {
-            userA1FileContainsArea = findTextInFile(userA1File, "<template:area path='" + userA1.getName() + "'/>");
+        File templateFile = checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
+        File areaFile = checkAreaFile(softAssert, sourceFolderPath, userA1, moduleName, definitionNameSpace, userNestedArea);
+        boolean baseAreaOneFoundInTemplate = findTextInFile(templateFile, "<template:area path='baseContent'></template:area>");
+        boolean templateFileContainsBodyTag = (findTextInFile(templateFile, "</body>") && findTextInFile(templateFile, "<body >"));
+
+        if (areaFile != null) {
+            boolean nestedAreaFileContainsAreaTag = findTextInFile(areaFile, expectedFileContentForArea);
+            softAssert.assertTrue(
+                    nestedAreaFileContainsAreaTag,
+                    "JSP file for nested area is missing area tag (or contains unexpected characters)."
+            );
+        }else{
+            // No need to fail here, it is already failed in checkAreaFile() method.
         }
         softAssert.assertTrue(
-                userA1FileContainsArea,
-                "User template area JSP file misses area tag. Name: " + userA1.getName() + ", XPath: " + userA1.getXpath()
+                baseAreaOneFoundInTemplate,
+                "Base area not found in template JSP."
         );
-//        File userV1File = checkViewFile(softAssert, sourceFolderPath, userV1, moduleName, definitionNameSpace);
-//        if (userV1File != null) {
-//            userV1FileContainsView = findTextInFile(userV1File, "<div   class=\"marginLeft \" >Level 3-2</div>");
-//        }
-//        softAssert.assertTrue(
-//                userV1FileContainsView,
-//                "User template view JSP file misses html tags. Name: " + userV1.getName() + ", XPath: " + userV1.getXpath()
-//        );
+        softAssert.assertTrue(
+                templateFileContainsBodyTag,
+                "Template.jsp does not contain <body> tag! Reopen MOD-1664."
+        );
+        checkPageFile(
+                softAssert,
+                sourceFolderPath,
+                userA1.getTemplateName(),
+                moduleName,
+                definitionNameSpace,
+                expectedUsersPageFileContent,
+                false
+        );
+        checkPageFile(
+                softAssert,
+                sourceFolderPath,
+                "home",
+                moduleName,
+                definitionNameSpace,
+                expectedHomePageContent,
+                false
+        );
         checkComponentFiles(
                 softAssert,
                 sourceFolderPath,
                 userC1,
-                moduleName, definitionNameSpace,
-                expectedAreFileContentForComponent,
+                moduleName,
+                definitionNameSpace,
                 expectedViewFileContentForComponent);
+        checkPageInPreview(
+                moduleName,
+                userA1.getTemplateName(),
+                userA1.getXpath(),
+                false,
+                softAssert,
+                "Empty area"
+        );
+        checkPageInPreview(
+                moduleName,
+                userC1.getTemplateName(),
+                "/html/body/div[3][contains(., 'Level 1-3')]",
+                true,
+                softAssert,
+                "Component"
+        );
 
         softAssert.assertAll();
     }
@@ -319,14 +402,12 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 "subfolder"
         };
         Area userA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, userCreatedTemplateName);
-//        View userV1 = new View(randomWord(10), "jnt:html", userA1.getXpath()+"/div[1]", 2, 0, userA1.getTemplateName());
         Component userC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, userA1.getTemplateName());
 
         importProject("en", projectName, "", "Assets.zip");
         openProjectFirstTime(projectName, "index.html");
         createNewTemplate(userCreatedTemplateName, pageForUserCreatedTemplate);
         selectArea(userA1);
-//        selectView(userV1);
         selectComponent(userC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
@@ -334,9 +415,6 @@ public class GenerateModuleTest extends TemplateImporterRepository{
                 "Module '"+moduleName+"' did not start after generation.");
         checkFolderInModulesResources(softAssert, sourceFolderPath, folderWithAssetsName, false, expectedItemsInAssetsFolder, moduleName);
         checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, userA1, moduleName, definitionNameSpace);
-//        checkViewFile(softAssert, sourceFolderPath, userV1, moduleName, definitionNameSpace);
-        checkAreaFileForComponent(softAssert, sourceFolderPath, userC1, moduleName, definitionNameSpace);
         checkViewFileForComponent(softAssert, sourceFolderPath, userC1, moduleName, definitionNameSpace);
 
         softAssert.assertAll();
@@ -350,36 +428,33 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         String definitionNameSpace = randomWord(3);
         String sourceFolderPath = new File(getDownloadsFolder()).getAbsolutePath()+"/"+randomWord(10);
         Area homeA1 = new Area(randomWord(4), "//body/div[1]//div[contains(., 'Level 2-1')]", 2, 0, "home");
-//        View homeV1 = new View(randomWord(10), "jnt:html", homeA1.getXpath()+"/div[1]", 2, 0, homeA1.getTemplateName());
         Component homeC1 = new Component(randomWord(2), randomWord(6), randomWord(6), "/html/body/div[3]", 2, 0, homeA1.getTemplateName());
 
         importProject("en", projectName, "", "AlexLevels.zip");
         openProjectFirstTime(projectName, "index.html");
         selectArea(homeA1);
-//        selectView(homeV1);
         selectComponent(homeC1, "");
         generateModule(moduleName, definitionNameSpace, sourceFolderPath, true);
         softAssert.assertTrue(
                 isModuleStarted(moduleName.toLowerCase().replace(" ", "-")),
                 "Module '"+moduleName+"' did not start after generation.");
         checkJntTemplateFileExist(softAssert, sourceFolderPath, moduleName);
-        checkAreaFile(softAssert, sourceFolderPath, homeA1, moduleName, definitionNameSpace);
-//        checkViewFile(softAssert, sourceFolderPath, homeV1, moduleName, definitionNameSpace);
-        checkAreaFileForComponent(softAssert, sourceFolderPath, homeC1, moduleName, definitionNameSpace);
+//        checkAreaFile(softAssert, sourceFolderPath, homeA1, moduleName, definitionNameSpace);
+//        checkAreaFileForComponent(softAssert, sourceFolderPath, homeC1, moduleName, definitionNameSpace);
         checkViewFileForComponent(softAssert, sourceFolderPath, homeC1, moduleName, definitionNameSpace);
 
         softAssert.assertAll();
     }
 
 
-    /**
-     * Click on 'Generate module', fill in all the fields, click create or cancel
-     * @param moduleName String, Module name
-     * @param definitionNameSpace String Definition name space
-     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
-     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
-     */
-    protected void generateModuleAutoContinue(String    moduleName,
+//    /**
+//     * Click on 'Generate module', fill in all the fields, click create or cancel
+//     * @param moduleName String, Module name
+//     * @param definitionNameSpace String Definition name space
+//     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
+//     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
+//     */
+ /*   protected void generateModuleAutoContinue(String    moduleName,
                                               String    definitionNameSpace,
                                               String    sourcesFolder,
                                               boolean   reallyGenerate){
@@ -472,17 +547,16 @@ public class GenerateModuleTest extends TemplateImporterRepository{
             clickOn(cancelBtn);
             waitForElementToBeInvisible(cancelBtn);
         }
-    }
+    }*/
 
-
-    /**
-     * Click on 'Generate module', fill in all the fields, click create or cancel
-     * @param moduleName String, Module name
-     * @param definitionNameSpace String Definition name space
-     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
-     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
-     */
-    protected void generateModuleManualAndAutoContinue(String    moduleName,
+//    /**
+//     * Click on 'Generate module', fill in all the fields, click create or cancel
+//     * @param moduleName String, Module name
+//     * @param definitionNameSpace String Definition name space
+//     * @param sourcesFolder String, absolute path to folder where you want your modulu's sources
+//     * @param reallyGenerate true to click 'Create', false to click 'Cancel' after all fields are filled.
+//     */
+   /* protected void generateModuleManualAndAutoContinue(String    moduleName,
                                               String    definitionNameSpace,
                                               String    sourcesFolder,
                                               boolean   reallyGenerate){
@@ -572,7 +646,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
             clickOn(cancelBtn);
             waitForElementToBeInvisible(cancelBtn);
         }
-    }
+    }*/
 
     protected File checkJntTemplateFileExist(SoftAssert   softAssert,
                                              String       sourceFolderPath,
@@ -600,11 +674,12 @@ public class GenerateModuleTest extends TemplateImporterRepository{
 
     protected File checkAreaFile(SoftAssert softAssert,
                                  String sourceFolderPath,
-                                 Area area,
+                                 Area   area,
                                  String moduleName,
-                                 String definitionNameSpace){
-        String areaFileName = "dsLayoutComponent."+area.getTemplateName()+"_"+area.getName()+".jsp";
-        String areaFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+definitionNameSpace+"nt_dsLayoutComponent/html";
+                                 String definitionNameSpace,
+                                 Area   nestedArea){
+        String areaFileName = "dsSiteLayoutComponent."+area.getName()+"_"+nestedArea.getName()+".jsp";
+        String areaFolderPath = sourceFolderPath+"/"+moduleName.toLowerCase().replace(" ", "-")+"/src/main/resources/"+definitionNameSpace+"nt_dsSiteLayoutComponent/html";
         boolean areaFileExist = false;
 
         File[] files = findFilesOrDirectories(areaFolderPath, areaFileName, "jsp");
@@ -616,7 +691,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         }
         softAssert.assertTrue(
                 areaFileExist,
-                "jsp file for "+area.getName()+" area not found. Expected file name: '"+areaFileName+"'. Expected path: "+areaFolderPath
+                "jsp file for '"+area.getName()+"' area not found. Expected file name: '"+areaFileName+"'. Expected path: "+areaFolderPath
         );
         if (areaFileExist) {
             return files[0];
@@ -625,7 +700,7 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         }
     }
 
-    protected File checkAreaFileForComponent(SoftAssert softAssert,
+    /*protected File checkAreaFileForComponent(SoftAssert softAssert,
                                              String sourceFolderPath,
                                              Component component,
                                              String moduleName,
@@ -650,25 +725,15 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         } else {
             return null;
         }
-    }
+    }*/
 
     protected void checkComponentFiles(SoftAssert softAssert,
                                        String sourceFolderPath,
                                        Component component,
                                        String moduleName,
                                        String definitionNameSpace,
-                                       String expectedAreaFileContent,
                                        String expectedViewFileContent){
-        boolean componentsAreaFileContainsArea = false;
         boolean componentsViewFileContainsView = false;
-        File componentsAreaFile = checkAreaFileForComponent(softAssert, sourceFolderPath, component, moduleName, definitionNameSpace);
-        if(componentsAreaFile != null) {
-            componentsAreaFileContainsArea = findTextInFile(componentsAreaFile, expectedAreaFileContent);
-        }
-        softAssert.assertTrue(
-                componentsAreaFileContainsArea,
-                "Component's area JSP file misses area tag. Component Name: " + component.getName() + ", Area name: '"+component.getAreaName()+"', XPath: " + component.getXpath()
-        );
         File componentsViewFile = checkViewFileForComponent(softAssert, sourceFolderPath, component, moduleName, definitionNameSpace);
         if (componentsViewFile != null) {
             componentsViewFileContainsView = findTextInFile(componentsViewFile, expectedViewFileContent);
@@ -705,6 +770,58 @@ public class GenerateModuleTest extends TemplateImporterRepository{
         } else {
             return null;
         }
+    }
+
+    protected void checkPageFile(SoftAssert softAssert,
+                                 String sourceFolderPath,
+                                 String pageTemplateName,
+                                 String moduleName,
+                                 String definitioNameSpace,
+                                 String expectedFileContent,
+                                 boolean shouldContainBodyTag) {
+        String pageFileFolderPath = sourceFolderPath + "/" + moduleName.toLowerCase().replace(" ", "-") + "/src/main/resources/" + definitioNameSpace + "nt_dsLayoutComponent/html";
+
+        String pageFileFileName = "dsLayoutComponent." + pageTemplateName + "_pagehtml.jsp";
+        boolean pageFileExist = false;
+
+        File[] files = findFilesOrDirectories(pageFileFolderPath, pageFileFileName, "jsp");
+        if (files != null &&
+                files.length > 0 &&
+                files[0].exists() &&
+                files[0].isFile()) {
+            pageFileExist = true;
+        }
+        softAssert.assertTrue(
+                pageFileExist,
+                "jsp file for " + pageTemplateName + " page file not found. Expected file name: '" + pageFileFileName + "'. Expected path: " + pageFileFolderPath
+        );
+        if (pageFileExist) {
+            boolean pageFileContantIsOk = findTextInFile(files[0], expectedFileContent);
+            softAssert.assertTrue(pageFileContantIsOk,
+                    "jsp file for pagefile '" + pageTemplateName + "' is missing some content (or has unexpected characters).");
+            if(shouldContainBodyTag){
+                boolean pageFileContainsBodyTag = (findTextInFile(files[0], "</body>") && findTextInFile(files[0], "<body >"));
+                softAssert.assertEquals(pageFileContainsBodyTag, shouldContainBodyTag, "Unexpected / missing body tag in jsp file for pagefile '" + pageTemplateName + "'.");
+            }
+        }
+    }
+
+    protected void checkPageInPreview(String    moduleName,
+                                      String    pageName,
+                                      String    xPath,
+                                      boolean   expectedResult,
+                                      SoftAssert    softAssert,
+                                      String    errorMsg){
+        String pagePath;
+        if (pageName.equals("home")){
+            pagePath = "home";
+        }else{
+            pagePath = "home/"+pageName;
+        }
+        getDriver().get(getBaseURL()+"/cms/render/default/en/sites/mySite_"+moduleName+"/"+pagePath+".html");
+        softAssert.assertEquals(isVisible(By.xpath(xPath), 2),
+                expectedResult,
+                errorMsg+ ". In preview, element with xPath '"+xPath+"' has unexpected visibility on '"+pageName+"' after module generation.");
     }
 
     protected boolean findTextInFile(File file,

@@ -239,8 +239,10 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
             WebElement pageOption = findByXpath("//md-option[@value='" + pageFileName + "']");
             softAssert.assertNotNull(pageOption, "Page with filename '" + pageFileName + "' is not available for selection");
             waitForElementToBeEnabled(pageOption, 5);
+            waitForElementToStopMoving(pageOption);
             clickOn(pageOption);
         }
+        waitForElementToBeVisible(templateNameField);
         typeInto(templateNameField, templateName);
         shortSleep(); //Handling validation delay
         nameFieldShowsError = templateNameField.getAttribute("class").contains("ng-invalid-");

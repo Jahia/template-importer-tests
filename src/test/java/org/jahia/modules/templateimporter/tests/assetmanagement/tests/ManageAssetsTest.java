@@ -66,24 +66,6 @@ public class ManageAssetsTest extends TemplateImporterRepository{
         softAssert.assertAll();
     }
 
-    private void expandFolder(String    column,
-                              String    folderName){
-        WebElement expandBtn = findByXpath("//div[./md-toolbar[.//h5[text()='"+column+"']]]//li[./strong[text()='"+folderName+"']]" +
-                "/span[@ng-click='amc.toggleFolder(list, $index, item.assetPath, item.assetName)']");
-        Assert.assertNotNull(expandBtn, "Expand button not found for item: '"+folderName+"' in clumn:'"+column+"'.");
-        clickOn(expandBtn);
-        waitForElementToBeInvisible(expandBtn, 5);
-    }
-
-    private void shrinkFolder(String    column,
-                              String    folderName){
-        WebElement shrinkBtn = findByXpath("//div[./md-toolbar[.//h5[text()='"+column+"']]]" +
-                "//li[.//strong[text()='"+folderName+"']]/div/span[@ng-click='amc.toggleFolder(list, $index, item.assetPath, item.assetName)']");
-        Assert.assertNotNull(shrinkBtn, "Expand button not found for item: '"+folderName+"' in clumn:'"+column+"'.");
-        clickOn(shrinkBtn);
-        waitForElementToBeInvisible(shrinkBtn, 5);
-    }
-
     private void openAssetsManagement() {
         WebElement menuBtn = findByXpath("//md-icon[text()='settings']/ancestor::button");
         clickOn(menuBtn);

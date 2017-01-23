@@ -160,6 +160,7 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToBeEnabled(pageOption, 5);
         waitForElementToStopMoving(pageOption);
         clickOn(pageOption);
+        waitForElementToBeVisible(templateNameField);
         typeInto(templateNameField, templateName);
         waitForElementToBeEnabled(createBtn, 5);
         clickOn(createBtn);
@@ -229,8 +230,12 @@ public class TemplateImporterRepository extends ModuleTest {
                 "removeAllProjects();";
 
         executeScriptWithJavascript(jsToDeleteProjects);
-        waitForGlobalSpinner(2, 60);
-        shortSleep();
+        List <WebElement> spinners = findElementsByXpath("//div[@class='md-scroll-mask']|//div[contains(@class, 'md-dialog-container')]|//md-card");
+        for (WebElement elementToWait : spinners) {
+            if (elementToWait != null) {
+                waitForElementToBeInvisible(elementToWait, 10);
+            }
+        }
     }
 
     /**
@@ -847,8 +852,8 @@ public class TemplateImporterRepository extends ModuleTest {
      * AfterClass method, deletes all projects, clean Downloads folder.
      */
     protected void customTestCleanUp(){
-//        goToProjectsList("en");
-//        deleteAllProjectsFast();
-//        cleanDownloadsFolder();
+        goToProjectsList("en");
+        deleteAllProjectsFast();
+        cleanDownloadsFolder();
     }
 }
