@@ -157,19 +157,23 @@ public class TemplateImporterRepository extends ModuleTest {
         waitForElementToStopMoving(pageSelectDropdown);
         clickOn(pageSelectDropdown);
         WebElement pageOption = findByXpath("//md-option[@value='"+pageFileName+"']");
+        List<WebElement> options = findElementsByXpath("//md-option");
         waitForElementToBeEnabled(pageOption, 5);
         waitForElementToStopMoving(pageOption);
         clickOn(pageOption);
+        for(WebElement option:options){
+            waitForElementToBeInvisible(option, 1);
+        }
         waitForElementToBeVisible(templateNameField);
         typeInto(templateNameField, templateName);
         waitForElementToBeEnabled(createBtn, 5);
         clickOn(createBtn);
         waitForGlobalSpinner(1, 30);
         waitForElementToBeInvisible(createBtn);
-        shortSleep();
 
         WebElement newTemplateTab = findByXpath("//ti-tab[contains(., '"+templateName+"')]");
         Assert.assertNotNull(newTemplateTab, "Cannot find tab with new template name '"+templateName+"' after creating new template.");
+        shortSleep();
         switchToProjectFrame();
         WebElement body = findByXpath("//body");
         waitForElementToStopMoving(body);

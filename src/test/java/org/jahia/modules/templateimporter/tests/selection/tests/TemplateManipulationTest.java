@@ -9,6 +9,8 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
+import java.util.List;
+
 /**
  * Created by sergey on 2016-07-12.
  */
@@ -237,10 +239,14 @@ public class TemplateManipulationTest extends TemplateImporterRepository{
             waitForElementToStopMoving(pageSelectDropdown);
             clickOn(pageSelectDropdown);
             WebElement pageOption = findByXpath("//md-option[@value='" + pageFileName + "']");
+            List<WebElement> options = findElementsByXpath("//md-option");
             softAssert.assertNotNull(pageOption, "Page with filename '" + pageFileName + "' is not available for selection");
             waitForElementToBeEnabled(pageOption, 5);
             waitForElementToStopMoving(pageOption);
             clickOn(pageOption);
+            for(WebElement option:options){
+                waitForElementToBeInvisible(option, 1);
+            }
         }
         waitForElementToBeVisible(templateNameField);
         typeInto(templateNameField, templateName);
