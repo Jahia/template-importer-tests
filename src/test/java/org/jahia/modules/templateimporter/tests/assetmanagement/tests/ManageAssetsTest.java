@@ -35,8 +35,8 @@ public class ManageAssetsTest extends TemplateImporterRepository{
                 "cat.GIF",
                 "acid.svg",
                 "proper2.tif",
-                "proper.jpg",
-                "песочница-космонавт-котэ-165601 copy"
+                "proper.jpg"
+//                "песочница-космонавт-котэ-165601 copy" //disabled due to TC build agent bug. https://youtrack.jetbrains.com/issue/TW-48478
         };
         String[] javascriptFolderExpectedContent = {
                 "filename with spaces.js",
